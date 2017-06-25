@@ -45,4 +45,8 @@ public class MsgHandle_Rover extends QActor implements IMsgQueue{
 //		println(getName() + " getMsgFromQueue: " + msg  );
 		return msg;
 	}
+	@Override
+	public int  getSizeOfMsgQueue( ){
+		return msgQueue.size();
+	}
 }

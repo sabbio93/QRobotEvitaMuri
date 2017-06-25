@@ -2,51 +2,73 @@
  * ==============================================================
  * radargui.qa       
  * ==============================================================
- */        
-RobotSystem model0              
+ */
+RobotSystem model0
 
 Event data : distanza(X, d(D))
 Event stop : stop()
 Event cmd : cmd(X)
 
-Context  ctxRover  ip [ host="192.168.251.1"  port=8070 ] -httpserver
-Context  ctxSonarArrivo    ip [ host="192.168.251.3"  port=8035 ]   
+Context ctxRover ip [host="localhost" port=8070] -httpserver	//192.168.251.1
+Context ctxSonarArrivo ip [host="localhost" port=8035]	//192.168.251.3
 
-QActor sonarb context ctxSonarArrivo  {
+QActor sonarb context ctxSonarArrivo {
 	Rules {
 		// se rilevo qualcosa sotto i 100 cm allora il robot è arrivato
 		checkroverarrivato( D,A ) :- eval( lt, D, 100 ), !, assert( arrivato(rover) ).
 		checkroverarrivato( D,A ).
+		unity.
 	}
 	/* Il sonar ciclicamente emette un evento contenente 
 	 * la distanza che rileva, questa viene utilizzata per verificare
 	 * se il rover è passato, dunque arrivato al punto B
 	 */
-	Plan init normal     
-		println("ctxSonarArrivo Inizio")	;
-		actorOp initSonar ;
-		switchToPlan rileva  
+	Plan init normal
+		println("ctxSonarArrivo Inizio");
+		//actorOp workWithUnity("localhost");
+		actorOp initSonar;
+		[!?unity] delay time(100000);///////////
+		switchToPlan rileva
 	Plan rileva resumeLastPlan
-		onEvent data : distanza(X, d(D)) -> demo checkroverarrivato( D, X);
-	 	[ ?? arrivato(rover)  ] emit stop : stop();
+		onEvent data : distanza(X, d(D)) -> demo checkroverarrivato(D, X);
+	 	[?? arrivato(rover)] emit stop : stop();
 		repeatPlan
 }
 
-Robot mock QActor rover context ctxRover {	 
+Robot mock QActor rover context ctxRover {
+	Rules {
+		unity.
+	}
+	Plan init normal
+		println("INIZIO");
+		[!?unity] switchToPlan initUnity;
+		switchToPlan attesa
+		
+	Plan initUnity
+		actorOp workWithUnity("localhost");
+		println("Connesso a Unity");
+		actorOp initPosition;//createSimulatedActor("rover","Prefabs/CustomActor","-25","0","10","0","0","0","0");//,0,0,10,0,0,0,90);
+		robotRight speed(100) time(2000);
+		println("Inizializzazione Unity completata")
 	/*
 	 * R2: Il robot comincia a muoversi alla pressione del tasto start
 	 */
-	Plan init normal        
+	Plan attesa
 		sense time(600000) cmd -> continue;
-		[??cmd(start)] switchToPlan traversata;
+		printCurrentEvent;
+		onEvent cmd:cmd(X)->println(ricevuto_comando(X));
+		onEvent cmd:cmd(start)->switchToPlan traversata;
+		//[!?cmd(X)] println("ricevuto comando X");
+		//[??cmd(start)] switchToPlan traversata;
 		repeatPlan
 
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
-	 */		
+	 */
   	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(100) time(600000) react event stop -> fermaRobot
+		robotForward speed(1) time(60) react event stop -> fermaRobot
+		//robotForward speed(100) time(600000) react event stop -> fermaRobot
  	
  	Plan fermaRobot resumeLastPlan
  		println("Stop requested");
