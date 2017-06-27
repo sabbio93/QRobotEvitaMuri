@@ -136,9 +136,6 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about sonarb
 %------------------------------------------------- 
-checkroverarrivato( D,A):-eval( lt,D,100), ! ,assert( arrivato( rover)).
-checkroverarrivato( D,A).
-unity.
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),

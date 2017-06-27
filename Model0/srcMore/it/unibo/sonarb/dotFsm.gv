@@ -11,12 +11,13 @@ digraph finite_state_machine {
   	rankdir=LR;
   	size="8,5"
   	node [shape = point]; iniziale;
-  	node [shape = doublecircle]; 
+  	node [shape = doublecircle]; rileva; 
   	node [shape = circle];
   	iniziale -> init [label = ""];
   	
   	
+  	init -> attesa [ label = ""];
   	init -> rileva [ label = ""];
   	
-  	rileva -> rileva [ label = "distanza(X,d(D))/"];
+  	rileva -> rileva [ label = ""];
 }

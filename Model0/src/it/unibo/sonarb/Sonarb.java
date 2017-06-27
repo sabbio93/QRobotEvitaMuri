@@ -18,9 +18,13 @@ public class Sonarb extends AbstractSonarb {
 	public void doWorkSonarMock(){
 		try {
 			Thread.sleep(9000);
-		} catch (InterruptedException e) {}
+			println("passati 9 s");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		//emetto evento terminazione
-		super.emit("data","distanza(B, d(42))");
+		emit("data","distanza(B, d(42))");
+		println("rover rilevato sulla linea d'arrivo");
 	}
 	
 }

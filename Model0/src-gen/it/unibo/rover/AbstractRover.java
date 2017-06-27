@@ -149,6 +149,7 @@ protected IActorAction  action;
     		    } 			
     		temporaryStr = "\"Inizializzazione Unity completata\"";
     		println( temporaryStr );  
+    		returnValue = continueWork;  
     break;
     }//while
     return returnValue;
@@ -213,8 +214,8 @@ protected IActorAction  action;
     		temporaryStr = "\"Inizio traversata\"";
     		println( temporaryStr );  
     		//forward
-    		//if( ! execRobotMove("traversata","forward",1,0,60, "stop" , "fermaRobot") ) break;
-    		    aar = execRobotMove("traversata","forward",1,0,60, "stop" , "fermaRobot");
+    		//if( ! execRobotMove("traversata","forward",100,0,600000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("traversata","forward",100,0,600000, "stop" , "fermaRobot");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "traversata";
     		    	if( ! aar.getGoon() ) break;
@@ -246,7 +247,6 @@ protected IActorAction  action;
     		    	curPlanInExec   = "fermaRobot";
     		    	if( ! aar.getGoon() ) break;
     		    } 			
-    		returnValue = continueWork;  
     break;
     }//while
     return returnValue;
