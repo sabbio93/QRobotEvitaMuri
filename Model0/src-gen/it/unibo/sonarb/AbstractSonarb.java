@@ -82,6 +82,12 @@ public abstract class AbstractSonarb extends QActor {
 	    			 	 	pengine.solve(gg+".");			
 	    		}
 	    		
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?unity" )) != null ){
+	    		//delay
+	    		aar = delayReactive(100000,"" , "");
+	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
+	    		if( ! aar.getGoon() ) break;
+	    		}
 	    		if( ! planUtils.switchToPlan("rileva").getGoon() ) break;
 	    break;
 	    }//while

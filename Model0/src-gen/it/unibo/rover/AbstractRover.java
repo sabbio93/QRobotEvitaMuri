@@ -81,6 +81,91 @@ protected IActorAction  action;
     while(true){
     	curPlanInExec =  "init";	//within while since it can be lost by switchlan
     	nPlanIter++;
+    		temporaryStr = "\"INIZIO\"";
+    		println( temporaryStr );  
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?unity" )) != null ){
+    		if( ! planUtils.switchToPlan("initUnity").getGoon() ) break;
+    		}
+    		if( ! planUtils.switchToPlan("attesa").getGoon() ) break;
+    break;
+    }//while
+    return returnValue;
+    }catch(Exception e){
+       //println( getName() + " plan=init WARNING:" + e.getMessage() );
+       QActorContext.terminateQActorSystem(this); 
+       return false;  
+    }
+    }
+    public boolean initUnity() throws Exception{	//public to allow reflection
+    try{
+    	int nPlanIter = 0;
+    	//curPlanInExec =  "initUnity";
+    	boolean returnValue = suspendWork;		//MARCHH2017
+    while(true){
+    	curPlanInExec =  "initUnity";	//within while since it can be lost by switchlan
+    	nPlanIter++;
+    		//parg = "actorOp(workWithUnity(\"localhost\"))"; //JUNE2017
+    		parg = "workWithUnity(\"localhost\")";
+    		//ex solveGoalReactive JUNE2017
+    		aar = actorOpExecuteReactive(parg,3600000,"","");
+    		//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
+    		if( aar.getInterrupted() ){
+    			curPlanInExec   = "initUnity";
+    			if( aar.getTimeRemained() <= 0 ) addRule("tout(actorOp,"+getName()+")");
+    			if( ! aar.getGoon() ) break;
+    		} 			
+    		else{
+    		//Store actorOpDone with the result
+    		 	String gg = "storeActorOpResult( X, Y )".replace("X", parg).replace("Y",aar.getResult() );
+    		 	//System.out.println("actorOpExecute gg=" + gg );
+    			 	 	pengine.solve(gg+".");			
+    		}
+    		
+    		temporaryStr = "\"Connesso a Unity\"";
+    		println( temporaryStr );  
+    		//parg = "actorOp(initPosition)"; //JUNE2017
+    		parg = "initPosition";
+    		//ex solveGoalReactive JUNE2017
+    		aar = actorOpExecuteReactive(parg,3600000,"","");
+    		//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
+    		if( aar.getInterrupted() ){
+    			curPlanInExec   = "initUnity";
+    			if( aar.getTimeRemained() <= 0 ) addRule("tout(actorOp,"+getName()+")");
+    			if( ! aar.getGoon() ) break;
+    		} 			
+    		else{
+    		//Store actorOpDone with the result
+    		 	String gg = "storeActorOpResult( X, Y )".replace("X", parg).replace("Y",aar.getResult() );
+    		 	//System.out.println("actorOpExecute gg=" + gg );
+    			 	 	pengine.solve(gg+".");			
+    		}
+    		
+    		//right
+    		//if( ! execRobotMove("initUnity","right",100,0,2000, "" , "") ) break;
+    		    aar = execRobotMove("initUnity","right",100,0,2000, "" , "");
+    		    if( aar.getInterrupted() ){
+    		    	curPlanInExec   = "initUnity";
+    		    	if( ! aar.getGoon() ) break;
+    		    } 			
+    		temporaryStr = "\"Inizializzazione Unity completata\"";
+    		println( temporaryStr );  
+    break;
+    }//while
+    return returnValue;
+    }catch(Exception e){
+       //println( getName() + " plan=initUnity WARNING:" + e.getMessage() );
+       QActorContext.terminateQActorSystem(this); 
+       return false;  
+    }
+    }
+    public boolean attesa() throws Exception{	//public to allow reflection
+    try{
+    	int nPlanIter = 0;
+    	//curPlanInExec =  "attesa";
+    	boolean returnValue = suspendWork;		//MARCHH2017
+    while(true){
+    	curPlanInExec =  "attesa";	//within while since it can be lost by switchlan
+    	nPlanIter++;
     		//senseEvent
     		aar = planUtils.senseEvents( 600000,"cmd","continue",
     		"" , "",ActionExecMode.synch );
@@ -88,15 +173,31 @@ protected IActorAction  action;
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??cmd(start)" )) != null ){
-    		if( ! planUtils.switchToPlan("traversata").getGoon() ) break;
-    		}
+    		printCurrentEvent(false);
+    		//onEvent
+    		if( currentEvent.getEventId().equals("cmd") ){
+    		 		String parg = "ricevuto_comando(X)";
+    		 		/* Print */
+    		 		parg =  updateVars( Term.createTerm("cmd(X)"), Term.createTerm("cmd(X)"), 
+    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+    		 			if( parg != null ) println( parg );  
+    		 }
+    		//onEvent
+    		if( currentEvent.getEventId().equals("cmd") ){
+    		 		String parg = "";
+    		 		/* SwitchPlan */
+    		 		parg =  updateVars(  Term.createTerm("cmd(X)"), Term.createTerm("cmd(start)"), 
+    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+    		 			if( parg != null ){
+    		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
+    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
+    		 }
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
     break;
     }//while
     return returnValue;
     }catch(Exception e){
-       //println( getName() + " plan=init WARNING:" + e.getMessage() );
+       //println( getName() + " plan=attesa WARNING:" + e.getMessage() );
        QActorContext.terminateQActorSystem(this); 
        return false;  
     }
@@ -112,8 +213,8 @@ protected IActorAction  action;
     		temporaryStr = "\"Inizio traversata\"";
     		println( temporaryStr );  
     		//forward
-    		//if( ! execRobotMove("traversata","forward",100,0,600000, "stop" , "fermaRobot") ) break;
-    		    aar = execRobotMove("traversata","forward",100,0,600000, "stop" , "fermaRobot");
+    		//if( ! execRobotMove("traversata","forward",1,0,60, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("traversata","forward",1,0,60, "stop" , "fermaRobot");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "traversata";
     		    	if( ! aar.getGoon() ) break;

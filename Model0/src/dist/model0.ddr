@@ -2,17 +2,17 @@
  * ==============================================================
  * radargui.qa       
  * ==============================================================
- */        
-RobotSystem model0              
+ */
+RobotSystem model0
 
 Event data : distanza(X, d(D))
 Event stop : stop()
 Event cmd : cmd(X)
 
-Context  ctxRover  ip [ host="192.168.251.1"  port=8070 ] -httpserver
-Context  ctxSonarArrivo    ip [ host="192.168.251.3"  port=8035 ]   
+Context ctxRover ip [host="192.168.251.1" port=8070] -httpserver
+Context ctxSonarArrivo ip [host="192.168.251.3" port=8035]
 
-QActor sonarb context ctxSonarArrivo  {
+QActor sonarb context ctxSonarArrivo {
 	Rules {
 		// se rilevo qualcosa sotto i 100 cm allora il robot è arrivato
 		checkroverarrivato( D,A ) :- eval( lt, D, 100 ), !, assert( arrivato(rover) ).
@@ -23,12 +23,12 @@ QActor sonarb context ctxSonarArrivo  {
 	 * se il rover è passato, dunque arrivato al punto B
 	 */
 	Plan init normal     
-		println("ctxSonarArrivo Inizio")	;
-		actorOp initSonar ;
-		switchToPlan rileva  
+		println("ctxSonarArrivo Inizio");
+		actorOp initSonar;
+		switchToPlan rileva
 	Plan rileva resumeLastPlan
-		onEvent data : distanza(X, d(D)) -> demo checkroverarrivato( D, X);
-	 	[ ?? arrivato(rover)  ] emit stop : stop();
+		onEvent data : distanza(X, d(D)) -> demo checkroverarrivato(D, X);
+	 	[?? arrivato(rover)] emit stop : stop();
 		repeatPlan
 }
 
@@ -36,14 +36,14 @@ Robot mock QActor rover context ctxRover {
 	/*
 	 * R2: Il robot comincia a muoversi alla pressione del tasto start
 	 */
-	Plan init normal        
+	Plan init normal    
 		sense time(600000) cmd -> continue;
 		[??cmd(start)] switchToPlan traversata;
 		repeatPlan
 
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
-	 */		
+	 */
   	Plan traversata resumeLastPlan
 		println("Inizio traversata");
 		robotForward speed(100) time(600000) react event stop -> fermaRobot
