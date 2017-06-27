@@ -63,8 +63,6 @@ public abstract class AbstractSonarb extends QActor {
 	    while(true){
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
-	    		temporaryStr = "\"ctxSonarArrivo Inizio\"";
-	    		println( temporaryStr );  
 	    		if( ! planUtils.switchToPlan("attesa").getGoon() ) break;
 	    		temporaryStr = "\"è iniziato\"";
 	    		println( temporaryStr );  
@@ -145,10 +143,36 @@ public abstract class AbstractSonarb extends QActor {
 	    while(true){
 	    	curPlanInExec =  "rileva";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
-	    		//delay
-	    		aar = delayReactive(600000,"" , "");
-	    		if( aar.getInterrupted() ) curPlanInExec   = "rileva";
-	    		if( ! aar.getGoon() ) break;
+	    		//senseEvent
+	    		aar = planUtils.senseEvents( 600000,"data","continue",
+	    		"" , "",ActionExecMode.synch );
+	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
+	    			//println("			WARNING: sense timeout");
+	    			addRule("tout(senseevent,"+getName()+")");
+	    		}
+	    		//onEvent
+	    		if( currentEvent.getEventId().equals("data") ){
+	    		 		String parg="checkroverarrivato(D,X)";
+	    		 		/* PHead */
+	    		 		parg =  updateVars( Term.createTerm("distanza(X,d(D))"), Term.createTerm("distanza(X,d(D))"), 
+	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+	    		 			if( parg != null ) {
+	    		 			    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
+	    		 				//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
+	    		 				if( aar.getInterrupted() ){
+	    		 					curPlanInExec   = "rileva";
+	    		 					if( aar.getTimeRemained() <= 0 ) addRule("tout(demo,"+getName()+")");
+	    		 					if( ! aar.getGoon() ) break;
+	    		 				} 			
+	    		 				if( aar.getResult().equals("failure")){
+	    		 					if( ! aar.getGoon() ) break;
+	    		 				}else if( ! aar.getGoon() ) break;
+	    		 			}
+	    		 }
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??arrivato(rover)" )) != null ){
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop","stop", guardVars ).toString();
+	    		emit( "stop", temporaryStr );
+	    		}
 	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;
 	    }//while

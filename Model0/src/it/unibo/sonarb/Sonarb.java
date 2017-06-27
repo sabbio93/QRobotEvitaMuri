@@ -3,6 +3,7 @@
 This code is generated only ONCE
 */
 package it.unibo.sonarb;
+import java.util.*;
 import it.unibo.is.interfaces.IOutputEnvView;
 import it.unibo.qactors.QActorContext;
 
@@ -16,7 +17,15 @@ public class Sonarb extends AbstractSonarb {
 	}
 	
 	public void doWorkSonarMock(){
-		try {
+		new Timer().schedule(new TimerTask(){
+			@Override
+			public void run(){
+				//emetto evento terminazione
+				emit("data","distanza(B, d(42))");
+				println("rover rilevato sulla linea d'arrivo");
+			}
+		},5000);
+		/*try {
 			Thread.sleep(9000);
 			println("passati 9 s");
 		} catch (InterruptedException e) {
@@ -24,7 +33,7 @@ public class Sonarb extends AbstractSonarb {
 		}
 		//emetto evento terminazione
 		emit("data","distanza(B, d(42))");
-		println("rover rilevato sulla linea d'arrivo");
+		println("rover rilevato sulla linea d'arrivo");*/
 	}
 	
 }

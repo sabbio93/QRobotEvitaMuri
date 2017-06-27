@@ -19,5 +19,5 @@ digraph finite_state_machine {
   	init -> attesa [ label = ""];
   	init -> rileva [ label = ""];
   	
-  	rileva -> rileva [ label = ""];
+  	rileva -> rileva [ label = "distanza(X,d(D))/"];
 }
