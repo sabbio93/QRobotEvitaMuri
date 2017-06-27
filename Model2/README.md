@@ -1,0 +1,1 @@
+Oltre ai requisiti analizzati nel problema m1 in questo problema si elimina l’assunzione che il robot riesca sempre a percorrere il percorso in linea retta. Dovrà quindi attuare delle strategie che gli permettano di arrivare al punto B situato a una distanza dal sonarB tale che sia uguale alla distanza fra il punto di partenza A e il sonarA. 
