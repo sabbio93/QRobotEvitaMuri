@@ -1,0 +1,101 @@
+System m1
+
+Event dataB : distanzaB(X, d(D))//BUG concettualmente sbagliato dovrebbe esserci solo stop
+Event dataA : distanzaA(X, d(D))//BUG concettualmente sbagliato dovrebbe esserci solo gli eventi robotOnA robotLeaveA
+Event stop : stop()
+Event robotOnA: robotOnA()
+Event robotLeaveA: robotLeaveA()
+Event cmd : cmd(X)
+
+/*This web interface is automatically generated in the
+srcMore directory in a package associated with each
+Context when the -httpserver flag for a Context is set.
+It is implemented by a HTTP web-socket server working
+on port 8080.
+The RUN button at the top of the GUI allow us to ask
+the robot to execute actions, while the buttons at the
+bottom allows us to move the (basic) robot and send
+alarms.
+The top-level part of the GUI can be used to inspect
+and change the state of the robot as represented in the
+robot's WorldTheory
+ */
+
+Context  ctxRover  			ip [ host="192.168.251.1"  port=8070 ] -httpserver//NOTE elimino un qa dai giochi
+Context  ctxSonarArrivo     ip [ host="192.168.251.3"  port=8035 ]   
+Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]  
+//Context  ctxButtonStart  	ip [ host="127.0.0.1"      port=8080 ]
+
+QActor sonarb context ctxSonarArrivo  {
+	Rules {
+		// se rilevo qualcosa sotto i 100 cm allora il robot è arrivato
+		checkroverarrivato( D,A ) :- eval( lt, D, 100 ), !, assert( arrivato(rover) ).
+		checkroverarrivato( D,A ).
+	}
+	/* Il sonar ciclicamente emette un evento contenente 
+	 * la distanza che rileva, questa viene utilizzata per verificare
+	 * se il rover è passato, dunque arrivato al punto B
+	 */
+	Plan init normal     
+		println("ctxSonarArrivo Inizio")	;
+		actorOp initSonar ;
+		switchToPlan rileva  
+	Plan rileva resumeLastPlan
+		onEvent dataB : distanza(X, d(D)) -> demo checkroverarrivato( D, X);
+	 	[ ?? arrivato(rover)  ] emit stop : stop();
+		repeatPlan
+}
+
+QActor sonara context ctxSonarPartenza
+{
+	Rules {
+		// se rilevo qualcosa sotto i 100 cm allora il robot è sulla linea di partenza
+		checkroverpresente( D,A ) :- eval( lt, D, 100 ), !, assert( presente(rover) ).
+		checkroverpresente( D,A ).
+	}
+	/* Il sonar ciclicamente emette un evento contenente 
+	 * la distanza che rileva, questa viene utilizzata per verificare
+	 * se il rover è passato, dunque arrivato al punto B
+	 */
+	Plan init normal     
+		println("SonarPartenza Start")	;
+		actorOp initSonar ;
+		switchToPlan rilevaRobotOnA  ;
+		println("SonarPartenza Start")
+		
+		
+	//appena il robot è presente emetto l'evento per abilitare il bottone e
+	//passo alla modalità di rilevamento della partenza	
+	Plan rilevaRobotOnA resumeLastPlan
+		onEvent dataA : distanza(X, d(D)) -> demo checkroverarrivato( D, X);
+	 	[ ?? arrivato(rover)  ] emit robotOnA : robotOnA();
+		repeatPlan
+		
+	Plan rilevaRobotLeaveA resumeLastPlan
+	onEvent dataA : distanza(X, d(D)) -> demo checkroverarrivato( D, X);
+	 	[ ?? arrivato(rover)  ] emit robotLeaveA : robotLeaveA();
+	 	repeatPlan
+}
+
+/*Robot mock */QActor rover context ctxRover {	 
+	/*
+	 * R2: Il robot comincia a muoversi alla pressione del tasto start
+	 */
+	Plan init normal        
+		sense time(600000) cmd -> continue;
+		[??cmd(start)] switchToPlan traversata;
+		repeatPlan
+
+	/*
+	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
+	 */		
+  	Plan traversata resumeLastPlan
+		println("Inizio traversata")//;
+	//	robotForward speed(100) time(600000) react event stop -> fermaRobot
+ 	
+ 	Plan fermaRobot resumeLastPlan
+ 		println("Stop requested")//;
+ 		//robotStop speed(0) time(0)
+}
+
+//QActor buttonstart context ctxButtonStart{}
