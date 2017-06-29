@@ -20,11 +20,11 @@ robot's WorldTheory
  */
 
 Context  ctxRover  			ip [ host="192.168.251.1"  port=8070 ] -httpserver//NOTE elimino un qa dai giochi
-Context  ctxSonarArrivoMoc     ip [ host="192.168.251.3"  port=8035 ]   
-Context  ctxSonarPartenzaMoc   ip [ host="192.168.251.4"  port=8035 ]  
+Context  ctxSonarArrivo     ip [ host="192.168.251.3"  port=8035 ]   
+Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]  
 //Context  ctxButtonStart  	ip [ host="127.0.0.1"      port=8080 ]
 
-QActor mocsonarb context ctxSonarArrivoMoc  {
+QActor mocsonarb context ctxSonarArrivo  {
 	Plan init normal     
 		println("ctxSonarArrivo start")	;
 		delay time (5000);
@@ -33,14 +33,42 @@ QActor mocsonarb context ctxSonarArrivoMoc  {
 		repeatPlan
 }
 
-QActor mocsonara context ctxSonarPartenzaMoc
+QActor sonarb context ctxSonarArrivo {	//UNITY
+	Plan rileva normal
+		sense time(600000) sonar -> continue;
+		onEvent sonar : sonar(sonar2,rover,D) -> emit stop : stop;
+	 	repeatPlan
+}
+
+QActor sonara context ctxSonarPartenza //UNITY
 {
 	Plan init normal     
 		println("SonarPartenza Start")	;
-		actorOp initSonar ;
 		switchToPlan rilevaRobotOnA  ;
-		println("SonarPartenza Start")
+		println("rinizializzo");
+		repeatPlan
 		
+		
+	//appena il robot è presente emetto l'evento per abilitare il bottone e
+	//passo alla modalità di rilevamento della partenza	
+	Plan rilevaRobotOnA resumeLastPlan
+		sense time(600000) sonar -> continue;
+		onEvent sonar : sonar(sonar1,rover,D) -> emit robotOnA : robotOnA();
+        switchToPlan rilevaRobotLeaveA
+		
+	Plan rilevaRobotLeaveA resumeLastPlan
+		sense time(600000) sonar -> continue;
+		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeaveA : robotLeaveA()
+}
+
+
+QActor mocsonara context ctxSonarPartenza
+{
+	Plan init normal     
+		println("SonarPartenza Start")	;
+		switchToPlan rilevaRobotOnA  ;
+		println("rinizializzo");
+		repeatPlan
 		
 	//appena il robot è presente emetto l'evento per abilitare il bottone e
 	//passo alla modalità di rilevamento della partenza	
@@ -55,6 +83,9 @@ QActor mocsonara context ctxSonarPartenzaMoc
 		println("invio event robotLeaveA");
 		 emit robotLeaveA : robotLeaveA()
 }
+
+//TODO creazione del controller che mi filtra gli eventi da mandare al robot in modo tale
+// che non si avii nel caso in cui non sia presente in A
 
 /*Robot mock */QActor rover context ctxRover {	 
 	/*
