@@ -64,7 +64,7 @@ public abstract class AbstractSonarb extends QActor {
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		if( ! planUtils.switchToPlan("attesa").getGoon() ) break;
-	    		temporaryStr = "\"è iniziato\"";
+	    		temporaryStr = "\"ï¿½ iniziato\"";
 	    		println( temporaryStr );  
 	    		//parg = "actorOp(initSonar)"; //JUNE2017
 	    		parg = "initSonar";
