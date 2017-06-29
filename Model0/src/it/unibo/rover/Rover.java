@@ -8,6 +8,7 @@ public class Rover extends AbstractRover {
 	public Rover(String actorId, QActorContext myCtx, IOutputEnvView outEnvView ) throws Exception{
 		super(actorId,myCtx,outEnvView ,it.unibo.qactors.QActorUtils.robotBase );
 	}
+	
 	public void initPosition(){
 		createSimulatedActor("rover","Prefabs/CustomActor",-32,0,-5,0,1,0,180);
 	}

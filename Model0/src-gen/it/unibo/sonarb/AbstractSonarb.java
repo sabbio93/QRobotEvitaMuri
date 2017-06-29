@@ -64,8 +64,6 @@ public abstract class AbstractSonarb extends QActor {
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		if( ! planUtils.switchToPlan("attesa").getGoon() ) break;
-	    		temporaryStr = "\"� iniziato\"";
-	    		println( temporaryStr );  
 	    		//parg = "actorOp(initSonar)"; //JUNE2017
 	    		parg = "initSonar";
 	    		//ex solveGoalReactive JUNE2017
@@ -83,6 +81,8 @@ public abstract class AbstractSonarb extends QActor {
 	    			 	 	pengine.solve(gg+".");			
 	    		}
 	    		
+	    		temporaryStr = "\"Sonar iniziato\"";
+	    		println( temporaryStr );  
 	    		if( ! planUtils.switchToPlan("rileva").getGoon() ) break;
 	    break;
 	    }//while

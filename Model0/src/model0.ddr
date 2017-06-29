@@ -9,7 +9,7 @@ Event data : distanza(X,d(D))
 Event stop : stop
 Event cmd : cmd(X)
 
-Context ctxRover ip [host="localhost" port=8070] -httpserver	//192.168.251.1
+Context ctxRover ip [host="localhost" port=8070] -httpserver //192.168.251.1
 Context ctxSonarArrivo ip [host="localhost" port=8035]	//192.168.251.3
 
 QActor sonarb context ctxSonarArrivo {
@@ -17,7 +17,6 @@ QActor sonarb context ctxSonarArrivo {
 		// se rilevo qualcosa sotto i 100 cm allora il robot Ã¨ arrivato
 		checkroverarrivato(D,A):-eval(lt,D,100),!,assert(arrivato(rover)).
 		checkroverarrivato(D,A).
-		//unity.
 	}
 	/* Il sonar ciclicamente emette un evento contenente 
 	 * la distanza che rileva, questa viene utilizzata per verificare
@@ -25,14 +24,16 @@ QActor sonarb context ctxSonarArrivo {
 	 */
 	Plan init normal
 		switchToPlan attesa;
-		println("è iniziato");
 		actorOp initSonar;
+		println("Sonar iniziato");
 		//[!?unity] delay time(100000);///////////
 		switchToPlan rileva
+	
 	Plan attesa resumeLastPlan
 		sense time(600000) cmd -> continue;
 		onEvent cmd:cmd(X)->println(ricevuto_comando(X));
 		onEvent cmd:cmd(start)->println("start") else repeatPlan
+	
 	Plan rileva
 		sense time(600000) data -> continue;
 		onEvent data : distanza(X, d(D)) -> demo checkroverarrivato(D, X);
