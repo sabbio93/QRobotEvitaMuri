@@ -9,50 +9,28 @@ Event stop : stop
 Event cmd : cmd(X)
 Event local_data : distanza(X,d(D))
 Event sonar : sonar(Nome,Oggetto,Distanza)
-//Event sonarDetect : sonarDetect(X)
 
 Context ctxRover ip [host="localhost" port=8070] -httpserver //192.168.251.1
 Context ctxSonarArrivo ip [host="localhost" port=8035]	//192.168.251.3
 
-
+/* Il sonar ciclicamente emette un evento contenente 
+ * la distanza che rileva, questa viene utilizzata per verificare
+ * se il rover è passato, dunque arrivato al punto B
+ */
+ 
 //QActor sonarb context ctxSonarArrivo {	//MOCK
-//	/*Rules {
-//		// se rilevo qualcosa sotto i 100 cm allora il robot è arrivato
-//		checkroverarrivato(D,A):-eval(lt,D,100),!,assert(arrivato(rover)).
-//		checkroverarrivato(D,A).
-//	}*/
-//	/* Il sonar ciclicamente emette un evento contenente 
-//	 * la distanza che rileva, questa viene utilizzata per verificare
-//	 * se il rover è passato, dunque arrivato al punto B
-//	 */
 //	Plan init normal
 //		switchToPlan attesa;
 //		actorOp initSonar
 //	Plan attesa resumeLastPlan
 //		sense time(600000) cmd -> continue;
-//		onEvent cmd:cmd(start)->println(start) else	repeatPlan
-//	/*Plan rileva
-//		sense time(600000) local_data -> continue;
-//		onEvent local_data : distanza(X, d(D)) -> demo checkroverarrivato(D, X);
-//	 	[?? arrivato(rover)] emit stop : stop;
-//	 	repeatPlan*/
+//		onEvent cmd:cmd(start)->println(start) else	repeatPlan	
 //}
 QActor sonarb context ctxSonarArrivo {	//UNITY
-	/* Il sonar ciclicamente emette un evento contenente 
-	 * la distanza che rileva, questa viene utilizzata per verificare
-	 * se il rover è passato, dunque arrivato al punto B
-	 */
-	/*Plan init normal
-		actorOp initSonarUnity;	//viene generato un evento local_sonar al passaggio del robot
-		switchToPlan rileva*/
 	Plan rileva normal
 		sense time(600000) sonar -> continue;
 		onEvent sonar : sonar(sonar2,rover,D) -> emit stop : stop;
 	 	repeatPlan
-	/*Plan rilevaUnity
-		sense time(600000) sonar -> continue;
-		onEvent sonar : sonar(sonar2,rover,D) -> emit stop : stop;
-	 	repeatPlan*/
 }
 
 Robot mock QActor rover context ctxRover {
@@ -66,7 +44,6 @@ Robot mock QActor rover context ctxRover {
 		
 	Plan initUnity resumeLastPlan
 		actorOp workWithUnity("localhost");
-		println("Connesso a Unity");
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")
@@ -75,11 +52,7 @@ Robot mock QActor rover context ctxRover {
 	 */
 	Plan attesa
 		sense time(600000) cmd -> continue;
-		printCurrentEvent;
-		onEvent cmd:cmd(X)->println(ricevuto_comando(X));
 		onEvent cmd:cmd(start)->switchToPlan traversata;
-		//[!?cmd(X)] println("ricevuto comando X");
-		//[??cmd(start)] switchToPlan traversata;
 		repeatPlan
 
 	/*
@@ -87,12 +60,9 @@ Robot mock QActor rover context ctxRover {
 	 */
   	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(40) time(600000) react event stop -> fermaRobot// or event sonar->fermaRobot or event sonarDetect->tornaIndietro
+		robotForward speed(40) time(600000) react event stop -> fermaRobot
  	
  	Plan fermaRobot
  		println("Stop requested");
  		robotStop speed(0) time(0)
- 	/*Plan tornaIndietro resumeLastPlan
- 		println("Sto sbattendo");
-		robotLeft speed(100) time(2000)*/
 }
