@@ -15,7 +15,7 @@ public class Sonarb extends AbstractSonarb {
 	}
 	
 	public void initSonarMock(){
-		attendiStart();
+		//attendiStart();
 		new Timer().schedule(new TimerTask(){
 			@Override
 			public void run(){
