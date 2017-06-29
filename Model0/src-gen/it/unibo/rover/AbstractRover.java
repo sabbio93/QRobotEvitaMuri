@@ -121,8 +121,6 @@ protected IActorAction  action;
     			 	 	pengine.solve(gg+".");			
     		}
     		
-    		temporaryStr = "\"Connesso a Unity\"";
-    		println( temporaryStr );  
     		//parg = "actorOp(initPosition)"; //JUNE2017
     		parg = "initPosition";
     		//ex solveGoalReactive JUNE2017
@@ -174,15 +172,6 @@ protected IActorAction  action;
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
-    		printCurrentEvent(false);
-    		//onEvent
-    		if( currentEvent.getEventId().equals("cmd") ){
-    		 		String parg = "ricevuto_comando(X)";
-    		 		/* Print */
-    		 		parg =  updateVars( Term.createTerm("cmd(X)"), Term.createTerm("cmd(X)"), 
-    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-    		 			if( parg != null ) println( parg );  
-    		 }
     		//onEvent
     		if( currentEvent.getEventId().equals("cmd") ){
     		 		String parg = "";
