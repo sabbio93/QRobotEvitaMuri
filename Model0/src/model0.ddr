@@ -11,7 +11,7 @@ Event local_data : distanza(X,d(D))
 Event sonar : sonar(Nome,Oggetto,Distanza)
 //Event sonarDetect : sonarDetect(X)
 
-Context ctxRover ip [host="localhost" port=8070] -httpserver	//192.168.251.1
+Context ctxRover ip [host="localhost" port=8070] -httpserver //192.168.251.1
 Context ctxSonarArrivo ip [host="localhost" port=8035]	//192.168.251.3
 
 
