@@ -1,0 +1,8 @@
+plan(1,rileva, sentence(true,senseEvent(600000,"data","continue"),'','' ))
+plan(2,rileva, sentence(true,move(print("evento data ricevuto")),'','' ))
+plan(3,rileva, sentence(true,printCurrentEvent(false),'','' ))
+plan(4,rileva, sentence(true,eventswitch(data, »distanza( X,d( D)), move(solve,checkroverarrivato( D,X),0,"") ),'','' ))
+plan(5,rileva, sentence( arrivato( rover),move(print(arrivato)),'','' ))
+plan(6,rileva, sentence( arrivato( rover),raise( stop , fermaRobot )'),'','' ))
+plan(7,rileva, sentence(-  arrivato( rover) ,move(print("stop")),'','' ))
+plan(8,rileva, sentence(true,repeatplan(0) ,'','' ))

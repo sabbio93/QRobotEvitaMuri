@@ -4,6 +4,8 @@ Event stop : stop()
 Event robotOnA: robotOnA()
 Event robotLeaveA: robotLeaveA()
 Event cmd : cmd(X)
+Event sonar : sonar(Nome,Oggetto,Distanza)
+
 
 /*This web interface is automatically generated in the
 srcMore directory in a package associated with each
