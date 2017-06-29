@@ -9,6 +9,7 @@ public class Rover extends AbstractRover {
 		super(actorId,myCtx,outEnvView ,it.unibo.qactors.QActorUtils.robotBase );
 	}
 	public void initPosition(){
-		createSimulatedActor("rover","Prefabs/CustomActor",-32,0,-5,0,1,0,180);
+		//createSimulatedActor("rover","Prefabs/CustomActor",-32,0,-5,0,1,0,180);
+		createSimulatedActor("rover","Prefabs/CustomActor",-30,0,20,0,0,0,0);
 	}
 }

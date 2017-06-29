@@ -36,7 +36,7 @@ public abstract class AbstractSonarb extends QActor {
 		public AbstractSonarb(String actorId, QActorContext myCtx, IOutputEnvView outEnvView )  throws Exception{
 			super(actorId, myCtx,  
 			"./srcMore/it/unibo/sonarb/WorldTheory.pl",
-			setTheEnv( outEnvView )  , "init");		
+			setTheEnv( outEnvView )  , "rileva");		
 			this.planFilePath = "./srcMore/it/unibo/sonarb/plans.txt";
 			//Plan interpretation is done in Prolog
 			//if(planFilePath != null) planUtils.buildPlanTable(planFilePath);
@@ -46,7 +46,7 @@ public abstract class AbstractSonarb extends QActor {
 			String name  = getName().replace("_ctrl", "");
 			mysupport = (IMsgQueue) QActorUtils.getQActor( name ); 
 	 		initSensorSystem();
-			boolean res = init();
+			boolean res = rileva();
 			//println(getName() + " doJob " + res );
 			QActorContext.terminateQActorSystem(this);
 		} 
@@ -55,86 +55,6 @@ public abstract class AbstractSonarb extends QActor {
 		* PLANS
 		* ------------------------------------------------------------
 		*/
-	    public boolean init() throws Exception{	//public to allow reflection
-	    try{
-	    	int nPlanIter = 0;
-	    	//curPlanInExec =  "init";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
-	    while(true){
-	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
-	    	nPlanIter++;
-	    		if( ! planUtils.switchToPlan("attesa").getGoon() ) break;
-	    		temporaryStr = "\"è iniziato\"";
-	    		println( temporaryStr );  
-	    		//parg = "actorOp(initSonar)"; //JUNE2017
-	    		parg = "initSonar";
-	    		//ex solveGoalReactive JUNE2017
-	    		aar = actorOpExecuteReactive(parg,3600000,"","");
-	    		//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
-	    		if( aar.getInterrupted() ){
-	    			curPlanInExec   = "init";
-	    			if( aar.getTimeRemained() <= 0 ) addRule("tout(actorOp,"+getName()+")");
-	    			if( ! aar.getGoon() ) break;
-	    		} 			
-	    		else{
-	    		//Store actorOpDone with the result
-	    		 	String gg = "storeActorOpResult( X, Y )".replace("X", parg).replace("Y",aar.getResult() );
-	    		 	//System.out.println("actorOpExecute gg=" + gg );
-	    			 	 	pengine.solve(gg+".");			
-	    		}
-	    		
-	    		if( ! planUtils.switchToPlan("rileva").getGoon() ) break;
-	    break;
-	    }//while
-	    return returnValue;
-	    }catch(Exception e){
-	       //println( getName() + " plan=init WARNING:" + e.getMessage() );
-	       QActorContext.terminateQActorSystem(this); 
-	       return false;  
-	    }
-	    }
-	    public boolean attesa() throws Exception{	//public to allow reflection
-	    try{
-	    	int nPlanIter = 0;
-	    	//curPlanInExec =  "attesa";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
-	    while(true){
-	    	curPlanInExec =  "attesa";	//within while since it can be lost by switchlan
-	    	nPlanIter++;
-	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"cmd","continue",
-	    		"" , "",ActionExecMode.synch );
-	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
-	    			//println("			WARNING: sense timeout");
-	    			addRule("tout(senseevent,"+getName()+")");
-	    		}
-	    		//onEvent
-	    		if( currentEvent.getEventId().equals("cmd") ){
-	    		 		String parg = "ricevuto_comando(X)";
-	    		 		/* Print */
-	    		 		parg =  updateVars( Term.createTerm("cmd(X)"), Term.createTerm("cmd(X)"), 
-	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 			if( parg != null ) println( parg );  
-	    		 }
-	    		//onEvent
-	    		if( currentEvent.getEventId().equals("cmd") ){
-	    		 		String parg = "\"start\"";
-	    		 		/* Print */
-	    		 		parg =  updateVars( Term.createTerm("cmd(X)"), Term.createTerm("cmd(start)"), 
-	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 			if( parg != null ) println( parg );  
-	    		 }
-	    		else{ if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
-	    		}returnValue = continueWork;  
-	    break;
-	    }//while
-	    return returnValue;
-	    }catch(Exception e){
-	       //println( getName() + " plan=attesa WARNING:" + e.getMessage() );
-	       QActorContext.terminateQActorSystem(this); 
-	       return false;  
-	    }
-	    }
 	    public boolean rileva() throws Exception{	//public to allow reflection
 	    try{
 	    	int nPlanIter = 0;
@@ -144,35 +64,20 @@ public abstract class AbstractSonarb extends QActor {
 	    	curPlanInExec =  "rileva";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"data","continue",
+	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
 	    			addRule("tout(senseevent,"+getName()+")");
 	    		}
 	    		//onEvent
-	    		if( currentEvent.getEventId().equals("data") ){
-	    		 		String parg="checkroverarrivato(D,X)";
-	    		 		/* PHead */
-	    		 		parg =  updateVars( Term.createTerm("distanza(X,d(D))"), Term.createTerm("distanza(X,d(D))"), 
+	    		if( currentEvent.getEventId().equals("sonar") ){
+	    		 		String parg="stop";
+	    		 		/* RaiseEvent */
+	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar2,rover,D)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 			if( parg != null ) {
-	    		 			    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
-	    		 				//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
-	    		 				if( aar.getInterrupted() ){
-	    		 					curPlanInExec   = "rileva";
-	    		 					if( aar.getTimeRemained() <= 0 ) addRule("tout(demo,"+getName()+")");
-	    		 					if( ! aar.getGoon() ) break;
-	    		 				} 			
-	    		 				if( aar.getResult().equals("failure")){
-	    		 					if( ! aar.getGoon() ) break;
-	    		 				}else if( ! aar.getGoon() ) break;
-	    		 			}
+	    		 		if( parg != null ) emit( "stop", parg );
 	    		 }
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??arrivato(rover)" )) != null ){
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop","stop", guardVars ).toString();
-	    		emit( "stop", temporaryStr );
-	    		}
 	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;
 	    }//while
