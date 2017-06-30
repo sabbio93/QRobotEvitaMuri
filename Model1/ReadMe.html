@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>   
+<head>
+<title>ReadMe</title>
+</head>
+<body>
+ 
+
+<h3>GenQActor</h3>
+<p>
+<h3>BASIC DEPENDENCIES</h3>
+    The application project must include the following dependencies:
+    <ul>
+ <tt>
+
+<h4>it.unibo.iss.libs\libs\unibo</h4>
+<li><b>uniboInterfaces.jar</b>		basic interface used by the platform</li>
+<li><b>uniboEnvBaseAwt.jar</b>			GUI based custom framework</li>
+<li><b>unibonoawtsupports.jar</b>				TCP-UDP-Serialcommunication support</li>
+<li><b>2p301.jar</b>					tuPolog version 3.1 (java8)</li>
+<li><b>qactors18.jar</b>				qactor infrastructure</li>
+</tt>
+</ul>
+<h3>MORE INTERACTION</h3>
+     <ul>
+ <tt>
+ <li><b>it.unibo.iss.libs\libs\http\nanoHttp.jar</b>                 for hhtp web-socket server</li>  
+ <li><b>it.unibo.iss.libs\libs\rxJava\rxjava-core-0.18.4.jar</b>		for serial communications</li>   
+ </tt>
+</ul>
+</p><p>
+The QA-IDE creates code in the following directories:
+<h3>src-gen</h3>
+Java code of the main program (context) and the basic rules used by the run-time 
+actor platform:<br/>
+                     <tt><b>sysRules.pl</b></tt>
+<h3>src</h3>              
+Java code of the QActors and for other entities (EventHandlers, Tasks)
+to be defined by the application designer.
+The generated code is created only once, to avoid the loss of modifications done
+by the application designer. To overcome this behavior, the <tt>-regeneratesrc</tt> flag can be used
+<pre>
+System &ltname&gt -regeneratesrc
+</pre>.
+
+
+<h3>srMore ()</h3>
+                 
+For each context (in the context package):
+</p><p>
+<b>SYSTEM CONFIGURATION  file</b> (<tt><b>systemName.pl</b></tt>)<br/>
+web server files ( css, html, js)<br/>
+for each QActor (in the QActor package):<br/>
+                         <tt><b>plans.txt </b></tt><br/>
+                         <tt><b>WorddTheory.pl</b></tt>
+</p><p>                          
+<b>MAIN program</b> for each Context (e.g. named <tt><b>CtxYyy</b></tt>) of the system,
+the custom IDE generated  a main Java program:<br/>
+						<tt><b>src-gen/actorPackage/MainCtxYyy.java</b></tt>
+</p><p>		
+ In <b>INTERPRETED mode</b>, 
+     a standard behavior is generated for each actor (e.g. QaXxx) in <br/>
+				<tt><b>src-gen/actorPackage/QaXxxInterpreted.java</b></tt>  <br/>
+     that makes reference to the file <br/>
+				<tt><b>srcMore/actorPackage/plans.txt</b></tt>
+		At the end of the execution, the following message is shown on the Console
+             <tt><b>USER>: to end press 'e'</b></tt> <br/>
+    In this way the user can restart the system with the possibility to
+	   do some manual change in <tt><b>srcMore/actorPackage/plans.txt</b></tt>.
+
+ <!-- 
+<h3>FEATURE</h3> : QActors are active entities that work in Contexts
+          by executing macro-activities called Plans.
+			 Each Plan is composed of (built-in or user defined)
+			 PlanActions written in Java or in Prolog.
+ 	INTERPRETED
+			 A QAcotr can work in interpreted mode (-i flag)
+          by executing moves expressed in an intermediate
+          declarative (Prolog) language. The 'plan rules' are automatically
+          generated into the file plans.txt in srMore directory.
+     WORDThEORY
+         Each QActor is associated with a  knowledge-base (WorddTheory.pl)
+         that include actor's specific (static or dynamic) declarative 
+			(Prolog) facts and rules.
+		GUI
+			A QActor can be associated with a GUI (-g flag) implemented by
+         the uniboEnvBaseAwt. Otherwise, it will use the standard Java
+         IO devices.
+  -->
+ 
+
+
+</p>
+
+</body>
+</html>

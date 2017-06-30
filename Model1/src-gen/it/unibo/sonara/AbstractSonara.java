@@ -59,7 +59,7 @@ public abstract class AbstractSonara extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "init";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    	boolean returnValue = continueWork;
 	    while(true){
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
@@ -82,12 +82,13 @@ public abstract class AbstractSonara extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "rilevaRobotOnA";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    	boolean returnValue = continueWork;
 	    while(true){
 	    	curPlanInExec =  "rilevaRobotOnA";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
+	    		timeoutval = 600000;
+	    		aar = planUtils.senseEvents( timeoutval,"sonar","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
@@ -116,12 +117,13 @@ public abstract class AbstractSonara extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "rilevaRobotLeaveA";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    	boolean returnValue = continueWork;
 	    while(true){
 	    	curPlanInExec =  "rilevaRobotLeaveA";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
+	    		timeoutval = 600000;
+	    		aar = planUtils.senseEvents( timeoutval,"sonar","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");

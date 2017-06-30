@@ -1,0 +1,1 @@
+Il problema richiede oltre al soddisfacimento dei requisiti dei problemi m3 e m2 che nel caso in cui durante il suo cammino il robot rilevi un ostacolo davanti a sé, tramite l’utilizzo di un sonar installato su di esso, il robot interrompa il suo cammino per poi riprenderlo dopo un tempo x definito staticamente.
