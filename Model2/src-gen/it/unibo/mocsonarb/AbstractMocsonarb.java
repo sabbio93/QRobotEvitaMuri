@@ -71,9 +71,8 @@ public abstract class AbstractMocsonarb extends QActor {
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"invio event stop\"";
 	    		println( temporaryStr );  
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop()","stop()", guardVars ).toString();
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop(x)","stop(\"10\")", guardVars ).toString();
 	    		emit( "stop", temporaryStr );
-	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;
 	    }//while
 	    return returnValue;

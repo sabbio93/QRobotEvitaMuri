@@ -27,13 +27,12 @@ Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]
 Context  ctxController      ip [host="127.0.0.1"       port=8040]
 //Context  ctxButtonStart  	ip [ host="127.0.0.1"      port=8080 ]
 
-QActor mocsonarb context ctxSonarArrivo  {
+QActor mocsonarb context ctxSonarArrivo  {//MOC
 	Plan init normal     
 		println("ctxSonarArrivo start")	;
 		delay time (5000);
 		println("invio event stop");
-		 emit stop : stop();
-		repeatPlan
+		 emit stop : stop()
 }
 
 QActor sonarb context ctxSonarArrivo {	//UNITY

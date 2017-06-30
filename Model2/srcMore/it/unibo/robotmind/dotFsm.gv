@@ -19,12 +19,12 @@ digraph finite_state_machine {
   	init -> posizionamento [ label = ""];
   	
   	posizionamento -> posizionamento [ label = ""];
-  	posizionamento -> waitForStart [ label = "robotOnA()/"];
+  	posizionamento -> waitForStart [ label = "robotOnA(x)/"];
   	
   	waitForStart -> waitForStart [ label = "robotLeaveA()/"];
   	
   	inCammino -> inCammino [ label = ""];
-  	inCammino -> valutazioneRiposizionamento [ label = "stop()/"];
+  	inCammino -> valutazioneRiposizionamento [ label = "stop(x)/"];
   	
   	valutazioneRiposizionamento -> valutazioneRiposizionamento [ label = ""];
   	valutazioneRiposizionamento -> valutazioneRiposizionamento [ label = "sonar(Nome,Oggetto,Distanza)/"];

@@ -73,7 +73,6 @@ public abstract class AbstractMocsonarb extends QActor {
 	    		println( temporaryStr );  
 	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop()","stop()", guardVars ).toString();
 	    		emit( "stop", temporaryStr );
-	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;
 	    }//while
 	    return returnValue;

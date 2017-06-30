@@ -15,6 +15,4 @@ digraph finite_state_machine {
   	node [shape = circle];
   	iniziale -> init [label = ""];
   	
-  	
-  	init -> init [ label = ""];
 }

@@ -1,7 +1,7 @@
 System m1
 
-Event stop : stop()
-Event robotOnA: robotOnA()
+Event stop : stop(x)
+Event robotOnA: robotOnA(x)
 Event robotLeaveA: robotLeaveA()
 Event cmd : cmd(X)
 Event sonar : sonar(Nome,Oggetto,Distanza)
@@ -32,9 +32,31 @@ QActor mocsonarb context ctxSonarArrivo  {
 		println("ctxSonarArrivo start")	;
 		delay time (5000);
 		println("invio event stop");
-		 emit stop : stop();
-		repeatPlan
+		 emit stop : stop("10")		 
 }
+
+QActor mocsonara context ctxSonarPartenza
+{
+	Plan init normal     
+		println("SonarPartenza Start")	;
+		switchToPlan rilevaRobotOnA  ;
+		println("rinizializzo");
+		repeatPlan
+		
+	//appena il robot è presente emetto l'evento per abilitare il bottone e
+	//passo alla modalità di rilevamento della partenza	
+	Plan rilevaRobotOnA resumeLastPlan
+		delay time (5000);
+		println("invio event robotOnA");
+		 emit robotOnA : robotOnA(15);
+		 switchToPlan rilevaRobotLeaveA
+		
+	Plan rilevaRobotLeaveA resumeLastPlan
+		delay time (5000);
+		println("invio event robotLeaveA");
+		 emit robotLeaveA : robotLeaveA()
+}
+
 
 QActor sonarb context ctxSonarArrivo {	//UNITY
 	Plan rileva normal
@@ -64,29 +86,6 @@ QActor sonara context ctxSonarPartenza //UNITY
 		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeaveA : robotLeaveA()
 }
 
-QActor mocsonara context ctxSonarPartenza
-{
-	Plan init normal     
-		println("SonarPartenza Start")	;
-		switchToPlan rilevaRobotOnA  ;
-		println("rinizializzo");
-		repeatPlan
-		
-	//appena il robot è presente emetto l'evento per abilitare il bottone e
-	//passo alla modalità di rilevamento della partenza	
-	Plan rilevaRobotOnA resumeLastPlan
-		delay time (5000);
-		println("invio event robotOnA");
-		 emit robotOnA : robotOnA();
-		 switchToPlan rilevaRobotLeaveA
-		
-	Plan rilevaRobotLeaveA resumeLastPlan
-		delay time (5000);
-		println("invio event robotLeaveA");
-		 emit robotLeaveA : robotLeaveA()
-}
-
-
 QActor robotmind context ctxController
 {
 	Plan init normal
@@ -95,7 +94,8 @@ QActor robotmind context ctxController
 	
 	Plan posizionamento
 	sense time(600000) robotOnA -> continue;
-	onEvent robotOnA: robotOnA()-> switchToPlan waitForStart;
+	onEvent robotOnA: robotOnA(x)-> switchToPlan waitForStart;
+	//TODO registrazione della distanza di partenza #21
 	repeatPlan
 	
 	Plan waitForStart  
@@ -108,7 +108,8 @@ QActor robotmind context ctxController
 	Plan inCammino
 	println("robort started");
 	sense time(600000) stop -> continue;
-	onEvent stop: stop() -> switchToPlan valutazioneRiposizionamento;
+	onEvent stop: stop(x) -> switchToPlan valutazioneRiposizionamento;
+	//TODO registrazione della distanza di arrivo #21
 	repeatPlan
 	
 	Plan valutazioneRiposizionamento

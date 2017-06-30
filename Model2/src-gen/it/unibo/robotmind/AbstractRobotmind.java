@@ -94,7 +94,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		if( currentEvent.getEventId().equals("robotOnA") ){
 	    		 		String parg = "";
 	    		 		/* SwitchPlan */
-	    		 		parg =  updateVars(  Term.createTerm("robotOnA()"), Term.createTerm("robotOnA()"), 
+	    		 		parg =  updateVars(  Term.createTerm("robotOnA(x)"), Term.createTerm("robotOnA(x)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("waitForStart").getGoon() ) break; 
@@ -166,7 +166,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		if( currentEvent.getEventId().equals("stop") ){
 	    		 		String parg = "";
 	    		 		/* SwitchPlan */
-	    		 		parg =  updateVars(  Term.createTerm("stop()"), Term.createTerm("stop()"), 
+	    		 		parg =  updateVars(  Term.createTerm("stop(x)"), Term.createTerm("stop(x)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("valutazioneRiposizionamento").getGoon() ) break; 

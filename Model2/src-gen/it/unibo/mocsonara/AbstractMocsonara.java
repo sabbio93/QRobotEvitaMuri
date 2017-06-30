@@ -92,7 +92,7 @@ public abstract class AbstractMocsonara extends QActor {
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"invio event robotOnA\"";
 	    		println( temporaryStr );  
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotOnA()","robotOnA()", guardVars ).toString();
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotOnA(x)","robotOnA(15)", guardVars ).toString();
 	    		emit( "robotOnA", temporaryStr );
 	    		if( ! planUtils.switchToPlan("rilevaRobotLeaveA").getGoon() ) break;
 	    		returnValue = continueWork;  
