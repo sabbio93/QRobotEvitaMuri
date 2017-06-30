@@ -91,6 +91,9 @@ QActor robotmind context ctxController
 {
 	Plan init normal
 	println("controller starts");
+	switchToPlan posizionamento
+	
+	Plan posizionamento
 	sense time(600000) robotOnA -> continue;
 	onEvent robotOnA: robotOnA()-> switchToPlan waitForStart;
 	repeatPlan
@@ -98,7 +101,9 @@ QActor robotmind context ctxController
 	Plan waitForStart resumeLastPlan 
 	println("waiting for start");
 	sense time(600000) robotLeaveA -> continue;
-	onEvent robotLeaveA: robotLeaveA() -> emit cmd:cmd(start)
+	onEvent robotLeaveA: robotLeaveA() -> emit cmd:cmd(start);
+	onEvent robotLeaveA: robotLeaveA() -> switchToPlan init; //qui potrei terminare ma per comodità lo rimetto in attesa di essere riposizionato sulla linea di partenza
+	repeatPlan
 	
 }
 

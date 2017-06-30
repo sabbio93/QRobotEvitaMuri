@@ -135,23 +135,105 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 		if( parg != null ) emit( "cmd", parg );
 	    		 }
-	    		//onEvent
-	    		if( currentEvent.getEventId().equals("robotLeaveA") ){
-	    		 		String parg = "";
-	    		 		/* SwitchPlan */
-	    		 		parg =  updateVars(  Term.createTerm("robotLeaveA()"), Term.createTerm("robotLeaveA()"), 
-	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 			if( parg != null ){
-	    		 				 if( ! planUtils.switchToPlan("init").getGoon() ) break; 
-	    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
-	    		 }
 	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
-	    		returnValue = continueWork;  
 	    break;
 	    }//while
 	    return returnValue;
 	    }catch(Exception e){
 	       //println( getName() + " plan=waitForStart WARNING:" + e.getMessage() );
+	       QActorContext.terminateQActorSystem(this); 
+	       return false;  
+	    }
+	    }
+	    public boolean inCammino() throws Exception{	//public to allow reflection
+	    try{
+	    	int nPlanIter = 0;
+	    	//curPlanInExec =  "inCammino";
+	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    while(true){
+	    	curPlanInExec =  "inCammino";	//within while since it can be lost by switchlan
+	    	nPlanIter++;
+	    		temporaryStr = "\"robort started\"";
+	    		println( temporaryStr );  
+	    		//senseEvent
+	    		aar = planUtils.senseEvents( 600000,"stop","continue",
+	    		"" , "",ActionExecMode.synch );
+	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
+	    			//println("			WARNING: sense timeout");
+	    			addRule("tout(senseevent,"+getName()+")");
+	    		}
+	    		//onEvent
+	    		if( currentEvent.getEventId().equals("stop") ){
+	    		 		String parg = "";
+	    		 		/* SwitchPlan */
+	    		 		parg =  updateVars(  Term.createTerm("stop()"), Term.createTerm("stop()"), 
+	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+	    		 			if( parg != null ){
+	    		 				 if( ! planUtils.switchToPlan("valutazioneRiposizionamento").getGoon() ) break; 
+	    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
+	    		 }
+	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+	    break;
+	    }//while
+	    return returnValue;
+	    }catch(Exception e){
+	       //println( getName() + " plan=inCammino WARNING:" + e.getMessage() );
+	       QActorContext.terminateQActorSystem(this); 
+	       return false;  
+	    }
+	    }
+	    public boolean valutazioneRiposizionamento() throws Exception{	//public to allow reflection
+	    try{
+	    	int nPlanIter = 0;
+	    	//curPlanInExec =  "valutazioneRiposizionamento";
+	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    while(true){
+	    	curPlanInExec =  "valutazioneRiposizionamento";	//within while since it can be lost by switchlan
+	    	nPlanIter++;
+	    		temporaryStr = "\"evaluating position\"";
+	    		println( temporaryStr );  
+	    		//senseEvent
+	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
+	    		"" , "",ActionExecMode.synch );
+	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
+	    			//println("			WARNING: sense timeout");
+	    			addRule("tout(senseevent,"+getName()+")");
+	    		}
+	    		//onEvent
+	    		if( currentEvent.getEventId().equals("sonar") ){
+	    		 		String parg = "";
+	    		 		/* SwitchPlan */
+	    		 		parg =  updateVars(  Term.createTerm("sonar(Nome,Oggetto,Distanza)"), Term.createTerm("sonar()"), 
+	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+	    		 			if( parg != null ){
+	    		 				 if( ! planUtils.switchToPlan("valutazioneRiposizionamento").getGoon() ) break; 
+	    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
+	    		 }
+	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+	    break;
+	    }//while
+	    return returnValue;
+	    }catch(Exception e){
+	       //println( getName() + " plan=valutazioneRiposizionamento WARNING:" + e.getMessage() );
+	       QActorContext.terminateQActorSystem(this); 
+	       return false;  
+	    }
+	    }
+	    public boolean riposizionamento() throws Exception{	//public to allow reflection
+	    try{
+	    	int nPlanIter = 0;
+	    	//curPlanInExec =  "riposizionamento";
+	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    while(true){
+	    	curPlanInExec =  "riposizionamento";	//within while since it can be lost by switchlan
+	    	nPlanIter++;
+	    		temporaryStr = "\"inzio riposizionamento\"";
+	    		println( temporaryStr );  
+	    break;
+	    }//while
+	    return returnValue;
+	    }catch(Exception e){
+	       //println( getName() + " plan=riposizionamento WARNING:" + e.getMessage() );
 	       QActorContext.terminateQActorSystem(this); 
 	       return false;  
 	    }

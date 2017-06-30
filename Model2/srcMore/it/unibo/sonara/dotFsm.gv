@@ -16,11 +16,8 @@ digraph finite_state_machine {
   	iniziale -> init [label = ""];
   	
   	
-  	init -> posizionamento [ label = ""];
+  	init -> rilevaRobotOnA [ label = ""];
+  	init -> init [ label = ""];
   	
-  	posizionamento -> posizionamento [ label = ""];
-  	posizionamento -> waitForStart [ label = "robotOnA()/"];
-  	
-  	waitForStart -> waitForStart [ label = ""];
-  	waitForStart -> init [ label = "robotLeaveA()/"];
+  	rilevaRobotOnA -> rilevaRobotLeaveA [ label = "sonar(Nome,Oggetto,Distanza)/"];
 }

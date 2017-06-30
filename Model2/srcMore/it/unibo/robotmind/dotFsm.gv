@@ -11,7 +11,7 @@ digraph finite_state_machine {
   	rankdir=LR;
   	size="8,5"
   	node [shape = point]; iniziale;
-  	node [shape = doublecircle]; 
+  	node [shape = doublecircle]; waitForStart; 
   	node [shape = circle];
   	iniziale -> init [label = ""];
   	
@@ -21,6 +21,11 @@ digraph finite_state_machine {
   	posizionamento -> posizionamento [ label = ""];
   	posizionamento -> waitForStart [ label = "robotOnA()/"];
   	
-  	waitForStart -> waitForStart [ label = ""];
-  	waitForStart -> init [ label = "robotLeaveA()/"];
+  	waitForStart -> waitForStart [ label = "robotLeaveA()/"];
+  	
+  	inCammino -> inCammino [ label = ""];
+  	inCammino -> valutazioneRiposizionamento [ label = "stop()/"];
+  	
+  	valutazioneRiposizionamento -> valutazioneRiposizionamento [ label = ""];
+  	valutazioneRiposizionamento -> valutazioneRiposizionamento [ label = "sonar(Nome,Oggetto,Distanza)/"];
 }
