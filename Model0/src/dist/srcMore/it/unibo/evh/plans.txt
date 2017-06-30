@@ -1,0 +1,3 @@
+plan(1,loop, sentence(true,senseEvent(600000,"sonar,sonarDetect,local_data","continue,continue,continue"),'','' ))
+plan(2,loop, sentence(true,printCurrentEvent(false),'','' ))
+plan(3,loop, sentence(true,repeatplan(0) ,'','' ))
