@@ -17,28 +17,29 @@ setActorName( Name ):-
 	text_concat("qatu",TS,NN),
 	assert( myname(NN) ),
 	assert( actorobj(NN) ).
-createActor(Name, Class, NewActor):-
+createActor(Name, Class ):-
  	actorobj(A),
+ 	%% actorPrintln( createActor(A) ),
 	A <- getName returns CurActorName,
- 	A <- getContext  returns Ctx,
-	A <- getOutputEnvView returns View,
- 	Ctx <- addInstance(Name),  
-  	java_object(Class, [Name,Ctx,View], NewActor),
- 	NewActor <-  getName returns NewActorName,
-	actorPrintln( createActor(NewActorName, NewActor) ).
+	%% actorPrintln( createActor(CurActorName,Ctx,View) ),
+ 	A <- getQActorContext  returns Ctx,
+ 	%% actorPrintln( createActor(CurActorName,Ctx,View) ),
+    A <- getOutputEnvView returns View,
+	%% actorPrintln( createActor(CurActorName,Ctx,View) ),
+ 	Ctx <- addInstance(Ctx, Name,Class,View). 
 /*
 Name generator
 */	
 value(nameCounter,0). 
 newName( Prot, Name,N1 ) :-
 	inc(nameCounter,1,N1),
-	text_term(N1S,N1),
+	text_term(N1S,N1), 
 	text_term(ProtS,Prot),
  	text_concat(ProtS,N1S,Name),
-	assert( instance( Prot, N1, Name ) ),
-	actorPrintln( newname(Name,N1) ) .
+	replaceRule( instance( _, _, _ ), instance( Prot, N1, Name ) ).
 
-	
+%%setPrologResult( timeOut(T) ):- setTimeOut( tout("prolog", tout(T))  ).
+
 setPrologResult( Res ):-
 	( retract( goalResult( _ ) ),!; true ),	%%remove previous goalResult (if any) 
 	assert( goalResult(Res) ).
@@ -58,6 +59,9 @@ removeRule( A  ):-
 	retract( A :- B ),!.
 removeRule( _  ).
 
+replaceRule( Rule, NewRule ):-
+	removeRule( Rule ),addRule( NewRule ).
+	
 setResult( A ):-
  	( retract( result( _ ) ),!; true ), %%remove previous result (if any)	
 	assert( result( A ) ).
@@ -100,6 +104,19 @@ loop(I,N,Op) :-
 		loop(I,N,Op).	%%tail recursion
 loop(I,N,Op).
 
+numOfFacts( F, N ) :-
+	bagof( F,F,L ),
+	length(L, N). 
+	
+eval( plus, V1, V2, R ):- R is V1+V2.
+eval( minus, V1, V2, R ):- R is V1-V2.
+eval( times, V1, V2, R ):- R is V1*V2.
+eval( div, V1, V2, R ):- R is V1/V2.
+eval( lt, X,Y ) :- X < Y.
+eval( gt, X,Y ) :- X > Y.
+
+divisible( V1, V2 ) :- 0 is mod(V1,V2). 
+
 getVal( I, V ):-
 	value(I,V).
 
@@ -137,12 +154,16 @@ loadTheory(T):-
 	consult(T), !.
 loadTheory(T):-
 	actorPrintln( loadTheory(T, FAILURE) ).
+
+opInfo( Op,F,A,L ):-
+	functor( Op, F, A ),
+	Op =.. L.
 		
 actorOp( Op )   :- actorobj(Actor),
 				   % actorPrintln( actorOp( Op  ) ),
 				   java_catch(
 						Actor <- Op returns R, 	%% R unbound if void
- 						[ ( E, setActorOpResult( Op,failure ), fail )],  				
+ 						[ ( E,  output( actorOpFailure( E  ) ), setActorOpResult( Op,failure ), fail )],  				
   						setActorOpResult( Op,R )				%%executed in any way
 					). 
 actionResultOp( Op ):-
@@ -155,6 +176,7 @@ actionResultOp( Op ):-
 					). 
 
 %% setActorOpResulttt(Op, V ):-  actorPrintln( setActorOpResulttt(Op, V ) ),setActorOpResult( Op, V ).
+setActorOpResult( Op, null ):-   !, storeActorOpResult( Op,void  ).
 setActorOpResult( Op, V ):-   unbound(V),!, storeActorOpResult( Op,void  ).	  
 setActorOpResult( Op, Res ):- text_term(Res,Term),!,storeActorOpResult( Op,Term  ).
 setActorOpResult( Op, Res ):- %% Res is $obj_xxx	
@@ -201,6 +223,9 @@ PLANS
 %%% ---------  runPlan	---------------	
 runPlan(P):-
 	actorobj(Actor),
+ 	initPlan(Actor,P).
+initPlan(Actor,P) :-
+	assign( iternum, iternum(P,1) ),
 	execPlan(Actor,P,1).
 execPlan(Actor,P,PC) :-
 	plan(PC, P, S) ,
@@ -258,13 +283,13 @@ runTheSentence(Actor, sentence( not GUARD, MOVE, EVENTS, PLANS ) ):-
 runTheSentence(Actor, sentence( not GUARD, MOVE, EVENTS, PLANS ) ):-
 	!, runTheSentence(Actor, sentence( true, MOVE, EVENTS, PLANS ) ).
 runTheSentence(Actor, sentence( GUARD, MOVE, EVENTS, PLANS ) ):-
- 	 %% actorPrintln(  runTheSentence111( GUARD, MOVE, EVENTS, PLANS ) ),
+ 	 %% output(  runTheSentence111( GUARD, MOVE, EVENTS, PLANS ) ),
   	( GUARD = - G , !, retract(G),  ! ; GUARD, ! ),
- 	 %% actorPrintln(  sentence4( GUARD, MOVE, EVENTS, PLANS ) ),
+ 	 %% output(  preexecuteCmd( GUARD, MOVE, EVENTS, PLANS ) ),
   	( executeCmd(Actor, MOVE, EVENTS, PLANS, RESULT), !,
-  	  %% actorPrintln(  sentence4(RESULT) ),	
+  	  %% output(  preexecuteCmdResult(RESULT) ),	
   	  setAnswer( RESULT  );	  
-  	  %% actorPrintln(  sentence4( failure ) ),
+  	  %% output(  sentence4( failure ) ),
   	  setAnswer( done(MOVE,failure)  )
   	). 
 runTheSentence(Actor, sentence( GUARD, MOVE, EVENTS, PLANS ) ):-   
@@ -320,13 +345,13 @@ executeCmd( Actor, move(robotmove,CMD,SPEED,DURATION,ANGLE), Events, Plans, RES 
 	AAR <- getResult returns RES.
 
 %%% ---------  Play sound	---------------
-executeCmd( Actor,  move(playsound,FNAME,DURATION), Events, Plans, RES ):-
-	%% actorPrintln(  executeCmd(Actor, playsound1( FNAME,DURATION ), Events, Plans) ),
+executeCmd( Actor,  move(playsound(FNAME,DURATION)), Events, Plans, RES ):-
+	%% output(  executeCmd1(Actor, playsound1( FNAME,DURATION ), Events, Plans) ),
 	!,
 	Actor <- playSound( FNAME, DURATION, Events, Plans ) returns AAR,
 	AAR <- getResult returns RES.
-executeCmd( Actor,  move(playsound,FNAME,DURATION,ENDEVENT), Events, Plans, RES ):-
-	%% actorPrintln(  executeCmd(Actor, move(playsound,FNAME,DURATION,ENDEVENT), Events, Plans) ),
+executeCmd( Actor,  move(playsound(FNAME,DURATION,ENDEVENT)), Events, Plans, RES ):-
+	%% output(  executeCmd2(Actor, move(playsound,FNAME,DURATION,ENDEVENT), Events, Plans) ),
 	!,
 	Actor <- playSound( FNAME, ENDEVENT, DURATION  ) returns AAR,
 	AAR <- getResult returns RES.
@@ -347,21 +372,40 @@ Thus we ignore DURATION and Events, Plans
 */
 executeCmd( Actor,   move(solve,GOAL,DURATION, ANSWEREVENT), Events, Plans, RES ):-
 	%% actorPrintln(  executeCmd(Actor, move(solve,GOAL,DURATION, ANSWEREVENT) ) ),
- 	Actor <- solveSentence(sentence(true, GOAL, 0, ANSWEREVENT, '', '')) returns AAR,
- 	AAR   <- getResult returns RES.
-	
+	( GOAL, !, RES=GOAL ; RES = failure(GOAL) ),	
+ 	%%MARCH2017 Actor <- solveSentence(sentence(true, GOAL, 0, ANSWEREVENT, Events, Plans)) returns AAR,
+ 	%%MARCH2017 AAR   <- getResult returns RES,
+ 	setPrologResult(RES).
+
+/*	%%MARCH2017 
 executeCmd( Actor, move(solve,GOAL,DURATION), Events, Plans, RES ):-
 	%% actorPrintln(  executeCmd(Actor, move(solve,GOAL,DURATION) ) ),
 	Actor <- solveSentence(sentence(true, GOAL, 0, '', '', '')) returns AAR,
-	AAR <- getResult returns RES.
+	AAR <- getResult returns RES,
+	setPrologResult(RES).
+*/	
 	%% actorPrintln( result(GOAL,RES) ).
 	%% The following  DOES NOT WORK since pengine is engaged
 	%% Actor <- solveSentence(sentence(true, GOAL, DURATION, '', Events, Plans)) returns AAR.	
  	
+%%% ---------  ActorOp	---------------	
+executeCmd( Actor,  move(actorOp,OPERATION,T,_), Events, Plans, done(actorOp) ):-
+	actorPrintln( actorOp(OPERATION )),
+	Actor <- OPERATION. 		
 %%% ---------  Println	---------------	
-executeCmd( Actor,  move(print,ARG), Events, Plans, done(print) ):-
+executeCmd( Actor,  move(print(ARG)), Events, Plans, done(print) ):-
 	text_term(ARGS,ARG),
-	actorPrintln(  ARGS ).
+	actorPrintln( runplanmsg( ARGS ) ).
+executeCmd( Actor,  printCurrentEvent(ARG), Events, Plans, done(printCurrentEvent) ):-
+	Actor <- printCurrentEvent( ARG ). 
+%%% ---------  addRule	---------------	
+executeCmd( Actor,  addRule(ARG), Events, Plans, done(adRule) ):-
+	%% actorPrintln(  move(addRule,ARG) ),
+	addRule( ARG ).
+%%% ---------  removeRule	---------------	
+executeCmd( Actor,  removeRule(ARG), Events, Plans, done(adRule) ):-
+	%% actorPrintln(  move(removeRule,ARG) ),
+	removeRule( ARG ).
 %%% ---------  Emit	---------------	
 executeCmd( Actor,  move(emit,EVID,CONTENT), Events, Plans, done(emit,EVID) ):-
 	actorPrintln(  move(emit,EVID,CONTENT) ),
@@ -370,15 +414,45 @@ executeCmd( Actor,  move(emit,EVID,CONTENT), Events, Plans, done(emit,EVID) ):-
 executeCmd( Actor,  move(forward, DEST, MSGID, MSGCNT), Events, Plans, done(forward,MSGID,dest(DEST)) ):-
 	actorPrintln(  forward( 1,Actor,MSGID,DEST,MSGCNT ) ),	
 	text_term(A1,DEST),  	 
-	text_concat("''",A1,A2),
-	text_concat(A2,"''",DESTSTR),
- 	Actor <- forwardFromProlog( MSGID , DESTSTR , MSGCNT ). 
- 
+%%%	text_concat("''",A1,A2),
+%%%	text_concat(A2,"''",DESTSTR),
+ 	Actor <- forwardFromProlog( MSGID , DEST , MSGCNT ). %%% DESTSTR
+%%% ---------  sense	---------------	
+executeCmd( Actor, senseEvent(Tout, Events, Plans), E,P, done(senseEvent) ):-
+	output( senseEvent(Events, Plans, E,P) ),
+	Actor <- senseEvents(Tout, Events, Plans, E,P ).	%%blocks
+
+
 %%% ---------  plan	---------------	
 executeCmd( Actor, move(runplan,P), Events, Plans,done(runplan(P)) ):-
  	%% actorPrintln( runplan(P) ),
-	execPlan(Actor,P,0).
+	execPlan(Actor,P,1).
 executeCmd( Actor, move(resumePlan), Events, Plans,done(resume(P)) ).
+executeCmd( Actor, move(switchplan(PLAN)), Events, Plans,done(switchplan(PLAN)) ):-
+	output( switchplan(Actor, PLAN) ),
+	initPlan(Actor,PLAN).
+executeCmd( Actor, repeatplan(0), Events, Plans,done(repeatplan(0)) ):-
+	value(iternum, iternum(P,_)),
+	execPlan(Actor, P, 1).
+executeCmd( Actor, repeatplan(N), Events, Plans,done(repeatplan(0)) ):-
+	value(iternum, iternum(P,PN)),
+	PN1 is PN + 1,
+	( PN1 < N, !, execPlan(Actor, PLAN, 1); true ).
+%%% ---------  robot moves	---------------	
+executeCmd( Actor, move(M), Events, Plans,done(M) ):-
+	output( M ),
+	robotMove( M, CMD,S,A,T ),!,
+ 	Actor <- execute(CMD,S,A,T,Events, Plans).
+robotMove( robotForward(SPEED,ANGLE,TIME),robotforward,SPEED,ANGLE,TIME  ).
+robotMove( robotBackward(SPEED,ANGLE,TIME),robotbackward,SPEED,ANGLE,TIME  ).
+robotMove( robotRight(SPEED,ANGLE,TIME),robotright,SPEED,ANGLE,TIME ).
+robotMove( robotLeft(SPEED,ANGLE,TIME),robotleft,SPEED,ANGLE,TIME ).
+robotMove( robotStop(SPEED,ANGLE,TIME),robotstop,SPEED,ANGLE,TIME ).
+	
+%%% ---------  collector (default)  --------------	
+%% executeCmd( Actor, MOVE, Events, Plans,done(MOVE) ):-
+%% 	output( collector(MOVE) ),
+%% 	Actor <- MOVE.
 
 
 /*
@@ -426,6 +500,6 @@ initialize
 */
 initialize  :-  
 	actorobj(Actor),
- 	actorPrintln( worlTheoryLoaded(Actor) ).
+ 	output( worlTheoryLoaded(Actor) ).
  
 :- initialization(initialize).

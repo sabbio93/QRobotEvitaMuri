@@ -59,7 +59,7 @@ public abstract class AbstractMocsonara extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "init";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
@@ -82,7 +82,7 @@ public abstract class AbstractMocsonara extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "rilevaRobotOnA";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "rilevaRobotOnA";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
@@ -109,7 +109,7 @@ public abstract class AbstractMocsonara extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "rilevaRobotLeaveA";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "rilevaRobotLeaveA";	//within while since it can be lost by switchlan
 	    	nPlanIter++;

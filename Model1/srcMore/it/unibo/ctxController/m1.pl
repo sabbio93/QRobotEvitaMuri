@@ -1,5 +1,5 @@
 %====================================================================================
-% Context ctxSonarArrivo  SYSTEM-configuration: file it.unibo.ctxSonarArrivo.m1.pl 
+% Context ctxController  SYSTEM-configuration: file it.unibo.ctxController.m1.pl 
 %====================================================================================
 context(ctxrover, "192.168.251.1",  "TCP", "8070" ).  		 
 context(ctxsonararrivo, "192.168.251.3",  "TCP", "8035" ).  		 

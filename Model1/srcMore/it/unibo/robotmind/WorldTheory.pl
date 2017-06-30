@@ -1,11 +1,11 @@
 %==============================================
-% WorldTheory.pl for actor mocsonarb
+% WorldTheory.pl for actor robotmind
 %==============================================
 /*
 For a QActor as a singleton statically degined in the model
 */
-myname(qatumocsonarb).	%%old version (deprecated)
-actorobj(qatumocsonarb).	%% see registerActorInProlog18 in QActor
+myname(qaturobotmind).	%%old version (deprecated)
+actorobj(qaturobotmind).	%% see registerActorInProlog18 in QActor
 
 /*
 For a QActor instance of name=Name dynamically created
@@ -76,7 +76,7 @@ evalGuard( G ) :-
 
 output( M ):-stdout <- println( M ).
 %-------------------------------------------------
-%  TuProlo FEATURES of the QActor mocsonarb
+%  TuProlo FEATURES of the QActor robotmind
 %-------------------------------------------------
 dialog( FileName ) :-  
 	java_object('javax.swing.JFileChooser', [], Dialog),
@@ -84,7 +84,7 @@ dialog( FileName ) :-
 	Dialog <- getSelectedFile returns File,
 	File <- getName returns FileName. 		 
 
-%% :- stdout <- println(  "hello from world theory of mocsonarb" ). 
+%% :- stdout <- println(  "hello from world theory of robotmind" ). 
 
 %-------------------------------------------------
 %  UTILITIES for TuProlog computations
@@ -134,7 +134,7 @@ inc(I,K,N):-
 actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 
 %-------------------------------------------------
-%  User static rules about mocsonarb
+%  User static rules about robotmind
 %------------------------------------------------- 
 /*
 ------------------------------------------------------------------------

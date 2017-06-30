@@ -24,6 +24,7 @@ robot's WorldTheory
 Context  ctxRover  			ip [ host="192.168.251.1"  port=8070 ] -httpserver//NOTE elimino un qa dai giochi
 Context  ctxSonarArrivo     ip [ host="192.168.251.3"  port=8035 ]   
 Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]  
+Context  ctxController      ip [host="127.0.0.1"       port=8040]
 //Context  ctxButtonStart  	ip [ host="127.0.0.1"      port=8080 ]
 
 QActor mocsonarb context ctxSonarArrivo  {
@@ -63,7 +64,6 @@ QActor sonara context ctxSonarPartenza //UNITY
 		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeaveA : robotLeaveA()
 }
 
-
 QActor mocsonara context ctxSonarPartenza
 {
 	Plan init normal     
@@ -86,10 +86,23 @@ QActor mocsonara context ctxSonarPartenza
 		 emit robotLeaveA : robotLeaveA()
 }
 
-//TODO creazione del controller che mi filtra gli eventi da mandare al robot in modo tale
-// che non si avii nel caso in cui non sia presente in A
 
-/*Robot mock */QActor rover context ctxRover {	 
+QActor robotmind context ctxController
+{
+	Plan init normal
+	println("controller starts");
+	sense time(600000) robotOnA -> continue;
+	onEvent robotOnA: robotOnA()-> switchToPlan waitForStart;
+	repeatPlan
+	
+	Plan waitForStart resumeLastPlan 
+	println("waiting for start");
+	sense time(600000) robotLeaveA -> continue;
+	onEvent robotLeaveA: robotLeaveA() -> emit cmd:cmd(start)
+	
+}
+
+/*Robot mock*/  QActor rover context ctxRover {	 
 	/*
 	 * R2: Il robot comincia a muoversi alla pressione del tasto start
 	 */
@@ -102,11 +115,11 @@ QActor mocsonara context ctxSonarPartenza
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
   	Plan traversata resumeLastPlan
-		println("Inizio traversata")//;
-	//	robotForward speed(100) time(600000) react event stop -> fermaRobot
+		println("Inizio traversata")
+		//robotForward speed(100) time(600000) react event stop -> fermaRobot
  	
  	Plan fermaRobot resumeLastPlan
- 		println("Stop requested")//;
+ 		println("Stop requested")
  		//robotStop speed(0) time(0)
 }
 

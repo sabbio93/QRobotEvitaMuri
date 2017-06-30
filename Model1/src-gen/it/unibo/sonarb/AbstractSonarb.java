@@ -59,13 +59,12 @@ public abstract class AbstractSonarb extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "rileva";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "rileva";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		timeoutval = 600000;
-	    		aar = planUtils.senseEvents( timeoutval,"sonar","continue",
+	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");

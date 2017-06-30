@@ -59,13 +59,12 @@ public abstract class AbstractRover extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "init";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		timeoutval = 600000;
-	    		aar = planUtils.senseEvents( timeoutval,"cmd","continue",
+	    		aar = planUtils.senseEvents( 600000,"cmd","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
@@ -95,7 +94,7 @@ public abstract class AbstractRover extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "traversata";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "traversata";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
@@ -115,7 +114,7 @@ public abstract class AbstractRover extends QActor {
 	    try{
 	    	int nPlanIter = 0;
 	    	//curPlanInExec =  "fermaRobot";
-	    	boolean returnValue = continueWork;
+	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
 	    	curPlanInExec =  "fermaRobot";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
