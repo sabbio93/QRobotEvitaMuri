@@ -136,6 +136,7 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about rover
 %------------------------------------------------- 
+assign( db,30).
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),

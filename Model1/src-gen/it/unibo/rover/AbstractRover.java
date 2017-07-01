@@ -82,13 +82,13 @@ protected IActorAction  action;
     	curPlanInExec =  "waitStartCommand";	//within while since it can be lost by switchlan
     	nPlanIter++;
     		//senseEvent
-    		aar = planUtils.senseEvents( 600000,"cmd,robotLeave,robotPresent","continue,handleLocationInput,handleLocationInput",
+    		aar = planUtils.senseEvents( 600000,"cmd,robotLeave,robotDetected","continue,handleLocationInput,handleLocationInput",
     		"" , "",ActionExecMode.synch );
     		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??on(Rover,A)" )) != null ){
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??near(Rover,A)" )) != null ){
     		//onEvent
     		if( currentEvent.getEventId().equals("cmd") ){
     		 		String parg = "";
@@ -96,7 +96,7 @@ protected IActorAction  action;
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
-    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@585cf6d7 (not: false) fails");  //parg is null when there is no guard (onEvent)
+    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@12326fd6 (not: false) fails");  //parg is null when there is no guard (onEvent)
     		 }
     		}
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
@@ -120,8 +120,8 @@ protected IActorAction  action;
     		temporaryStr = "\"Inizio traversata\"";
     		println( temporaryStr );  
     		//forward
-    		//if( ! execRobotMove("traversata","forward",60,0,600000, "robotPresent" , "handleLocationInput") ) break;
-    		    aar = execRobotMove("traversata","forward",60,0,600000, "robotPresent" , "handleLocationInput");
+    		//if( ! execRobotMove("traversata","forward",60,0,600000, "robotDetected" , "handleLocationInput") ) break;
+    		    aar = execRobotMove("traversata","forward",60,0,600000, "robotDetected" , "handleLocationInput");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "traversata";
     		    	if( ! aar.getGoon() ) break;
@@ -172,26 +172,26 @@ protected IActorAction  action;
     	curPlanInExec =  "handleLocationInput";	//within while since it can be lost by switchlan
     	nPlanIter++;
     		//onEvent
-    		if( currentEvent.getEventId().equals("robotPresent") ){
-    		 		String parg="on(Rover,A)";
+    		if( currentEvent.getEventId().equals("robotDetected") ){
+    		 		String parg="near(Rover,A)";
     		 		/* AddRule */
-    		 		parg = updateVars(Term.createTerm("robotPresent(Sonar)"),  Term.createTerm("robotPresent(A)"), 
+    		 		parg = updateVars(Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(A)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 		if( parg != null ) addRule(parg);	    		  					
     		 }
     		//onEvent
     		if( currentEvent.getEventId().equals("robotLeave") ){
-    		 		String parg="on(Rover,A)";
+    		 		String parg="near(Rover,A)";
     		 		/* RemoveRule */
     		 		parg = updateVars( Term.createTerm("robotLeave(Sonar)"),  Term.createTerm("robotLeave(A)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 		if( parg != null ) removeRule(parg);
     		 }
     		//onEvent
-    		if( currentEvent.getEventId().equals("robotPresent") ){
+    		if( currentEvent.getEventId().equals("robotDetected") ){
     		 		String parg = "";
     		 		/* SwitchPlan */
-    		 		parg =  updateVars(  Term.createTerm("robotPresent(Sonar)"), Term.createTerm("robotPresent(B)"), 
+    		 		parg =  updateVars(  Term.createTerm("robotDetected(Sonar)"), Term.createTerm("robotDetected(B)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("fermaRobot").getGoon() ) break; 

@@ -63,84 +63,40 @@ public abstract class AbstractSonara extends QActor {
 	    while(true){
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
-	    		temporaryStr = "\"SonarPartenza Start\"";
+	    		temporaryStr = "\"ctxSonarPartenza start -- wait for start\"";
 	    		println( temporaryStr );  
-	    		if( ! planUtils.switchToPlan("rilevaRobotOnA").getGoon() ) break;
-	    		temporaryStr = "\"rinizializzo\"";
+	    		//delay
+	    		aar = delayReactive(1000,"" , "");
+	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
+	    		if( ! aar.getGoon() ) break;
+	    		temporaryStr = "\"invio event presente in A\"";
 	    		println( temporaryStr );  
-	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar,d(D))","robotDetected(A,d(30))", guardVars ).toString();
+	    		emit( "robotDetected", temporaryStr );
+	    		//delay
+	    		aar = delayReactive(2000,"" , "");
+	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
+	    		if( ! aar.getGoon() ) break;
+	    		//senseEvent
+	    		aar = planUtils.senseEvents( 600000,"cmd","continue",
+	    		"" , "",ActionExecMode.synch );
+	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
+	    			//println("			WARNING: sense timeout");
+	    			addRule("tout(senseevent,"+getName()+")");
+	    		}
+	    		//onEvent
+	    		if( currentEvent.getEventId().equals("cmd") ){
+	    		 		String parg="robotLeave(A)";
+	    		 		/* RaiseEvent */
+	    		 		parg = updateVars(Term.createTerm("cmd(X)"),  Term.createTerm("cmd(start)"), 
+	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+	    		 		if( parg != null ) emit( "robotLeave", parg );
+	    		 }
 	    break;
 	    }//while
 	    return returnValue;
 	    }catch(Exception e){
 	       //println( getName() + " plan=init WARNING:" + e.getMessage() );
-	       QActorContext.terminateQActorSystem(this); 
-	       return false;  
-	    }
-	    }
-	    public boolean rilevaRobotOnA() throws Exception{	//public to allow reflection
-	    try{
-	    	int nPlanIter = 0;
-	    	//curPlanInExec =  "rilevaRobotOnA";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
-	    while(true){
-	    	curPlanInExec =  "rilevaRobotOnA";	//within while since it can be lost by switchlan
-	    	nPlanIter++;
-	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
-	    		"" , "",ActionExecMode.synch );
-	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
-	    			//println("			WARNING: sense timeout");
-	    			addRule("tout(senseevent,"+getName()+")");
-	    		}
-	    		//onEvent
-	    		if( currentEvent.getEventId().equals("sonar") ){
-	    		 		String parg="robotOnA()";
-	    		 		/* RaiseEvent */
-	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar1,rover,D)"), 
-	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 		if( parg != null ) emit( "robotOnA", parg );
-	    		 }
-	    		if( ! planUtils.switchToPlan("rilevaRobotLeaveA").getGoon() ) break;
-	    		returnValue = continueWork;  
-	    break;
-	    }//while
-	    return returnValue;
-	    }catch(Exception e){
-	       //println( getName() + " plan=rilevaRobotOnA WARNING:" + e.getMessage() );
-	       QActorContext.terminateQActorSystem(this); 
-	       return false;  
-	    }
-	    }
-	    public boolean rilevaRobotLeaveA() throws Exception{	//public to allow reflection
-	    try{
-	    	int nPlanIter = 0;
-	    	//curPlanInExec =  "rilevaRobotLeaveA";
-	    	boolean returnValue = suspendWork;		//MARCHH2017
-	    while(true){
-	    	curPlanInExec =  "rilevaRobotLeaveA";	//within while since it can be lost by switchlan
-	    	nPlanIter++;
-	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
-	    		"" , "",ActionExecMode.synch );
-	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
-	    			//println("			WARNING: sense timeout");
-	    			addRule("tout(senseevent,"+getName()+")");
-	    		}
-	    		//onEvent
-	    		if( currentEvent.getEventId().equals("sonar") ){
-	    		 		String parg="robotLeaveA()";
-	    		 		/* RaiseEvent */
-	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar1,rover,D)"), 
-	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 		if( parg != null ) emit( "robotLeaveA", parg );
-	    		 }
-	    		returnValue = continueWork;  
-	    break;
-	    }//while
-	    return returnValue;
-	    }catch(Exception e){
-	       //println( getName() + " plan=rilevaRobotLeaveA WARNING:" + e.getMessage() );
 	       QActorContext.terminateQActorSystem(this); 
 	       return false;  
 	    }

@@ -71,8 +71,8 @@ public abstract class AbstractSonara extends QActor {
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"invio event presente in A\"";
 	    		println( temporaryStr );  
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotPresent(Sonar)","robotPresent(A)", guardVars ).toString();
-	    		emit( "robotPresent", temporaryStr );
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(A)", guardVars ).toString();
+	    		emit( "robotDetected", temporaryStr );
 	    		//delay
 	    		aar = delayReactive(2000,"" , "");
 	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
