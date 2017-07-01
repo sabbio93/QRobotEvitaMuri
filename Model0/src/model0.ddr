@@ -5,9 +5,8 @@
  */
 RobotSystem model0
 
-Event stop : stop
+Event roverOnB : roverOnB
 Event cmd : cmd(X)
-Event local_data : distanza(X,d(D))
 Event sonar : sonar(Nome,Oggetto,Distanza)
 
 Context ctxRover ip [host="localhost" port=8070] -httpserver //192.168.251.1
@@ -24,12 +23,12 @@ Context ctxSonarArrivo ip [host="localhost" port=8035]	//192.168.251.3
 //		actorOp initSonar
 //	Plan attesa resumeLastPlan
 //		sense time(600000) cmd -> continue;
-//		onEvent cmd:cmd(start)->println(start) else	repeatPlan	
+//		emit roverOnB : roverOnB	
 //}
 QActor sonarb context ctxSonarArrivo {	//UNITY
 	Plan rileva normal
 		sense time(600000) sonar -> continue;
-		onEvent sonar : sonar(sonar2,rover,D) -> emit stop : stop;
+		onEvent sonar : sonar(sonar2,rover,D) -> emit roverOnB : roverOnB;
 	 	repeatPlan
 }
 
@@ -60,7 +59,7 @@ Robot mock QActor rover context ctxRover {
 	 */
   	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(40) time(600000) react event stop -> fermaRobot
+		robotForward speed(40) time(600000) react event roverOnB -> fermaRobot
  	
  	Plan fermaRobot
  		println("Stop requested");
