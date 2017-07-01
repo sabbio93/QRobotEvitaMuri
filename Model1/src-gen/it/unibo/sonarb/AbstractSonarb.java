@@ -36,7 +36,7 @@ public abstract class AbstractSonarb extends QActor {
 		public AbstractSonarb(String actorId, QActorContext myCtx, IOutputEnvView outEnvView )  throws Exception{
 			super(actorId, myCtx,  
 			"./srcMore/it/unibo/sonarb/WorldTheory.pl",
-			setTheEnv( outEnvView )  , "rileva");		
+			setTheEnv( outEnvView )  , "init");		
 			this.planFilePath = "./srcMore/it/unibo/sonarb/plans.txt";
 			//Plan interpretation is done in Prolog
 			//if(planFilePath != null) planUtils.buildPlanTable(planFilePath);
@@ -46,7 +46,7 @@ public abstract class AbstractSonarb extends QActor {
 			String name  = getName().replace("_ctrl", "");
 			mysupport = (IMsgQueue) QActorUtils.getQActor( name ); 
 	 		initSensorSystem();
-			boolean res = rileva();
+			boolean res = init();
 			//println(getName() + " doJob " + res );
 			QActorContext.terminateQActorSystem(this);
 		} 
@@ -55,35 +55,36 @@ public abstract class AbstractSonarb extends QActor {
 		* PLANS
 		* ------------------------------------------------------------
 		*/
-	    public boolean rileva() throws Exception{	//public to allow reflection
+	    public boolean init() throws Exception{	//public to allow reflection
 	    try{
 	    	int nPlanIter = 0;
-	    	//curPlanInExec =  "rileva";
+	    	//curPlanInExec =  "init";
 	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
-	    	curPlanInExec =  "rileva";	//within while since it can be lost by switchlan
+	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
+	    		temporaryStr = "\"ctxSonarArrivo start -- wait for start\"";
+	    		println( temporaryStr );  
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
+	    		aar = planUtils.senseEvents( 600000,"cmd","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
 	    			addRule("tout(senseevent,"+getName()+")");
 	    		}
-	    		//onEvent
-	    		if( currentEvent.getEventId().equals("sonar") ){
-	    		 		String parg="stop";
-	    		 		/* RaiseEvent */
-	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar2,rover,D)"), 
-	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 		if( parg != null ) emit( "stop", parg );
-	    		 }
-	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+	    		//delay
+	    		aar = delayReactive(6000,"" , "");
+	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
+	    		if( ! aar.getGoon() ) break;
+	    		temporaryStr = "\"invio event stop\"";
+	    		println( temporaryStr );  
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotPresent(Sonar)","robotPresent(B)", guardVars ).toString();
+	    		emit( "robotPresent", temporaryStr );
 	    break;
 	    }//while
 	    return returnValue;
 	    }catch(Exception e){
-	       //println( getName() + " plan=rileva WARNING:" + e.getMessage() );
+	       //println( getName() + " plan=init WARNING:" + e.getMessage() );
 	       QActorContext.terminateQActorSystem(this); 
 	       return false;  
 	    }
