@@ -88,7 +88,7 @@ protected IActorAction  action;
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??near(Rover,A)" )) != null ){
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??inFrontOf(Rover,A)" )) != null ){
     		//onEvent
     		if( currentEvent.getEventId().equals("cmd") ){
     		 		String parg = "";
@@ -96,7 +96,7 @@ protected IActorAction  action;
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
-    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@12326fd6 (not: false) fails");  //parg is null when there is no guard (onEvent)
+    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@6c22ef88 (not: false) fails");  //parg is null when there is no guard (onEvent)
     		 }
     		}
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
@@ -173,7 +173,7 @@ protected IActorAction  action;
     	nPlanIter++;
     		//onEvent
     		if( currentEvent.getEventId().equals("robotDetected") ){
-    		 		String parg="near(Rover,A)";
+    		 		String parg="inFrontOf(Rover,A)";
     		 		/* AddRule */
     		 		parg = updateVars(Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(A)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
@@ -181,7 +181,7 @@ protected IActorAction  action;
     		 }
     		//onEvent
     		if( currentEvent.getEventId().equals("robotLeave") ){
-    		 		String parg="near(Rover,A)";
+    		 		String parg="inFrontOf(Rover,A)";
     		 		/* RemoveRule */
     		 		parg = updateVars( Term.createTerm("robotLeave(Sonar)"),  Term.createTerm("robotLeave(A)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
