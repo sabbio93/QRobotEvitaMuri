@@ -1,5 +1,0 @@
-plan(1,init, sentence(true,move( switchplan(attesa) ),'','' ))
-plan(2,init, sentence(true,move(actorOp(initSonar)),'','' ))
-plan(1,attesa, sentence(true,senseEvent(600000,"cmd","continue"),'','' ))
-plan(2,attesa, sentence(true,eventswitch(cmd, »cmd( start), move(print(start)) ),'','' ))
-plan(3,attesa, sentence(true,move(resumeplan),'','' ))
