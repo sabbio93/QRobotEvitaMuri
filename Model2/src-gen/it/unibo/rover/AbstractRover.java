@@ -96,7 +96,7 @@ protected IActorAction  action;
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
-    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@6f4d33ab (not: false) fails");  //parg is null when there is no guard (onEvent)
+    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@eb85d3a (not: false) fails");  //parg is null when there is no guard (onEvent)
     		 }
     		}
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
