@@ -62,7 +62,7 @@ Robot mock QActor rover context ctxRover {
 	 */
 	Plan waitStartCommand normal        
 		sense time(600000) cmd, robotLeave, robotDetected -> continue, handleLocationInput, handleLocationInput;
-		[?? near(Rover, A)] onEvent cmd:cmd(start) -> switchToPlan traversata;
+		[?? inFrontOf(Rover, A)] onEvent cmd:cmd(start) -> switchToPlan traversata;
 		repeatPlan	
 		
 	/*
@@ -78,7 +78,7 @@ Robot mock QActor rover context ctxRover {
  		
 	// mi è arrivato un evento dai sonar, cerco di capire dove sono, o reagisco di conseguenza
 	Plan handleLocationInput resumeLastPlan
-		onEvent robotDetected:robotDetected(A) -> addRule near(Rover, A);
-		onEvent robotLeave:robotLeave(A) -> removeRule near(Rover, A);
+		onEvent robotDetected:robotDetected(A) -> addRule inFrontOf(Rover, A);
+		onEvent robotLeave:robotLeave(A) -> removeRule inFrontOf(Rover, A);
 		onEvent robotDetected:robotDetected(B) -> switchToPlan fermaRobot //arrivato a destinazione
 }
