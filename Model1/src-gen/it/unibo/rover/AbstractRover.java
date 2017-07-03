@@ -88,7 +88,7 @@ protected IActorAction  action;
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??inFrontOf(rover,a)" )) != null ){
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
     		//onEvent
     		if( currentEvent.getEventId().equals("cmd") ){
     		 		String parg = "";
@@ -96,7 +96,7 @@ protected IActorAction  action;
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
-    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@3f012ed6 (not: false) fails");  //parg is null when there is no guard (onEvent)
+    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@1d6170ce (not: false) fails");  //parg is null when there is no guard (onEvent)
     		 }
     		}
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
@@ -171,27 +171,33 @@ protected IActorAction  action;
     while(true){
     	curPlanInExec =  "handleLocationInput";	//within while since it can be lost by switchlan
     	nPlanIter++;
-    		//onEvent
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
+    		//delay
+    		aar = delayReactive(0,"" , "");
+    		if( aar.getInterrupted() ) curPlanInExec   = "handleLocationInput";
+    		if( ! aar.getGoon() ) break;
+    		}
+    		else{ //onEvent
     		if( currentEvent.getEventId().equals("robotDetected") ){
     		 		String parg="inFrontOf(rover,a)";
-    		 		/* AddRule */
-    		 		parg = updateVars(Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(a)"), 
+    		 		parg = updateVars( Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(a)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 		if( parg != null ) addRule(parg);	    		  					
     		 }
+    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
     		//onEvent
     		if( currentEvent.getEventId().equals("robotLeave") ){
     		 		String parg="inFrontOf(rover,a)";
-    		 		/* RemoveRule */
     		 		parg = updateVars( Term.createTerm("robotLeave(Sonar)"),  Term.createTerm("robotLeave(a)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 		if( parg != null ) removeRule(parg);
     		 }
+    		}
     		//onEvent
     		if( currentEvent.getEventId().equals("robotDetected") ){
     		 		String parg = "";
     		 		/* SwitchPlan */
-    		 		parg =  updateVars(  Term.createTerm("robotDetected(Sonar)"), Term.createTerm("robotDetected(a)"), 
+    		 		parg =  updateVars(  Term.createTerm("robotDetected(Sonar)"), Term.createTerm("robotDetected(b)"), 
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("fermaRobot").getGoon() ) break; 
