@@ -45,3 +45,18 @@ Giallo1 è sulla linea più esterna del raspberry
 | Rosso     | 13 | 27 | 2  | IN  | Sonar Echo |
 | Bianco    | 19 | 10 | 12 | OUT | Ruota destra indietro |
 | Grigio    | 21 | 9  | 13 | OUT | Ruota destra avanti |
+
+#### SwagBot.baseddr
+
+```
+RobotBase swag
+
+distancefront = Distance [ sonarhcsr04 pintrig 0 pinecho 2] position: FRONT_TOP
+
+motorleft = Motor [ gpiomotor pincw 8 pinccw 9] position: LEFT
+motorright = Motor [ gpiomotor pincw 12 pinccw 13] position: RIGHT
+
+motors = Actuators [ motorleft, motorright] private position: BOTTOM
+
+Mainrobot swag [motors];
+```
