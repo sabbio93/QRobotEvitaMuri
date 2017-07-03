@@ -71,7 +71,7 @@ public abstract class AbstractSonara extends QActor {
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"invio event presente in A\"";
 	    		println( temporaryStr );  
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(A)", guardVars ).toString();
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(a)", guardVars ).toString();
 	    		emit( "robotDetected", temporaryStr );
 	    		//delay
 	    		aar = delayReactive(2000,"" , "");
@@ -86,7 +86,7 @@ public abstract class AbstractSonara extends QActor {
 	    		}
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("cmd") ){
-	    		 		String parg="robotLeave(A)";
+	    		 		String parg="robotLeave(a)";
 	    		 		/* RaiseEvent */
 	    		 		parg = updateVars(Term.createTerm("cmd(X)"),  Term.createTerm("cmd(start)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);

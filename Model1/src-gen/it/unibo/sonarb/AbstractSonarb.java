@@ -78,7 +78,7 @@ public abstract class AbstractSonarb extends QActor {
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"invio event stop\"";
 	    		println( temporaryStr );  
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(B)", guardVars ).toString();
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(b)", guardVars ).toString();
 	    		emit( "robotDetected", temporaryStr );
 	    break;
 	    }//while

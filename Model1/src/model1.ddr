@@ -15,7 +15,7 @@ QActor sonarb context ctxSonarArrivo  {//MOCK
 		sense time(600000) cmd -> continue;
 		delay time (6000);
 		println("invio event stop");
-		emit robotDetected : robotDetected(B)
+		emit robotDetected : robotDetected(b)
 }
 
 //QActor sonarb context ctxSonarArrivo {	//UNITY
@@ -30,10 +30,10 @@ QActor sonara context ctxSonarPartenza  {//MOCK
 		println("ctxSonarPartenza start -- wait for start")	;
 		delay time (1000);
 		println("invio event presente in A");
-		emit robotDetected : robotDetected(A);
+		emit robotDetected : robotDetected(a);
 		delay time (2000);     
  		sense time(600000) cmd -> continue;
-		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(A)		
+		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(a)		
 }
 
 
@@ -46,12 +46,12 @@ QActor sonara context ctxSonarPartenza  {//MOCK
 //		
 //	Plan rilevaRobotOnA resumeLastPlan
 //		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(A);
+//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(a);
 //        switchToPlan rilevaRobotLeaveA
 //		
 //	Plan rilevaRobotLeaveA resumeLastPlan
 //		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeave : robotLeave(A)
+//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeave : robotLeave(a)
 //}
 
 Robot mock QActor rover context ctxRover {	 
@@ -62,7 +62,7 @@ Robot mock QActor rover context ctxRover {
 	 */
 	Plan waitStartCommand normal        
 		sense time(600000) cmd, robotLeave, robotDetected -> continue, handleLocationInput, handleLocationInput;
-		[?? inFrontOf(Rover, A)] onEvent cmd:cmd(start) -> switchToPlan traversata;
+		[?? inFrontOf(rover, a)] onEvent cmd:cmd(start) -> switchToPlan traversata;
 		repeatPlan	
 		
 	/*
@@ -78,7 +78,7 @@ Robot mock QActor rover context ctxRover {
  		
 	// mi è arrivato un evento dai sonar, cerco di capire dove sono, o reagisco di conseguenza
 	Plan handleLocationInput resumeLastPlan
-		onEvent robotDetected:robotDetected(A) -> addRule inFrontOf(Rover, A);
-		onEvent robotLeave:robotLeave(A) -> removeRule inFrontOf(Rover, A);
-		onEvent robotDetected:robotDetected(B) -> switchToPlan fermaRobot //arrivato a destinazione
+		onEvent robotDetected:robotDetected(a) -> addRule inFrontOf(rover, a);
+		onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(rover, a);
+		onEvent robotDetected:robotDetected(a) -> switchToPlan fermaRobot //arrivato a destinazione
 }
