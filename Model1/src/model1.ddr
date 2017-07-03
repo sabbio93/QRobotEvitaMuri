@@ -4,6 +4,7 @@ Event robotDetected : robotDetected(Sonar)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
 Event sonar : sonar(Nome,Oggetto,Distanza)
+Event inFrontOf : inFrontOf(Rover,Sonar)
 
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
 //Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
@@ -31,7 +32,7 @@ QActor sonarb context ctxSonarArrivo {	//UNITY
 //QActor sonara context ctxSonarPartenza  {//MOCK
 //	Plan init normal     
 //		println("ctxSonarPartenza start -- wait for start");
-//		delay time (1000);
+//		delay time(1000);
 //		println("invio event presente in A");
 //		emit robotDetected : robotDetected(a);
 //		delay time (2000);     
@@ -76,8 +77,7 @@ Robot mock QActor rover context ctxRover {
 	 */
 	Plan waitStartCommand //normal        
 		sense time(600000) cmd, robotLeave, robotDetected -> continue, handleLocationInput, handleLocationInput;
-		printCurrentEvent;
-		[!? near(rover,a)] onEvent cmd:cmd(start) -> switchToPlan traversata;
+		[!? inFrontOf(rover,a)] onEvent cmd:cmd(start) -> switchToPlan traversata;
 		repeatPlan	
 		
 	/*
@@ -93,7 +93,7 @@ Robot mock QActor rover context ctxRover {
  		
 	// mi è arrivato un evento dai sonar, cerco di capire dove sono, o reagisco di conseguenza
 	Plan handleLocationInput resumeLastPlan
-		[!? near(rover,a)] onEvent robotLeave:robotLeave(a) -> removeRule near(rover,a)
-					else onEvent robotDetected:robotDetected(a) -> addRule near(rover,a);
+		[!? inFrontOf(rover,a)] onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(rover,a) 
+							else onEvent robotDetected:robotDetected(a) -> addRule inFrontOf(rover,a);
 		onEvent robotDetected:robotDetected(b) -> switchToPlan fermaRobot //arrivato a destinazione
 }

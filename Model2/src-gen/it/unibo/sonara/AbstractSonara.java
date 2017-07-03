@@ -71,7 +71,7 @@ public abstract class AbstractSonara extends QActor {
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"invio event presente in A\"";
 	    		println( temporaryStr );  
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar,d(D))","robotDetected(A,d(30))", guardVars ).toString();
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar,Posizione)","robotDetected(A,ok)", guardVars ).toString();
 	    		emit( "robotDetected", temporaryStr );
 	    		//delay
 	    		aar = delayReactive(2000,"" , "");
