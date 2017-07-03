@@ -78,7 +78,7 @@ Robot mock QActor rover context ctxRover {
  		
 	// mi è arrivato un evento dai sonar, cerco di capire dove sono, o reagisco di conseguenza
 	Plan handleLocationInput resumeLastPlan
-		[!? inFrontOf(rover, a)] delay time(0)/*nop*/ else onEvent robotDetected:robotDetected(a) -> addRule inFrontOf(rover, a);
-		[!? inFrontOf(rover, a)] onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(rover, a);
+		[!? inFrontOf(rover, a)] onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(rover, a) 
+							else onEvent robotDetected:robotDetected(a) -> addRule inFrontOf(rover, a);
 		onEvent robotDetected:robotDetected(b) -> switchToPlan fermaRobot //arrivato a destinazione
 }

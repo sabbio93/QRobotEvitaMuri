@@ -96,7 +96,7 @@ protected IActorAction  action;
     		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
     		 			if( parg != null ){
     		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
-    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@1d6170ce (not: false) fails");  //parg is null when there is no guard (onEvent)
+    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@7363f8c6 (not: false) fails");  //parg is null when there is no guard (onEvent)
     		 }
     		}
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
@@ -172,19 +172,6 @@ protected IActorAction  action;
     	curPlanInExec =  "handleLocationInput";	//within while since it can be lost by switchlan
     	nPlanIter++;
     		if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
-    		//delay
-    		aar = delayReactive(0,"" , "");
-    		if( aar.getInterrupted() ) curPlanInExec   = "handleLocationInput";
-    		if( ! aar.getGoon() ) break;
-    		}
-    		else{ //onEvent
-    		if( currentEvent.getEventId().equals("robotDetected") ){
-    		 		String parg="inFrontOf(rover,a)";
-    		 		parg = updateVars( Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(a)"), 
-    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-    		 		if( parg != null ) addRule(parg);	    		  					
-    		 }
-    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
     		//onEvent
     		if( currentEvent.getEventId().equals("robotLeave") ){
     		 		String parg="inFrontOf(rover,a)";
@@ -193,7 +180,14 @@ protected IActorAction  action;
     		 		if( parg != null ) removeRule(parg);
     		 }
     		}
-    		//onEvent
+    		else{ //onEvent
+    		if( currentEvent.getEventId().equals("robotDetected") ){
+    		 		String parg="inFrontOf(rover,a)";
+    		 		parg = updateVars( Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(a)"), 
+    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+    		 		if( parg != null ) addRule(parg);	    		  					
+    		 }
+    		}//onEvent
     		if( currentEvent.getEventId().equals("robotDetected") ){
     		 		String parg = "";
     		 		/* SwitchPlan */
