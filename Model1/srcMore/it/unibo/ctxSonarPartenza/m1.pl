@@ -1,9 +1,9 @@
 %====================================================================================
 % Context ctxSonarPartenza  SYSTEM-configuration: file it.unibo.ctxSonarPartenza.m1.pl 
 %====================================================================================
-context(ctxrover, "192.168.251.1",  "TCP", "8070" ).  		 
-context(ctxsonararrivo, "192.168.251.3",  "TCP", "8035" ).  		 
-context(ctxsonarpartenza, "192.168.251.4",  "TCP", "8035" ).  		 
+context(ctxrover, "localhost",  "TCP", "8070" ).  		 
+context(ctxsonararrivo, "localhost",  "TCP", "8035" ).  		 
+context(ctxsonarpartenza, "localhost",  "TCP", "8036" ).  		 
 %%% -------------------------------------------
 qactor( sonarb , ctxsonararrivo, "it.unibo.sonarb.MsgHandle_Sonarb"   ). %%store msgs 
 qactor( sonarb_ctrl , ctxsonararrivo, "it.unibo.sonarb.Sonarb"   ). %%control-driven 
