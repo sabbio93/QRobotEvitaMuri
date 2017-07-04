@@ -1,6 +1,6 @@
 System model0
 
-Event inFrontOfB : inFrontOf(b)
+Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
 Event sonar : sonar(Nome,Oggetto,Distanza)
 
@@ -10,6 +10,6 @@ Context ctxSonarArrivoUnity ip [host="localhost" port=8035]	//192.168.251.3
 QActor sonarbunity context ctxSonarArrivoUnity {	//UNITY
 	Plan rileva normal
 		sense time(600000) sonar -> continue;
-		onEvent sonar : sonar(sonar2,rover,D) -> emit inFrontOfB : inFrontOf(b);
+		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(b);
 	 	repeatPlan
 }

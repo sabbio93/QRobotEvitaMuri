@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 plan(1,init, sentence(true,move(print("ctxSonarArrivo start")),'','' ))
 plan(2,init, sentence(true,delay( 5000) ,'','' ))
 plan(3,init, sentence(true,move(print("invio event stop")),'','' ))
 plan(4,init, sentence(true,raise( stop , stop( ) )'),'','' ))
+=======
+plan(1,init, sentence(true,move(print("ctxSonarArrivo start")),'','' ))
+plan(2,init, sentence(true,delay( 5000) ,'','' ))
+plan(3,init, sentence(true,move(print("invio event stop")),'','' ))
+plan(4,init, sentence(true,raise( stop , stop( ) )'),'','' ))
+>>>>>>> branch 'develop' of https://github.com/sabbio93/QRobotEvitaMuri.git

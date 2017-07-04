@@ -1,3 +1,7 @@
 plan(1,rileva, sentence(true,senseEvent(600000,"sonar","continue"),'','' ))
+<<<<<<< HEAD
 plan(2,rileva, sentence(true,eventswitch(sonar, »sonar( sonar2,rover,D), raise( inFrontOfB , inFrontOf( b) )') ),'','' ))
+=======
+plan(2,rileva, sentence(true,eventswitch(sonar, Â»sonar( sonar2,rover,D), raise( robotDetected , robotDetected )') ),'','' ))
+>>>>>>> branch 'develop' of https://github.com/sabbio93/QRobotEvitaMuri.git
 plan(3,rileva, sentence(true,repeatplan(0) ,'','' ))

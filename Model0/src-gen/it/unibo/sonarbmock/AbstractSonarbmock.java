@@ -68,8 +68,8 @@ public abstract class AbstractSonarbmock extends QActor {
 	    		aar = delayReactive(9000,"" , "");
 	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
 	    		if( ! aar.getGoon() ) break;
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "inFrontOf(b)","inFrontOf(b)", guardVars ).toString();
-	    		emit( "inFrontOfB", temporaryStr );
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(b)", guardVars ).toString();
+	    		emit( "robotDetected", temporaryStr );
 	    break;
 	    }//while
 	    return returnValue;

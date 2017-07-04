@@ -11,3 +11,4 @@ public class Robotmind extends AbstractRobotmind {
 		super(actorId, myCtx, outEnvView);
 	}
 }
+
