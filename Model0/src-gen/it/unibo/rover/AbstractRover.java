@@ -203,8 +203,8 @@ protected IActorAction  action;
     		temporaryStr = "\"Inizio traversata\"";
     		println( temporaryStr );  
     		//forward
-    		//if( ! execRobotMove("traversata","forward",40,0,600000, "robotDetected" , "fermaRobot") ) break;
-    		    aar = execRobotMove("traversata","forward",40,0,600000, "robotDetected" , "fermaRobot");
+    		//if( ! execRobotMove("traversata","forward",40,0,600000, "inFrontOfB" , "fermaRobot") ) break;
+    		    aar = execRobotMove("traversata","forward",40,0,600000, "inFrontOfB" , "fermaRobot");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "traversata";
     		    	if( ! aar.getGoon() ) break;

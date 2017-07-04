@@ -63,14 +63,11 @@ public abstract class AbstractSonara extends QActor {
 	    while(true){
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
-	    		//delay
-	    		aar = delayReactive(3000,"" , "");
-	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
-	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = "\"SonarPartenza Start\"";
 	    		println( temporaryStr );  
 	    		if( ! planUtils.switchToPlan("rilevaRobotOnA").getGoon() ) break;
-	    		if( ! planUtils.switchToPlan("rilevaRobotLeaveA").getGoon() ) break;
+	    		temporaryStr = "\"rinizializzo\"";
+	    		println( temporaryStr );  
 	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;
 	    }//while
@@ -90,7 +87,7 @@ public abstract class AbstractSonara extends QActor {
 	    	curPlanInExec =  "rilevaRobotOnA";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 60000,"sonar","continue",
+	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
@@ -98,12 +95,13 @@ public abstract class AbstractSonara extends QActor {
 	    		}
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("sonar") ){
-	    		 		String parg="robotDetected(a)";
+	    		 		String parg="robotOnA()";
 	    		 		/* RaiseEvent */
 	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar1,rover,D)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 		if( parg != null ) emit( "robotDetected", parg );
+	    		 		if( parg != null ) emit( "robotOnA", parg );
 	    		 }
+	    		if( ! planUtils.switchToPlan("rilevaRobotLeaveA").getGoon() ) break;
 	    		returnValue = continueWork;  
 	    break;
 	    }//while
@@ -123,18 +121,21 @@ public abstract class AbstractSonara extends QActor {
 	    	curPlanInExec =  "rilevaRobotLeaveA";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 1000,"sonar","continue",
+	    		aar = planUtils.senseEvents( 600000,"sonar","continue",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
 	    			addRule("tout(senseevent,"+getName()+")");
 	    		}
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??tout(senseevent,QA)" )) != null ){
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotLeave(Sonar)","robotLeave(a)", guardVars ).toString();
-	    		emit( "robotLeave", temporaryStr );
-	    		}
-	    		else{ if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
-	    		}returnValue = continueWork;  
+	    		//onEvent
+	    		if( currentEvent.getEventId().equals("sonar") ){
+	    		 		String parg="robotLeaveA()";
+	    		 		/* RaiseEvent */
+	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar1,rover,D)"), 
+	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+	    		 		if( parg != null ) emit( "robotLeaveA", parg );
+	    		 }
+	    		returnValue = continueWork;  
 	    break;
 	    }//while
 	    return returnValue;

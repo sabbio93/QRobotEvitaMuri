@@ -15,4 +15,9 @@ digraph finite_state_machine {
   	node [shape = circle];
   	iniziale -> init [label = ""];
   	
+  	
+  	init -> rilevaRobotOnA [ label = ""];
+  	init -> init [ label = ""];
+  	
+  	rilevaRobotOnA -> rilevaRobotLeaveA [ label = "sonar(Nome,Oggetto,Distanza)/"];
 }

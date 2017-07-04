@@ -72,11 +72,11 @@ public abstract class AbstractSonarb extends QActor {
 	    		}
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("sonar") ){
-	    		 		String parg="robotDetected(b)";
+	    		 		String parg="stop";
 	    		 		/* RaiseEvent */
 	    		 		parg = updateVars(Term.createTerm("sonar(Nome,Oggetto,Distanza)"),  Term.createTerm("sonar(sonar2,rover,D)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-	    		 		if( parg != null ) emit( "robotDetected", parg );
+	    		 		if( parg != null ) emit( "stop", parg );
 	    		 }
 	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;

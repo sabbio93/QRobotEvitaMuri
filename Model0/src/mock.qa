@@ -1,0 +1,17 @@
+System model0
+
+Event cmd : cmd(X)
+Event inFrontOfB : inFrontOf(b)
+
+Context ctxRover ip [host="localhost" port=8070] -standalone //192.168.251.1
+Context ctxSonarArrivoMock ip [host="localhost" port=8035]	//192.168.251.3
+
+QActor sonarbmock context ctxSonarArrivoMock {	//MOCK
+	Plan init normal
+		switchToPlan attesa;
+		delay time(9000);
+		emit inFrontOfB : inFrontOf(b)	
+	Plan attesa resumeLastPlan
+		sense time(600000) cmd -> continue;
+		onEvent cmd : cmd(start) -> println("avvio sonar B") else repeatPlan
+}

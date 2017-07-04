@@ -1,5 +1,6 @@
 plan(1,init, sentence(true,move( switchplan(attesa) ),'','' ))
-plan(2,init, sentence(true,move(actorOp(initSonar)),'','' ))
+plan(2,init, sentence(true,delay( 9000) ,'','' ))
+plan(3,init, sentence(true,raise( inFrontOfB , inFrontOf( b) )'),'','' ))
 plan(1,attesa, sentence(true,senseEvent(600000,"cmd","continue"),'','' ))
-plan(2,attesa, sentence(true,eventswitch(cmd, »cmd( start), move(print(start)) ),'','' ))
+plan(2,attesa, sentence(true,eventswitch(cmd, »cmd( start), move(print("avvio sonar B")) ),'','' ))
 plan(3,attesa, sentence(true,move(resumeplan),'','' ))
