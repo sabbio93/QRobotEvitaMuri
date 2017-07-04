@@ -164,24 +164,13 @@ protected IActorAction  action;
     	curPlanInExec =  "waitStartCommand";	//within while since it can be lost by switchlan
     	nPlanIter++;
     		//senseEvent
-    		aar = planUtils.senseEvents( 600000,"cmd,robotLeave,robotDetected","continue,handleLocationInput,handleLocationInput",
+    		aar = planUtils.senseEvents( 600000,"start","traversata",
     		"" , "",ActionExecMode.synch );
     		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
-    		//onEvent
-    		if( currentEvent.getEventId().equals("cmd") ){
-    		 		String parg = "";
-    		 		parg =  updateVars(  Term.createTerm("cmd(X)"), Term.createTerm("cmd(start)"), 
-    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-    		 			if( parg != null ){
-    		 				 if( ! planUtils.switchToPlan("traversata").getGoon() ) break; 
-    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@742b3227 (not: false) fails");  //parg is null when there is no guard (onEvent)
-    		 }
-    		}
-    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+    		returnValue = continueWork;  
     break;
     }//while
     return returnValue;
@@ -202,8 +191,8 @@ protected IActorAction  action;
     		temporaryStr = "\"Inizio traversata\"";
     		println( temporaryStr );  
     		//forward
-    		//if( ! execRobotMove("traversata","forward",60,0,600000, "robotDetected" , "handleLocationInput") ) break;
-    		    aar = execRobotMove("traversata","forward",60,0,600000, "robotDetected" , "handleLocationInput");
+    		//if( ! execRobotMove("traversata","forward",60,0,600000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("traversata","forward",60,0,600000, "stop" , "fermaRobot");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "traversata";
     		    	if( ! aar.getGoon() ) break;
@@ -241,50 +230,6 @@ protected IActorAction  action;
     return returnValue;
     }catch(Exception e){
        //println( getName() + " plan=fermaRobot WARNING:" + e.getMessage() );
-       QActorContext.terminateQActorSystem(this); 
-       return false;  
-    }
-    }
-    public boolean handleLocationInput() throws Exception{	//public to allow reflection
-    try{
-    	int nPlanIter = 0;
-    	//curPlanInExec =  "handleLocationInput";
-    	boolean returnValue = suspendWork;		//MARCHH2017
-    while(true){
-    	curPlanInExec =  "handleLocationInput";	//within while since it can be lost by switchlan
-    	nPlanIter++;
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?inFrontOf(rover,a)" )) != null ){
-    		//onEvent
-    		if( currentEvent.getEventId().equals("robotLeave") ){
-    		 		String parg="inFrontOf(rover,a)";
-    		 		parg = updateVars( Term.createTerm("robotLeave(Sonar)"),  Term.createTerm("robotLeave(a)"), 
-    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-    		 		if( parg != null ) removeRule(parg);
-    		 }
-    		}
-    		else{ //onEvent
-    		if( currentEvent.getEventId().equals("robotDetected") ){
-    		 		String parg="inFrontOf(rover,a)";
-    		 		parg = updateVars( Term.createTerm("robotDetected(Sonar)"),  Term.createTerm("robotDetected(a)"), 
-    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-    		 		if( parg != null ) addRule(parg);	    		  					
-    		 }
-    		}//onEvent
-    		if( currentEvent.getEventId().equals("robotDetected") ){
-    		 		String parg = "";
-    		 		/* SwitchPlan */
-    		 		parg =  updateVars(  Term.createTerm("robotDetected(Sonar)"), Term.createTerm("robotDetected(b)"), 
-    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
-    		 			if( parg != null ){
-    		 				 if( ! planUtils.switchToPlan("fermaRobot").getGoon() ) break; 
-    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
-    		 }
-    		returnValue = continueWork;  
-    break;
-    }//while
-    return returnValue;
-    }catch(Exception e){
-       //println( getName() + " plan=handleLocationInput WARNING:" + e.getMessage() );
        QActorContext.terminateQActorSystem(this); 
        return false;  
     }
