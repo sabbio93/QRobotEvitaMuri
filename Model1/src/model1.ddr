@@ -12,6 +12,7 @@ Event inFrontOf : inFrontOf(Rover,Sonar)
 Context  ctxRover  			ip [host="localhost" port=8070] -httpserver//NOTE elimino un qa dai giochi
 Context  ctxSonarArrivo     ip [host="localhost" port=8035]   
 Context  ctxSonarPartenza   ip [host="localhost" port=8036]  
+Context  ctxController      ip [host="127.0.0.1" port=8040]
 
 //QActor sonarb context ctxSonarArrivo  {//MOCK
 //	Plan init normal     
@@ -59,6 +60,57 @@ QActor sonara context ctxSonarPartenza {//UNITY
 							else repeatPlan
 }
 
+QActor robotmind context ctxController
+{
+	Plan init normal
+	println("controller starts");
+	switchToPlan posizionamento
+	
+	Plan posizionamento
+	sense time(600000) robotOn(a) -> continue;
+	onEvent robotOn(a): robotOn(a)-> switchToPlan waitForStart;
+	repeatPlan
+	
+	Plan waitForStart resumeLastPlan 
+	println("waiting for start");
+	sense time(600000) robotLeave(a) -> continue;
+	onEvent robotLeaveA: robotLeave(a) -> emit cmd:cmd(start);
+	onEvent robotLeaveA: robotLeave(a) -> switchToPlan init; //qui potrei terminare ma per comodità lo rimetto in attesa di essere riposizionato sulla linea di partenza
+	repeatPlan
+	
+}
+
+
+/*Robot mock*/  QActor rover context ctxRover {	
+    Rules {
+            unity.
+        }
+	/*
+	 * R2: Il robot comincia a muoversi alla pressione del tasto start
+	 */
+	Plan init normal     
+        [!?unity] switchToPlan initUnity;
+		sense time(600000) cmd -> continue;
+		onEvent cmd:cmd(start)->switchToPlan traversata;
+		repeatPlan
+
+	/*
+	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
+	 */		
+  	Plan traversata resumeLastPlan
+  	actorOp workWithUnity("localhost");
+		actorOp initPosition;
+		robotRight speed(100) time(2000);
+		println("Inizializzazione Unity completata")
+		println("Inizio traversata")
+		//robotForward speed(100) time(600000) react event stop -> fermaRobot
+ 	
+ 	Plan fermaRobot resumeLastPlan
+ 		println("Stop requested")
+ 		//robotStop speed(0) time(0)
+}
+
+/*
 Robot mock QActor rover context ctxRover {	 
 	Rules {
 		unity.
@@ -97,4 +149,4 @@ Robot mock QActor rover context ctxRover {
 		[!? inFrontOf(rover,a)] onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(rover,a) 
 							else onEvent robotDetected:robotDetected(a) -> addRule inFrontOf(rover,a);
 		onEvent robotDetected:robotDetected(b) -> switchToPlan fermaRobot //arrivato a destinazione
-}
+}*/
