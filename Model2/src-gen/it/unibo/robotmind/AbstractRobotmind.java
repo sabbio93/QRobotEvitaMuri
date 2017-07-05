@@ -83,8 +83,6 @@ public abstract class AbstractRobotmind extends QActor {
 	    while(true){
 	    	curPlanInExec =  "listenToSonar";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
-	    		temporaryStr = "\"in ascolto\"";
-	    		println( temporaryStr );  
 	    		//senseEvent
 	    		aar = planUtils.senseEvents( 600000,"cmd,robotLeave,robotDetected","continue,continue,continue",
 	    		"" , "",ActionExecMode.synch );
@@ -92,7 +90,6 @@ public abstract class AbstractRobotmind extends QActor {
 	    			//println("			WARNING: sense timeout");
 	    			addRule("tout(senseevent,"+getName()+")");
 	    		}
-	    		printCurrentEvent(false);
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("cmd") ){
@@ -101,7 +98,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break; 
-	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@2d0d853d (not: false) fails");  //parg is null when there is no guard (onEvent)
+	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@3e7a20ed (not: false) fails");  //parg is null when there is no guard (onEvent)
 	    		 }
 	    		}
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
@@ -206,11 +203,6 @@ public abstract class AbstractRobotmind extends QActor {
 	    		QActorUtils.solveGoal(parg,pengine );
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?goalResult(R)" )) != null ){
 	    		temporaryStr = "goalResult(R)";
-	    		temporaryStr = QActorUtils.substituteVars(guardVars,temporaryStr);
-	    		println( temporaryStr );  
-	    		}
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?goalResult(prossimaMossa(stop))" )) != null ){
-	    		temporaryStr = "\"emit stop\"";
 	    		temporaryStr = QActorUtils.substituteVars(guardVars,temporaryStr);
 	    		println( temporaryStr );  
 	    		}

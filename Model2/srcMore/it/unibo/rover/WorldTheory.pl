@@ -137,6 +137,14 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %  User static rules about rover
 %------------------------------------------------- 
 unity.
+value( direzione,avanti).
+asinistra( davanti,sinistra).
+asinistra( sinistra,indietro).
+asinistra( indietro,destra).
+asinistra( destra,avanti).
+allinea( Dir):-value( orientazione,Dir), ! .
+allinea( Dir):-value( orientazione,CurrentDir),asinistra( CurrentDir,Dir),assert( ruota( sinistra)),assign( orientazione,Dir), ! .
+allinea( Dir):-value( orientazione,CurrentDir),asinistra( Dir,CurrentDir),assert( ruota( destra)),assign( orientazione,Dir), ! .
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),
