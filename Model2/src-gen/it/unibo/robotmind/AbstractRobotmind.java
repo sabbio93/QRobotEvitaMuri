@@ -98,7 +98,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break; 
-	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@5e421bc2 (not: false) fails");  //parg is null when there is no guard (onEvent)
+	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@2c8d4c47 (not: false) fails");  //parg is null when there is no guard (onEvent)
 	    		 }
 	    		}
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
@@ -161,13 +161,18 @@ public abstract class AbstractRobotmind extends QActor {
 	    		//aar = solveGoalReactive(parg,86400000,"","");
 	    		//genCheckAar(m.name)»		
 	    		QActorUtils.solveGoal(parg,pengine );
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??soluzione(stop)" )) != null ){
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?goalResult(R)" )) != null ){
+	    		temporaryStr = "goalResult(R)";
+	    		temporaryStr = QActorUtils.substituteVars(guardVars,temporaryStr);
+	    		println( temporaryStr );  
+	    		}
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?goalResult(stop)" )) != null ){
 	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop","stop", guardVars ).toString();
 	    		emit( "stop", temporaryStr );
 	    		}
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??soluzione(G)" )) != null ){
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "muovi(X)","muovi(G)", guardVars ).toString();
-	    		emit( "muovi", temporaryStr );
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??goalResult(G)" )) != null ){
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine,"muovi(X)","muovi(G)", guardVars ).toString();
+	    		sendMsg("muovi","rover", QActorContext.dispatch, temporaryStr ); 
 	    		}
 	    		returnValue = continueWork;  
 	    break;

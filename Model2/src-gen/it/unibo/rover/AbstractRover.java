@@ -163,46 +163,59 @@ protected IActorAction  action;
     while(true){
     	curPlanInExec =  "attesaComandi";	//within while since it can be lost by switchlan
     	nPlanIter++;
-    		//senseEvent
-    		aar = planUtils.senseEvents( 600000,"muovi","continue",
-    		"" , "",ActionExecMode.synch );
-    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
-    			//println("			WARNING: sense timeout");
-    			addRule("tout(senseevent,"+getName()+")");
+    		if( ! checkInMsgQueue() ){
+    			//ReceiveMsg
+    			 		aar = planUtils.receiveAMsg(mysupport,600000, "" , "" ); 	//could block
+    				    if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
+    				    	//println("	WARNING: receivemsg timeout " + aar.getTimeRemained());
+    				    	addRule("tout(receivemsg,"+getName()+")");
+    				    }
     		}
-    		//onEvent
-    		if( currentEvent.getEventId().equals("muovi") ){
-    		 		//println("WARNING: variable substitution not yet implmented " ); 
-    		 		//forward
-    		 		//if( ! execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot") ) break;
-    		 		    aar = execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot");
-    		 		    if( aar.getInterrupted() ){
-    		 		    	curPlanInExec   = "attesaComandi";
-    		 		    	if( ! aar.getGoon() ) break;
-    		 		    } 			
-    		 }
-    		//onEvent
-    		if( currentEvent.getEventId().equals("muovi") ){
-    		 		//println("WARNING: variable substitution not yet implmented " ); 
-    		 		//right
-    		 		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
-    		 		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
-    		 		    if( aar.getInterrupted() ){
-    		 		    	curPlanInExec   = "attesaComandi";
-    		 		    	if( ! aar.getGoon() ) break;
-    		 		    } 			
-    		 }
-    		//onEvent
-    		if( currentEvent.getEventId().equals("muovi") ){
-    		 		//println("WARNING: variable substitution not yet implmented " ); 
-    		 		//right
-    		 		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
-    		 		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
-    		 		    if( aar.getInterrupted() ){
-    		 		    	curPlanInExec   = "attesaComandi";
-    		 		    	if( ! aar.getGoon() ) break;
-    		 		    } 			
-    		 }
+    		//onMsg
+    		if( currentMessage.msgId().equals("muovi") ){
+    			String parg="assign(direzione,Dir)";
+    			/* PHead */
+    			parg =  updateVars( Term.createTerm("muovi(X)"), Term.createTerm("muovi(Dir)"), 
+    				    		  					Term.createTerm(currentMessage.msgContent()), parg);
+    				if( parg != null ) {
+    				    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
+    					//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
+    					if( aar.getInterrupted() ){
+    						curPlanInExec   = "attesaComandi";
+    						if( aar.getTimeRemained() <= 0 ) addRule("tout(demo,"+getName()+")");
+    						if( ! aar.getGoon() ) break;
+    					} 			
+    					if( aar.getResult().equals("failure")){
+    						if( ! aar.getGoon() ) break;
+    					}else if( ! aar.getGoon() ) break;
+    				}
+    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,avanti)" )) != null ){
+    		//forward
+    		//if( ! execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot");
+    		    if( aar.getInterrupted() ){
+    		    	curPlanInExec   = "attesaComandi";
+    		    	if( ! aar.getGoon() ) break;
+    		    } 			
+    		}
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,destra)" )) != null ){
+    		//right
+    		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
+    		    if( aar.getInterrupted() ){
+    		    	curPlanInExec   = "attesaComandi";
+    		    	if( ! aar.getGoon() ) break;
+    		    } 			
+    		}
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,sinistra)" )) != null ){
+    		//right
+    		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
+    		    if( aar.getInterrupted() ){
+    		    	curPlanInExec   = "attesaComandi";
+    		    	if( ! aar.getGoon() ) break;
+    		    } 			
+    		}
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
     break;
     }//while

@@ -4,7 +4,7 @@ Event sonar : sonar(Nome,Oggetto,Distanza)
 Event robotDetected : robotDetected(Sonar, Posizione)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
-Event muovi : muovi(X)
+Dispatch muovi : muovi(X)
 Event stop : stop
 
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
@@ -105,8 +105,9 @@ QActor robotmind context ctxController {
 	
 	Plan pianificaMossa resumeLastPlan
 		demo prossimaMossa(Mossa);
-		[?? soluzione(stop)] emit stop : stop;	
-		[?? soluzione(G)] emit muovi : muovi(G)
+		[!? goalResult(R)] println(goalResult(R));
+		[!? goalResult(stop)] emit stop : stop;	
+		[?? goalResult(G)] forward rover -m muovi : muovi(G)
 	
 //	/*
 //	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
@@ -142,10 +143,11 @@ Robot mock QActor rover context ctxRover {
 	 * R3: solo se è davanti al sonarA
 	 */
 	Plan attesaComandi //normal        
-		sense time(600000) muovi -> continue;
-		onEvent muovi : muovi(avanti) -> robotForward speed(60) time(600000) react event stop -> fermaRobot;
-		onEvent muovi : muovi(destra) -> robotRight speed(100) time(2000) react event stop -> fermaRobot;
-		onEvent muovi : muovi(sinistra) -> robotRight speed(100) time(2000) react event stop -> fermaRobot;
+		receiveMsg time(600000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
+		onMsg muovi : muovi(Dir) -> demo assign(direzione,Dir);
+		[!? value(direzione,avanti)] robotForward speed(60) time(600000) react event stop -> fermaRobot;
+		[!? value(direzione,destra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
+		[!? value(direzione,sinistra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
 		repeatPlan
 		
 	/*
