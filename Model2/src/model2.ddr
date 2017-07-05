@@ -65,9 +65,17 @@ QActor sonara context ctxSonarPartenza  {//MOCK
 
 QActor robotmind context ctxController {	 
 	Rules{
-		saveInitialDistance(D):-assert(inFrontOf(a,rover)),assign(initialDistance,D).
+		saveInitialDistance(D):-assert(davanti(sonara,rover)),assign(initialDistance,D).
 		sinistra(rover,sonarb).  /* alla sinistra del rover c'è sonarb */
+		davanti(rover, sonarb).
+
+		prossimaMossa(stop) :- davanti(sonarb, rover), D==db.
+		prossimaMossa(destra) :- davanti(sonarb, rover), D<db+incertezza.
+		prossimaMossa(sinistra) :- davanti(sonarb, rover), D>db+incertezza.
+						
+		prossimaMossa(avanti) :- davanti(rover, sonarb).		
 	}
+	
 	Plan init normal
 		println("controller starts");
 		switchToPlan listenToSonar
@@ -76,17 +84,18 @@ QActor robotmind context ctxController {
 	Plan listenToSonar
 		sense time(600000) cmd, robotLeave, robotDetected -> continue, continue, continue;
 		//il rover è davanti al sonar a ed ho ricevuto il comando start
-		[!? inFrontOf(a,rover)] onEvent cmd:cmd(start) -> emit muovi:muovi(avanti);
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> switchToPlan pianificaMossa;
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
-		[!? inFrontOf(a,rover)] onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(a,rover)
-						   else onEvent robotDetected:robotDetected(a,d(D)) -> demo saveInitialDistance(D);
-		onEvent robotDetected:robotDetected(b,d(D)) -> switchToPlan portaInPosizione; //arrivato a destinazione	
-		//[!? near(Rover, A)] onEvent cmd:cmd(start) -> switchToPlan traversata;
+		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
+						   else onEvent robotDetected:robotDetected(sonara,d(D)) -> demo saveInitialDistance(D);
+		onEvent robotDetected:robotDetected(b,d(D)) -> switchToPlan pianificaMossa; //arrivato a destinazione	
 		repeatPlan	
 	
-	Plan portaInPosizione resumeLastPlan
-		//TODO
-		emit stop:stop
+	Plan pianificaMossa resumeLastPlan
+		demo prossimaMossa(Mossa);
+		[?? soluzione(stop)] emit stop : stop;	
+		[?? soluzione(G)] emit muovi : muovi(G)
+	
 //	/*
 //	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 //	 */		

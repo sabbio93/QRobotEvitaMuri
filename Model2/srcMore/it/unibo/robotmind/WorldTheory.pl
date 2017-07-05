@@ -136,8 +136,9 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about robotmind
 %------------------------------------------------- 
-saveInitialDistance( D):-assert( inFrontOf( a,rover)),assign( initialDistance,D).
+saveInitialDistance( D):-assert( davanti( sonara,rover)),assign( initialDistance,D).
 sinistra( rover,sonarb).
+davanti( rover,sonarb).
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),
