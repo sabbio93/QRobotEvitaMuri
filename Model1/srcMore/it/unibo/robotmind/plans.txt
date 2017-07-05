@@ -4,4 +4,4 @@ plan(1,listenToSonar, sentence(true,senseEvent(600000,"robotLeave,robotDetected,
 plan(2,listenToSonar, sentence( inFrontOf( a,rover),eventswitch(cmd, »cmd( start), raise( start , start )') ),'','' ))
 plan(3,listenToSonar, sentence( inFrontOf( a,rover),eventswitch(robotLeave, »robotLeave( a), removeRule( inFrontOf( a,rover) ) ),'','' ))
 plan(4,listenToSonar, sentence(true,eventswitch(robotDetected, »robotDetected( b), raise( stop , stop )') ),'','' ))
-plan(5,listenToSonar, sentence(true,move(resumeplan),'','' ))
+plan(5,listenToSonar, sentence(true,repeatplan(0) ,'','' ))

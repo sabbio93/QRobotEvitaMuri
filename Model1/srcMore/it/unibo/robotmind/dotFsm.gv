@@ -17,4 +17,6 @@ digraph finite_state_machine {
   	
   	
   	init -> listenToSonar [ label = ""];
+  	
+  	listenToSonar -> listenToSonar [ label = "cmd(X)/robotLeave(Sonar)/robotDetected(Sonar)/"];
 }
