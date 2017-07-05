@@ -2,9 +2,6 @@ System m1
 
 Event robotDetected : robotDetected(Sonar)
 Event robotLeave : robotLeave(Sonar)
-Event cmd : cmd(X)
-Event start : start
-Event stop : stop
 Event sonar : sonar(Nome,Oggetto,Distanza) 
 
 //Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi

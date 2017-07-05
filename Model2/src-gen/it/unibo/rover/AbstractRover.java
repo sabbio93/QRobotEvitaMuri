@@ -175,7 +175,7 @@ protected IActorAction  action;
     		if( currentMessage.msgId().equals("muovi") ){
     			String parg="assign(direzione,Dir)";
     			/* PHead */
-    			parg =  updateVars( Term.createTerm("muovi(X)"), Term.createTerm("muovi(Dir)"), 
+    			parg =  updateVars( Term.createTerm("muovi(D)"), Term.createTerm("muovi(Dir)"), 
     				    		  					Term.createTerm(currentMessage.msgContent()), parg);
     				if( parg != null ) {
     				    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
@@ -189,7 +189,10 @@ protected IActorAction  action;
     						if( ! aar.getGoon() ) break;
     					}else if( ! aar.getGoon() ) break;
     				}
-    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,destra)" )) != null ){
+    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,stop)" )) != null ){
+    		if( ! planUtils.switchToPlan("fermaRobot").getGoon() ) break;
+    		}
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,destra)" )) != null ){
     		//right
     		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
     		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
