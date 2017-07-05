@@ -18,6 +18,6 @@ digraph finite_state_machine {
   	
   	init -> listenToSonar [ label = ""];
   	
-  	listenToSonar -> listenToSonar [ label = "cmd(X)/robotLeave(Sonar)/"];
-  	listenToSonar -> portaInPosizione [ label = "robotDetected(Sonar,Posizione)/"];
+  	listenToSonar -> listenToSonar [ label = "robotLeave(Sonar)/"];
+  	listenToSonar -> pianificaMossa [ label = "cmd(X)/robotDetected(Sonar,Posizione)/"];
 }

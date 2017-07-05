@@ -65,15 +65,27 @@ QActor sonara context ctxSonarPartenza  {//MOCK
 
 QActor robotmind context ctxController {	 
 	Rules{
-		saveInitialDistance(D):-assert(davanti(sonara,rover)),assign(initialDistance,D).
+		/* da WorldTheory del prof:
+		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
+		 * assign(I,V):-assert(value(I,V)).
+		 * eval(plus,V1,V2,R):-R is V1+V2.
+		 * eval(minus,V1,V2,R):-R is V1-V2.
+		 * eval(times,V1,V2,R):-R is V1*V2.
+		 * eval(div,V1,V2,R):-R is V1/V2.
+		 * eval(lt,X,Y):-X<Y.
+		 * eval(gt,X,Y):-X>Y.
+		 */
+		value(incertezza,2).
 		sinistra(rover,sonarb).  /* alla sinistra del rover c'è sonarb */
 		davanti(rover, sonarb).
+		
+		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
 
-		prossimaMossa(stop) :- davanti(sonarb, rover), D==db.
-		prossimaMossa(destra) :- davanti(sonarb, rover), D<db+incertezza.
-		prossimaMossa(sinistra) :- davanti(sonarb, rover), D>db+incertezza.
+		prossimaMossa(avanti):-davanti(rover,sonarb),!.		
+		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
+		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
+		prossimaMossa(stop):-davanti(sonarb,rover).
 						
-		prossimaMossa(avanti) :- davanti(rover, sonarb).		
 	}
 	
 	Plan init normal
@@ -87,7 +99,7 @@ QActor robotmind context ctxController {
 		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> switchToPlan pianificaMossa;
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
 		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
-						   else onEvent robotDetected:robotDetected(sonara,d(D)) -> demo saveInitialDistance(D);
+						   else onEvent robotDetected:robotDetected(sonara,d(D)) -> demo salvaDistanzaIniziale(D);
 		onEvent robotDetected:robotDetected(b,d(D)) -> switchToPlan pianificaMossa; //arrivato a destinazione	
 		repeatPlan	
 	
