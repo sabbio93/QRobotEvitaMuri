@@ -127,7 +127,7 @@ Robot mock QActor rover context ctxRover {
 		
 		//per ottenere a destra basta invertire i termini :)
 		asinistra(davanti, sinistra). asinistra(sinistra, indietro). asinistra(indietro, destra). asinistra(destra, avanti).  
-		adestra(Dir1, Dir2) :- asinistra(Dir2, Dir1).
+		adestra(Dir1, Dir2) :- asinistra(Dir2, Dir1). 
 		
 		allinea(Dir) :- value(orientazione, Dir), !. //nessuna rotazione		
 		//rotazione a sinistra
