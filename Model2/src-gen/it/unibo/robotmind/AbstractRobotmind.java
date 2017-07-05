@@ -98,7 +98,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break; 
-	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@6285d74c (not: false) fails");  //parg is null when there is no guard (onEvent)
+	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@71522a6a (not: false) fails");  //parg is null when there is no guard (onEvent)
 	    		 }
 	    		}
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
