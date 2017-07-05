@@ -80,16 +80,22 @@ QActor robotmind context ctxController {
 		
 		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
 
+
+	/* R2: 	Il robot si muove in avanti fino a quando non è arrivato davanti al sonar 
+	 * R4: 	il robot se troppo vicino/lontano deve spostarsi verso la posizione ottimale 
+	 * 		dal sonar B di arrivo. 
+	 */
 		prossimaMossa(avanti):-davanti(rover,sonarb),!.		
 		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
 		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
 		prossimaMossa(stop):-davanti(sonarb,rover).
-						
+		
 	}
 	
 	Plan init normal
 		println("controller starts");
 		switchToPlan listenToSonar
+	
 	
 	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
 	Plan listenToSonar
@@ -102,31 +108,32 @@ QActor robotmind context ctxController {
 		onEvent robotDetected:robotDetected(sonarb,d(D)) -> switchToPlan pianificaMossa; //arrivato a destinazione	
 		repeatPlan	
 	
+	/*
+	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
+	 */		
 	Plan pianificaMossa resumeLastPlan
 		demo prossimaMossa(Mossa);
 		[!? goalResult(R)] println(goalResult(R));
-		[!? goalResult(stop)] emit stop : stop;	
+		[?? goalResult(stop)] emit stop : stop;	
 		[?? goalResult(G)] forward rover -m muovi : muovi(G)
-	
-//	/*
-//	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
-//	 */		
-//	// mi è arrivato un evento dai sonar, cerco di capire dove sono, o reagisco di conseguenza
-//	Plan handleLocationInput resumeLastPlan
-//		[!? near(rover,a)] onEvent robotLeave:robotLeave(sonara, D) -> removeRule near(rover,sonara)
-//					else onEvent robotDetected:robotDetected(sonara, D) -> addRule near(rover,sonara);
-//		onEvent robotDetected:robotDetected(sonarb, d(D)) -> switchToPlan handleFinalMovements //arrivato davanti al sonarB
-//	/*
-//	 * R4: 	il robot se troppo vicino/lontano deve spostarsi verso la posizione ottimale 
-//	 * 		dal sonar B di arrivo. 
-//	 */
-//	Plan handleFinalMovements resumeLastPlan	
-//		onEvent robotDetected:robotDetected(sonarb, D)->println("")//TODO fai qualcosa
 }
 
 Robot mock QActor rover context ctxRover {
 	Rules {
 		unity.
+		//trasformazioni per rotazione
+		
+		value(direzione, avanti).
+		
+		//per ottenere a destra basta invertire i termini :)
+		asinistra(davanti, sinistra). asinistra(sinistra, indietro). asinistra(indietro, destra). asinistra(destra, avanti).  
+		
+		allinea(Dir) :- value(orientazione, Dir), !. //nessuna rotazione		
+		//rotazione a sinistra
+		allinea(Dir) :- value(orientazione, CurrentDir), asinistra(CurrentDir, Dir), assert(ruota(sinistra)), assign(orientazione, Dir), !. 
+		//rotazione a destra
+		allinea(Dir) :- value(orientazione, CurrentDir), asinistra(Dir, CurrentDir), assert(ruota(destra)), assign(orientazione, Dir), !. 
+		
 	}
 	Plan init normal
 		[!?unity] switchToPlan initUnity;
@@ -143,20 +150,13 @@ Robot mock QActor rover context ctxRover {
 	 */
 	Plan attesaComandi //normal        
 		receiveMsg time(600000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
-		onMsg muovi : muovi(Dir) -> demo assign(direzione,Dir);
-		[!? value(direzione,destra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
-		[!? value(direzione,sinistra)] robotLeft speed(100) time(2000) react event stop -> fermaRobot;
-		demo assign(direzione,avanti);
+		onMsg muovi : muovi(Dir) -> demo allinea(Dir);
+		[?? ruota(destra)] 	robotRight speed(100) time(2000) react event stop -> fermaRobot;
+		[?? ruota(sinistra)] 	robotLeft speed(100) time(2000) react event stop -> fermaRobot;
+		
 		robotForward speed(60) time(600000) react event stop -> fermaRobot;
 		repeatPlan
-		
-	/*
-	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
-	 */		
-  	/*Plan avanti resumeLastPlan
-		//println("Inizio traversata");
-		robotForward speed(60) time(600000) react event stop -> fermaRobot*/
- 	
+		 	
  	Plan fermaRobot
  		println("Stop requested");
  		robotStop speed(0) time(0);

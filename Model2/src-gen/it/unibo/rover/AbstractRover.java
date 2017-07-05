@@ -173,7 +173,7 @@ protected IActorAction  action;
     		}
     		//onMsg
     		if( currentMessage.msgId().equals("muovi") ){
-    			String parg="assign(direzione,Dir)";
+    			String parg="allinea(Dir)";
     			/* PHead */
     			parg =  updateVars( Term.createTerm("muovi(X)"), Term.createTerm("muovi(Dir)"), 
     				    		  					Term.createTerm(currentMessage.msgContent()), parg);
@@ -189,7 +189,7 @@ protected IActorAction  action;
     						if( ! aar.getGoon() ) break;
     					}else if( ! aar.getGoon() ) break;
     				}
-    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,destra)" )) != null ){
+    		}if( (guardVars = QActorUtils.evalTheGuard(this, " ??ruota(destra)" )) != null ){
     		//right
     		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
     		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
@@ -198,7 +198,7 @@ protected IActorAction  action;
     		    	if( ! aar.getGoon() ) break;
     		    } 			
     		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,sinistra)" )) != null ){
+    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??ruota(sinistra)" )) != null ){
     		//left
     		//if( ! execRobotMove("attesaComandi","left",100,0,2000, "stop" , "fermaRobot") ) break;
     		    aar = execRobotMove("attesaComandi","left",100,0,2000, "stop" , "fermaRobot");
@@ -207,11 +207,6 @@ protected IActorAction  action;
     		    	if( ! aar.getGoon() ) break;
     		    } 			
     		}
-    		parg = "assign(direzione,avanti)";
-    		//tout=1 day (24 h)
-    		//aar = solveGoalReactive(parg,86400000,"","");
-    		//genCheckAar(m.name)»		
-    		QActorUtils.solveGoal(parg,pengine );
     		//forward
     		//if( ! execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot") ) break;
     		    aar = execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot");
