@@ -9,10 +9,9 @@ Event stop : stop
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
 //Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
 //Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
-Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
-Context  ctxController      ip [host="localhost" port=8040] -httpserver
+Context  ctxRover  			ip [host="localhost" port=8070] -httpserver 
 
-QActor robotmind context ctxController {
+QActor robotmind context ctxRover {
 	Plan init normal
 		println("controller starts");
 		switchToPlan listenToSonar
