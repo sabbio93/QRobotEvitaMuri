@@ -13,6 +13,8 @@ digraph finite_state_machine {
   	node [shape = point]; iniziale;
   	node [shape = doublecircle]; 
   	node [shape = circle];
-  	iniziale -> init [label = ""];
+  	iniziale -> rileva [label = ""];
   	
+  	
+  	rileva -> rileva [ label = "sonar(Nome,Oggetto,Distanza)/"];
 }

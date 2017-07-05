@@ -1,0 +1,7 @@
+plan(1,init, sentence(true,move(print("controller starts")),'','' ))
+plan(2,init, sentence(true,move( switchplan(listenToSonar) ),'','' ))
+plan(1,listenToSonar, sentence(true,senseEvent(600000,"robotLeave,robotDetected,cmd","continue,continue,continue"),'','' ))
+plan(2,listenToSonar, sentence( inFrontOf( a,rover),eventswitch(cmd, Â»cmd( start), raise( start , start )') ),'','' ))
+plan(3,listenToSonar, sentence( inFrontOf( a,rover),eventswitch(robotLeave, Â»robotLeave( a), removeRule( inFrontOf( a,rover) ) ),'','' ))
+plan(4,listenToSonar, sentence(true,eventswitch(robotDetected, Â»robotDetected( b), raise( stop , stop )') ),'','' ))
+plan(5,listenToSonar, sentence(true,repeatplan(0) ,'','' ))

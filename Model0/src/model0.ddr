@@ -1,31 +1,9 @@
 RobotSystem model0
 
-Event robotDetected : robotDetected
+Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
-Event sonar : sonar(Nome,Oggetto,Distanza)
 
 Context ctxRover ip [host="localhost" port=8070] -httpserver //192.168.251.1
-Context ctxSonarArrivo ip [host="localhost" port=8035]	//192.168.251.3
-
-/* Il sonar ciclicamente emette un evento contenente 
- * la distanza che rileva, questa viene utilizzata per verificare
- * se il rover è passato, dunque arrivato al punto B
- */
- 
-//QActor sonarb context ctxSonarArrivo {	//MOCK
-//	Plan init normal
-//		switchToPlan attesa;
-//		actorOp initSonar
-//	Plan attesa resumeLastPlan
-//		sense time(600000) cmd -> continue;
-//		emit roverOnB : roverOnB	
-//}
-QActor sonarb context ctxSonarArrivo {	//UNITY
-	Plan rileva normal
-		sense time(600000) sonar -> continue;
-		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected;
-	 	repeatPlan
-}
 
 Robot mock QActor rover context ctxRover {
 	Rules {
@@ -46,7 +24,7 @@ Robot mock QActor rover context ctxRover {
 	 */
 	Plan attesa
 		sense time(600000) cmd -> continue;
-		onEvent cmd:cmd(start)->switchToPlan traversata;
+		onEvent cmd:cmd(start) -> switchToPlan traversata;
 		repeatPlan
 
 	/*
