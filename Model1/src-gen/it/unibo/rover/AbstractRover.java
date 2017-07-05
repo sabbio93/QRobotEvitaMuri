@@ -170,6 +170,7 @@ protected IActorAction  action;
     			//println("			WARNING: sense timeout");
     			addRule("tout(senseevent,"+getName()+")");
     		}
+    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
     		returnValue = continueWork;  
     break;
     }//while

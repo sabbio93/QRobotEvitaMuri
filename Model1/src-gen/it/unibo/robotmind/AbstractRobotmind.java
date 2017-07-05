@@ -123,7 +123,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 		if( parg != null ) emit( "stop", parg );
 	    		 }
-	    		returnValue = continueWork;  
+	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
 	    break;
 	    }//while
 	    return returnValue;

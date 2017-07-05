@@ -5,28 +5,28 @@ Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
 Event start : start
 Event stop : stop
-Event sonar : sonar(Nome,Oggetto,Distanza) 
 
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
 //Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
 //Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
 Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
-Context  ctxController      ip [host="127.0.0.1" port=8040] -httpserver
+Context  ctxController      ip [host="localhost" port=8040] -httpserver
 
-QActor robotmind context ctxController{
+QActor robotmind context ctxController {
 	Plan init normal
 		println("controller starts");
 		switchToPlan listenToSonar
 	
 	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
-	Plan listenToSonar resumeLastPlan
+	Plan listenToSonar
 		sense time(600000) robotLeave, robotDetected, cmd -> continue, continue, continue;		
 		//il rover è davanti al sonar a ed ho ricevuto il comando start
 		[!? inFrontOf(a,rover)] onEvent cmd:cmd(start) -> emit start:start; 
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
 		[!? inFrontOf(a,rover)] onEvent robotLeave:robotLeave(a) -> removeRule inFrontOf(a,rover) 
 						   else onEvent robotDetected:robotDetected(a) -> addRule inFrontOf(a,rover);
-		onEvent robotDetected:robotDetected(b) -> emit stop:stop //arrivato a destinazione				
+		onEvent robotDetected:robotDetected(b) -> emit stop:stop; //arrivato a destinazione
+		repeatPlan
 }
 
 Robot mock QActor rover context ctxRover {	 
@@ -47,7 +47,8 @@ Robot mock QActor rover context ctxRover {
 	 * R3: solo se è davanti al sonarA
 	 */
 	Plan waitStartCommand resumeLastPlan //normal        
-		sense time(600000) start -> traversata
+		sense time(600000) start -> traversata;
+		repeatPlan
 		
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione

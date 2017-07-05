@@ -1,6 +1,6 @@
 System m1
 
-Event stop : stop()
+/*Event stop : stop()
 Event robotOnA: robotOnA()
 Event robotLeaveA: robotLeaveA()
 Event cmd : cmd(X)
@@ -21,7 +21,7 @@ and change the state of the robot as represented in the
 robot's WorldTheory
  */
 
-Context  ctxRover  			ip [ host="192.168.251.1"  port=8070 ] -httpserver//NOTE elimino un qa dai giochi
+/*Context  ctxRover  			ip [ host="192.168.251.1"  port=8070 ] -httpserver//NOTE elimino un qa dai giochi
 Context  ctxSonarArrivo     ip [ host="192.168.251.3"  port=8035 ]   
 Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]  
 Context  ctxController      ip [host="127.0.0.1"       port=8040]
@@ -66,8 +66,8 @@ QActor sonara context ctxSonarPartenza //UNITY
 QActor mocsonara context ctxSonarPartenza
 {
 	Plan init normal     
-		println("SonarPartenza Start")	;
-		switchToPlan rilevaRobotOnA  ;
+		println("SonarPartenza Start");
+		switchToPlan rilevaRobotOnA;
 		println("rinizializzo");
 		repeatPlan
 		
@@ -106,11 +106,11 @@ QActor robotmind context ctxController
 	
 }
 
-/*Robot mock*/  QActor rover context ctxRover {	 
+/*Robot mock*/  /*QActor rover context ctxRover {	 
 	/*
 	 * R2: Il robot comincia a muoversi alla pressione del tasto start
 	 */
-	Plan init normal        
+	/*Plan init normal        
 		sense time(600000) cmd -> continue;
 		onEvent cmd:cmd(start)->switchToPlan traversata;
 		repeatPlan
@@ -118,7 +118,7 @@ QActor robotmind context ctxController
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan
+  	/*Plan traversata resumeLastPlan
 		println("Inizio traversata")
 		//robotForward speed(100) time(600000) react event stop -> fermaRobot
  	
@@ -127,4 +127,4 @@ QActor robotmind context ctxController
  		//robotStop speed(0) time(0)
 }
 
-//QActor buttonstart context ctxButtonStart{}
+//QActor buttonstart context ctxButtonStart{}*/
