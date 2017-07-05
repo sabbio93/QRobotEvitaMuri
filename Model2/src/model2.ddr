@@ -12,56 +12,55 @@ Event stop : stop
 //Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
 Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
 Context  ctxController      ip [host="localhost" port=8040] -httpserver
-Context  ctxSonarArrivo     ip [ host="192.168.251.3"  port=8035 ]   
-Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]  
+Context  ctxSonarArrivo     ip [ host="localhost"  port=8035 ]   
+Context  ctxSonarPartenza   ip [ host="localhost"  port=8035 ]  
 
-QActor sonarb context ctxSonarArrivo  {//MOCK
-	Plan init normal     
-		println("ctxSonarArrivo start -- wait for start");
-		sense time(600000) cmd -> continue;
-		delay time (6000);
-		println("invio event stop");
-		emit robotDetected : robotDetected(sonarb,d(30));
-		delay time (3000);
-		println("invio event stop");
-		emit robotDetected : robotDetected(sonarb,d(20))
-}
-
-//QActor sonarb context ctxSonarArrivo {	//UNITY
-//	Plan rileva normal
-//		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(sonarb,d(D));
-//	 	repeatPlan
-//}
-
-QActor sonara context ctxSonarPartenza  {//MOCK
-	Plan init normal     
-		println("ctxSonarPartenza start -- wait for start");
-		delay time(1000);
-		println("invio event presente in A");
-		emit robotDetected : robotDetected(sonara,d(20));
-		delay time(2000);     
- 		sense time(600000) cmd -> continue;
-		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(sonara)		
-}
-
-
-//QActor sonara context ctxSonarPartenza //UNITY
-//{
+//QActor sonarb context ctxSonarArrivo  {//MOCK
 //	Plan init normal     
-//		println("SonarPartenza Start")	;
-//		switchToPlan rilevaRobotOnA;
-//		repeatPlan
-//		
-//	Plan rilevaRobotOnA resumeLastPlan
-//		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(sonara,d(D));
-//        switchToPlan rilevaRobotLeaveA
-//		
-//	Plan rilevaRobotLeaveA resumeLastPlan
-//		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeave : robotLeave(sonara)
+//		println("ctxSonarArrivo start -- wait for start");
+//		sense time(600000) cmd -> continue;
+//		delay time (6000);
+//		println("invio event stop");
+//		emit robotDetected : robotDetected(sonarb,d(30));
+//		delay time (3000);
+//		println("invio event stop");
+//		emit robotDetected : robotDetected(sonarb,d(20))
 //}
+
+QActor sonarb context ctxSonarArrivo {	//UNITY
+	Plan rileva normal
+		sense time(600000) sonar -> continue;
+		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(sonarb,d(D));
+	 	repeatPlan
+}
+
+//QActor sonara context ctxSonarPartenza  {//MOCK
+//	Plan init normal     
+//		println("ctxSonarPartenza start -- wait for start");
+//		delay time(1000);
+//		println("invio event presente in A");
+//		emit robotDetected : robotDetected(sonara,d(20));
+//		delay time(2000);     
+// 		sense time(600000) cmd -> continue;
+//		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(sonara)		
+//}
+
+QActor sonara context ctxSonarPartenza //UNITY
+{
+	Plan init normal     
+		println("SonarPartenza Start");
+		switchToPlan rilevaRobotOnA;
+		repeatPlan
+		
+	Plan rilevaRobotOnA resumeLastPlan
+		sense time(600000) sonar -> continue;
+		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(sonara,d(D));
+        switchToPlan rilevaRobotLeaveA
+		
+	Plan rilevaRobotLeaveA resumeLastPlan
+		sense time(600000) sonar -> continue;
+		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeave : robotLeave(sonara)
+}
 
 QActor robotmind context ctxController {	 
 	Rules{
@@ -145,9 +144,10 @@ Robot mock QActor rover context ctxRover {
 	Plan attesaComandi //normal        
 		receiveMsg time(600000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
 		onMsg muovi : muovi(Dir) -> demo assign(direzione,Dir);
-		[!? value(direzione,avanti)] robotForward speed(60) time(600000) react event stop -> fermaRobot;
 		[!? value(direzione,destra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
-		[!? value(direzione,sinistra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
+		[!? value(direzione,sinistra)] robotLeft speed(100) time(2000) react event stop -> fermaRobot;
+		demo assign(direzione,avanti);
+		robotForward speed(60) time(600000) react event stop -> fermaRobot;
 		repeatPlan
 		
 	/*

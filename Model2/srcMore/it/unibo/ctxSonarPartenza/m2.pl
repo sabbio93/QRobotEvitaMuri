@@ -3,8 +3,8 @@
 %====================================================================================
 context(ctxrover, "localhost",  "TCP", "8070" ).  		 
 context(ctxcontroller, "localhost",  "TCP", "8040" ).  		 
-context(ctxsonararrivo, "192.168.251.3",  "TCP", "8035" ).  		 
-context(ctxsonarpartenza, "192.168.251.4",  "TCP", "8035" ).  		 
+context(ctxsonararrivo, "localhost",  "TCP", "8035" ).  		 
+context(ctxsonarpartenza, "localhost",  "TCP", "8035" ).  		 
 %%% -------------------------------------------
 qactor( sonarb , ctxsonararrivo, "it.unibo.sonarb.MsgHandle_Sonarb"   ). %%store msgs 
 qactor( sonarb_ctrl , ctxsonararrivo, "it.unibo.sonarb.Sonarb"   ). %%control-driven 

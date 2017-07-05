@@ -189,16 +189,7 @@ protected IActorAction  action;
     						if( ! aar.getGoon() ) break;
     					}else if( ! aar.getGoon() ) break;
     				}
-    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,avanti)" )) != null ){
-    		//forward
-    		//if( ! execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot") ) break;
-    		    aar = execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot");
-    		    if( aar.getInterrupted() ){
-    		    	curPlanInExec   = "attesaComandi";
-    		    	if( ! aar.getGoon() ) break;
-    		    } 			
-    		}
-    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,destra)" )) != null ){
+    		}if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,destra)" )) != null ){
     		//right
     		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
     		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
@@ -208,14 +199,26 @@ protected IActorAction  action;
     		    } 			
     		}
     		if( (guardVars = QActorUtils.evalTheGuard(this, " !?value(direzione,sinistra)" )) != null ){
-    		//right
-    		//if( ! execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot") ) break;
-    		    aar = execRobotMove("attesaComandi","right",100,0,2000, "stop" , "fermaRobot");
+    		//left
+    		//if( ! execRobotMove("attesaComandi","left",100,0,2000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("attesaComandi","left",100,0,2000, "stop" , "fermaRobot");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "attesaComandi";
     		    	if( ! aar.getGoon() ) break;
     		    } 			
     		}
+    		parg = "assign(direzione,avanti)";
+    		//tout=1 day (24 h)
+    		//aar = solveGoalReactive(parg,86400000,"","");
+    		//genCheckAar(m.name)»		
+    		QActorUtils.solveGoal(parg,pengine );
+    		//forward
+    		//if( ! execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot") ) break;
+    		    aar = execRobotMove("attesaComandi","forward",60,0,600000, "stop" , "fermaRobot");
+    		    if( aar.getInterrupted() ){
+    		    	curPlanInExec   = "attesaComandi";
+    		    	if( ! aar.getGoon() ) break;
+    		    } 			
     		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
     break;
     }//while
