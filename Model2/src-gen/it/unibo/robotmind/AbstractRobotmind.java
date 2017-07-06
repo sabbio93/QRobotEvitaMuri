@@ -98,7 +98,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break; 
-	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@7fd8caf4 (not: false) fails");  //parg is null when there is no guard (onEvent)
+	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@20e22dd2 (not: false) fails");  //parg is null when there is no guard (onEvent)
 	    		 }
 	    		}
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
@@ -113,7 +113,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		else{ //onEvent
 	    		if( currentEvent.getEventId().equals("robotDetected") ){
 	    		 		String parg="salvaDistanzaIniziale(D)";
-	    		 		parg = updateVars( Term.createTerm("robotDetected(Sonar,Posizione)"),  Term.createTerm("robotDetected(sonara,d(D))"), 
+	    		 		parg = updateVars( Term.createTerm("robotDetected(Sonar,Distanza)"),  Term.createTerm("robotDetected(sonara,D)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ) {
 	    		 			    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
@@ -130,12 +130,31 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 }
 	    		}//onEvent
 	    		if( currentEvent.getEventId().equals("robotDetected") ){
+	    		 		String parg="sonarbRaggiunto";
+	    		 		/* PHead */
+	    		 		parg =  updateVars( Term.createTerm("robotDetected(Sonar,Distanza)"), Term.createTerm("robotDetected(sonarb,D)"), 
+	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
+	    		 			if( parg != null ) {
+	    		 			    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
+	    		 				//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
+	    		 				if( aar.getInterrupted() ){
+	    		 					curPlanInExec   = "listenToSonar";
+	    		 					if( aar.getTimeRemained() <= 0 ) addRule("tout(demo,"+getName()+")");
+	    		 					if( ! aar.getGoon() ) break;
+	    		 				} 			
+	    		 				if( aar.getResult().equals("failure")){
+	    		 					if( ! aar.getGoon() ) break;
+	    		 				}else if( ! aar.getGoon() ) break;
+	    		 			}
+	    		 }
+	    		//onEvent
+	    		if( currentEvent.getEventId().equals("robotDetected") ){
 	    		 		String parg = "";
 	    		 		/* SwitchPlan */
-	    		 		parg =  updateVars(  Term.createTerm("robotDetected(Sonar,Posizione)"), Term.createTerm("robotDetected(sonarb,d(D))"), 
+	    		 		parg =  updateVars(  Term.createTerm("robotDetected(Sonar,Distanza)"), Term.createTerm("robotDetected(sonarb,D)"), 
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
-	    		 				 if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break; 
+	    		 				 if( ! planUtils.switchToPlan("pianificaECambiaMossa").getGoon() ) break; 
 	    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
 	    		 }
 	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
@@ -144,6 +163,27 @@ public abstract class AbstractRobotmind extends QActor {
 	    return returnValue;
 	    }catch(Exception e){
 	       //println( getName() + " plan=listenToSonar WARNING:" + e.getMessage() );
+	       QActorContext.terminateQActorSystem(this); 
+	       return false;  
+	    }
+	    }
+	    public boolean pianificaECambiaMossa() throws Exception{	//public to allow reflection
+	    try{
+	    	int nPlanIter = 0;
+	    	//curPlanInExec =  "pianificaECambiaMossa";
+	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    while(true){
+	    	curPlanInExec =  "pianificaECambiaMossa";	//within while since it can be lost by switchlan
+	    	nPlanIter++;
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop","stop", guardVars ).toString();
+	    		emit( "stop", temporaryStr );
+	    		if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break;
+	    		returnValue = continueWork;  
+	    break;
+	    }//while
+	    return returnValue;
+	    }catch(Exception e){
+	       //println( getName() + " plan=pianificaECambiaMossa WARNING:" + e.getMessage() );
 	       QActorContext.terminateQActorSystem(this); 
 	       return false;  
 	    }
@@ -159,19 +199,19 @@ public abstract class AbstractRobotmind extends QActor {
 	    		parg = "prossimaMossa(Mossa)";
 	    		//tout=1 day (24 h)
 	    		//aar = solveGoalReactive(parg,86400000,"","");
-	    		//genCheckAar(m.name)Â»		
+	    		//genCheckAar(m.name)»		
 	    		QActorUtils.solveGoal(parg,pengine );
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?goalResult(R)" )) != null ){
 	    		temporaryStr = "goalResult(R)";
 	    		temporaryStr = QActorUtils.substituteVars(guardVars,temporaryStr);
 	    		println( temporaryStr );  
 	    		}
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?goalResult(stop)" )) != null ){
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??goalResult(prossimaMossa(stop))" )) != null ){
 	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "stop","stop", guardVars ).toString();
 	    		emit( "stop", temporaryStr );
 	    		}
-	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??goalResult(G)" )) != null ){
-	    		temporaryStr = QActorUtils.unifyMsgContent(pengine,"muovi(X)","muovi(G)", guardVars ).toString();
+	    		if( (guardVars = QActorUtils.evalTheGuard(this, " ??goalResult(prossimaMossa(G))" )) != null ){
+	    		temporaryStr = QActorUtils.unifyMsgContent(pengine,"muovi(D)","muovi(G)", guardVars ).toString();
 	    		sendMsg("muovi","rover", QActorContext.dispatch, temporaryStr ); 
 	    		}
 	    		returnValue = continueWork;  

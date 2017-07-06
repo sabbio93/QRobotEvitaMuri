@@ -140,6 +140,7 @@ value( incertezza,2).
 sinistra( rover,sonarb).
 davanti( rover,sonarb).
 salvaDistanzaIniziale( D):-assert( davanti( sonara,rover)),assign( distanzaIniziale,D).
+sonarbRaggiunto:-retract( davanti( rover,sonarb)),assert( davanti( sonarb,rover)).
 prossimaMossa( avanti):-davanti( rover,sonarb), ! .
 prossimaMossa( destra):-davanti( sonarb,rover),value( distanzaB,D),value( incertezza,I),value( distanzaIniziale,Di),eval( minus,Di,I,Dmin),eval( lt,D,Dmin), ! .
 prossimaMossa( sinistra):-davanti( sonarb,rover),value( distanzaB,D),value( incertezza,I),value( distanzaIniziale,Di),eval( plus,Di,I,DMAX),eval( gt,D,DMAX), ! .
