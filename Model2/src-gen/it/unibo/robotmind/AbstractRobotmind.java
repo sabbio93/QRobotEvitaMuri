@@ -65,7 +65,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    	nPlanIter++;
 	    		temporaryStr = "\"controller starts\"";
 	    		println( temporaryStr );  
-	    		if( ! planUtils.switchToPlan("listenToSonar").getGoon() ) break;
+	    		if( ! planUtils.switchToPlan("waitForInput").getGoon() ) break;
 	    break;
 	    }//while
 	    return returnValue;
@@ -75,21 +75,39 @@ public abstract class AbstractRobotmind extends QActor {
 	       return false;  
 	    }
 	    }
-	    public boolean listenToSonar() throws Exception{	//public to allow reflection
+	    public boolean waitForInput() throws Exception{	//public to allow reflection
 	    try{
 	    	int nPlanIter = 0;
-	    	//curPlanInExec =  "listenToSonar";
+	    	//curPlanInExec =  "waitForInput";
 	    	boolean returnValue = suspendWork;		//MARCHH2017
 	    while(true){
-	    	curPlanInExec =  "listenToSonar";	//within while since it can be lost by switchlan
+	    	curPlanInExec =  "waitForInput";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		//senseEvent
-	    		aar = planUtils.senseEvents( 600000,"cmd,robotLeave,robotDetected","continue,continue,continue",
+	    		aar = planUtils.senseEvents( 600000,"cmd,robotLeave,robotDetected","handleUserCommand,handleSonarEvent,handleSonarEvent",
 	    		"" , "",ActionExecMode.synch );
 	    		if( ! aar.getGoon() || aar.getTimeRemained() <= 0 ){
 	    			//println("			WARNING: sense timeout");
 	    			addRule("tout(senseevent,"+getName()+")");
 	    		}
+	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+	    break;
+	    }//while
+	    return returnValue;
+	    }catch(Exception e){
+	       //println( getName() + " plan=waitForInput WARNING:" + e.getMessage() );
+	       QActorContext.terminateQActorSystem(this); 
+	       return false;  
+	    }
+	    }
+	    public boolean handleUserCommand() throws Exception{	//public to allow reflection
+	    try{
+	    	int nPlanIter = 0;
+	    	//curPlanInExec =  "handleUserCommand";
+	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    while(true){
+	    	curPlanInExec =  "handleUserCommand";	//within while since it can be lost by switchlan
+	    	nPlanIter++;
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("cmd") ){
@@ -98,9 +116,27 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    		  					Term.createTerm(currentEvent.getMsg()), parg);
 	    		 			if( parg != null ){
 	    		 				 if( ! planUtils.switchToPlan("pianificaMossa").getGoon() ) break; 
-	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@20e22dd2 (not: false) fails");  //parg is null when there is no guard (onEvent)
+	    		 			}//else println("guard it.unibo.xtext.qactor.impl.GuardImpl@5e0a7200 (not: false) fails");  //parg is null when there is no guard (onEvent)
 	    		 }
 	    		}
+	    		returnValue = continueWork;  
+	    break;
+	    }//while
+	    return returnValue;
+	    }catch(Exception e){
+	       //println( getName() + " plan=handleUserCommand WARNING:" + e.getMessage() );
+	       QActorContext.terminateQActorSystem(this); 
+	       return false;  
+	    }
+	    }
+	    public boolean handleSonarEvent() throws Exception{	//public to allow reflection
+	    try{
+	    	int nPlanIter = 0;
+	    	//curPlanInExec =  "handleSonarEvent";
+	    	boolean returnValue = suspendWork;		//MARCHH2017
+	    while(true){
+	    	curPlanInExec =  "handleSonarEvent";	//within while since it can be lost by switchlan
+	    	nPlanIter++;
 	    		if( (guardVars = QActorUtils.evalTheGuard(this, " !?davanti(sonara,rover)" )) != null ){
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("robotLeave") ){
@@ -119,7 +155,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
 	    		 				//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
 	    		 				if( aar.getInterrupted() ){
-	    		 					curPlanInExec   = "listenToSonar";
+	    		 					curPlanInExec   = "handleSonarEvent";
 	    		 					if( aar.getTimeRemained() <= 0 ) addRule("tout(demo,"+getName()+")");
 	    		 					if( ! aar.getGoon() ) break;
 	    		 				} 			
@@ -138,7 +174,7 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 			    aar = QActorUtils.solveGoal(this,myCtx,pengine,parg,"",outEnvView,86400000);
 	    		 				//println(getName() + " plan " + curPlanInExec  +  " interrupted=" + aar.getInterrupted() + " action goon="+aar.getGoon());
 	    		 				if( aar.getInterrupted() ){
-	    		 					curPlanInExec   = "listenToSonar";
+	    		 					curPlanInExec   = "handleSonarEvent";
 	    		 					if( aar.getTimeRemained() <= 0 ) addRule("tout(demo,"+getName()+")");
 	    		 					if( ! aar.getGoon() ) break;
 	    		 				} 			
@@ -157,12 +193,12 @@ public abstract class AbstractRobotmind extends QActor {
 	    		 				 if( ! planUtils.switchToPlan("pianificaECambiaMossa").getGoon() ) break; 
 	    		 			}//else println("guard  fails");  //parg is null when there is no guard (onEvent)
 	    		 }
-	    		if( planUtils.repeatPlan(nPlanIter,0).getGoon() ) continue;
+	    		returnValue = continueWork;  
 	    break;
 	    }//while
 	    return returnValue;
 	    }catch(Exception e){
-	       //println( getName() + " plan=listenToSonar WARNING:" + e.getMessage() );
+	       //println( getName() + " plan=handleSonarEvent WARNING:" + e.getMessage() );
 	       QActorContext.terminateQActorSystem(this); 
 	       return false;  
 	    }
