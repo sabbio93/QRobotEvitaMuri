@@ -3,7 +3,8 @@ RobotSystem m3
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
-Dispatch comando : comando(X)	//TODO
+Event alarm : alarm(X)
+Dispatch comando : comando(X)
 Event stop : stop
 
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
@@ -15,7 +16,9 @@ Context  ctxRover  			ip [host="localhost" port=8070]
 QActor mockstart context ctxController {
 	Plan avvia normal
 		delay time(5000);
-		emit cmd:cmd(start)
+		emit cmd:cmd(start);
+		delay time(6000);
+		emit alarm:alarm(fire)
 }
 QActor robotmind context ctxController {
     Rules {
@@ -31,11 +34,12 @@ QActor robotmind context ctxController {
 		 */
 		value(incertezza,2).
 		
-    	salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
-    	
-    	gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
-    	gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
-    	gap(no,0).
+		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
+		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
+		
+		gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
+		gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
+		gap(no,0).
 //    	prossimaMossa(avanti):-davanti(rover,sonarb),!.		
 //		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
 //		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
@@ -66,15 +70,11 @@ QActor robotmind context ctxController {
 	
 	Plan risolviGap resumeLastPlan
 		println("piano risolviGap");
-//		switchToPlan restaInRaggioDAzione;
 		demo gap(Dir,Dist);
 		[!? goalResult(G)] println(G);
 		[?? goalResult(gap(destra,D))] forward rover -m comando:comando(destra);
 		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
 		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
-	
-//	Plan restaInRaggioDAzione resumeLastPlan
-		
 	
 	Plan controlloPosizione resumeLastPlan
 		println("piano controlloPosizione");
@@ -113,21 +113,24 @@ Robot mock QActor rover context ctxRover {
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan
+	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(15) time(600000) react event stop -> fermaRobot
- 	
- 	Plan fermaRobot
- 		println("Stop requested");
- 		robotStop speed(0) time(0);
- 		switchToPlan aspettaComando
- 		
-    Plan recuperaDx resumeLastPlan
-    robotRight speed(100) time(2000) react event stop -> fermaRobot;
-    switchToPlan traversata
+		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme
+	
+	Plan fermaRobot
+		println("Stop requested");
+		robotStop speed(0) time(0);
+		switchToPlan aspettaComando
+		
+	Plan recuperaDx resumeLastPlan
+		robotRight speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		switchToPlan traversata
+	
+	Plan recuperaSx resumeLastPlan
+		robotLeft speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		switchToPlan traversata
     
-    Plan recuperaSx resumeLastPlan
-   robotLeft speed(100) time(2000) react event stop -> fermaRobot;
-    switchToPlan traversata
-    
+    Plan gestisciAllarme
+    	println("ALLARME! ALLARME!");
+		robotStop speed(0) time(0)
 }

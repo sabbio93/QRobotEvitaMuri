@@ -1,8 +1,9 @@
-RobotSystem m2
+RobotSystem m4
 
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
+Event alarm : alarm(X)
 Dispatch comando : comando(X)
 Event stop : stop
 
@@ -15,10 +16,12 @@ Context  ctxRover  			ip [host="localhost" port=8070]
 QActor mockstart context ctxController {
 	Plan avvia normal
 		delay time(5000);
-		emit cmd:cmd(start)
+		emit cmd:cmd(start);
+		delay time(6000);
+		emit alarm:alarm(fire)
 }
 QActor robotmind context ctxController {
-	Rules {
+    Rules {
 		/* da WorldTheory del prof:
 		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
 		 * assign(I,V):-assert(value(I,V)).
@@ -110,21 +113,24 @@ Robot mock QActor rover context ctxRover {
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan
+	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(15) time(600000) react event stop -> fermaRobot
- 	
- 	Plan fermaRobot
- 		println("Stop requested");
- 		robotStop speed(0) time(0);
- 		switchToPlan aspettaComando
- 		
-    Plan recuperaDx resumeLastPlan
-    robotRight speed(100) time(2000) react event stop -> fermaRobot;
-    switchToPlan traversata
+		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme
+	
+	Plan fermaRobot
+		println("Stop requested");
+		robotStop speed(0) time(0);
+		switchToPlan aspettaComando
+		
+	Plan recuperaDx resumeLastPlan
+		robotRight speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		switchToPlan traversata
+	
+	Plan recuperaSx resumeLastPlan
+		robotLeft speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		switchToPlan traversata
     
-    Plan recuperaSx resumeLastPlan
-   robotLeft speed(100) time(2000) react event stop -> fermaRobot;
-    switchToPlan traversata
-    
+    Plan gestisciAllarme
+    	println("ALLARME! ALLARME!");
+		robotStop speed(0) time(0)
 }

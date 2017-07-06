@@ -1,6 +1,7 @@
-System m3
+System m4
 
 Event sonar : sonar(Nome,Oggetto,Distanza)
+Event sonarDetected : sonarDetected(Oggetto)
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
 
