@@ -16,13 +16,8 @@ digraph finite_state_machine {
   	iniziale -> init [label = ""];
   	
   	
-  	init -> waitForInput [ label = ""];
+  	init -> aspettaEventi [ label = ""];
   	
-  	waitForInput -> waitForInput [ label = ""];
-  	
-  	handleUserCommand -> pianificaMossa [ label = "cmd(X)/"];
-  	
-  	handleSonarEvent -> pianificaECambiaMossa [ label = "robotDetected(Sonar,Distanza)/"];
-  	
-  	pianificaECambiaMossa -> pianificaMossa [ label = ""];
+  	aspettaEventi -> aspettaEventi [ label = "cmd(X)/robotLeave(Sonar)/"];
+  	aspettaEventi -> risolviGap [ label = "robotDetected(Sonar,Distanza)/"];
 }

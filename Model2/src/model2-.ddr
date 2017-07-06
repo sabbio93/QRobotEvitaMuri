@@ -3,8 +3,6 @@ RobotSystem m2
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
-Event alarm : alarm(X)
-
 Dispatch muovi : muovi(D)
 Event stop : stop
 
@@ -109,17 +107,13 @@ Robot mock QActor rover context ctxRover {
 	 * R3: solo se è davanti al sonarA
 	 */
 	Plan attesaComandi //normal        
-		receiveMsg time(600000) react event alarm -> handleAlarm;	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
+		receiveMsg time(600000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
 		onMsg muovi : muovi(stop) -> switchToPlan fermaRobot;
 		onMsg muovi : muovi(Dir) -> demo allinea(Dir);
-		[?? ruota(destra)] robotRight speed(100) time(2000) react event alarm -> handleAlarm or event stop -> fermaRobot;
-		[?? ruota(sinistra)] robotLeft speed(100) time(2000) react event alarm -> handleAlarm or event stop -> fermaRobot;
-		robotForward speed(60) time(600000) react event alarm -> handleAlarm or event stop -> fermaRobot;
+		[?? ruota(destra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
+		[?? ruota(sinistra)] robotLeft speed(100) time(2000) react event stop -> fermaRobot;
+		robotForward speed(60) time(600000) react event stop -> fermaRobot;
 		repeatPlan
-		
-	Plan handleAlarm
-		robotStop speed(0) time(0);
- 		endQActor "Allarme irrecuperabile"
 		 	
  	Plan fermaRobot
  		println("Stop requested");

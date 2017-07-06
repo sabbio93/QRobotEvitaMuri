@@ -1,4 +1,4 @@
-RobotSystem m2
+RobotSystem m3
 
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
@@ -18,7 +18,7 @@ QActor mockstart context ctxController {
 		emit cmd:cmd(start)
 }
 QActor robotmind context ctxController {
-	Rules {
+    Rules {
 		/* da WorldTheory del prof:
 		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
 		 * assign(I,V):-assert(value(I,V)).
@@ -31,12 +31,11 @@ QActor robotmind context ctxController {
 		 */
 		value(incertezza,2).
 		
-		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
-		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
-		
-		gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
-		gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
-		gap(no,0).
+    	salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
+    	
+    	gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
+    	gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
+    	gap(no,0).
 //    	prossimaMossa(avanti):-davanti(rover,sonarb),!.		
 //		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
 //		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
