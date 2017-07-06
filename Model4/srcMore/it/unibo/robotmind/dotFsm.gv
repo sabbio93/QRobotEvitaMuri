@@ -20,4 +20,7 @@ digraph finite_state_machine {
   	
   	aspettaEventi -> aspettaEventi [ label = "cmd(X)/robotLeave(Sonar)/"];
   	aspettaEventi -> risolviGap [ label = "robotDetected(Sonar,Distanza)/"];
+  	aspettaEventi -> valutaOstacolo [ label = "ostacolo/"];
+  	
+  	controlloPosizione -> valutaOstacolo [ label = "ostacolo/"];
 }
