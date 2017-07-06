@@ -6,9 +6,6 @@ Event cmd : cmd(X)
 Dispatch muovi : muovi(D)
 Event stop : stop
 
-//Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
-//Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
-//Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
 Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
 Context  ctxController      ip [host="localhost" port=8040] -httpserver
 
@@ -46,19 +43,24 @@ QActor robotmind context ctxController {
 	
 	Plan init normal
 		println("controller starts");
-		switchToPlan listenToSonar
+		switchToPlan waitForInput
 	
 	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
-	Plan listenToSonar
-		sense time(600000) cmd, robotLeave, robotDetected -> continue, continue, continue;
-		//il rover è davanti al sonar a ed ho ricevuto il comando start
-		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> switchToPlan pianificaMossa;
+	Plan waitForInput 
+		sense time(600000) cmd, robotLeave, robotDetected -> handleUserCommand, handleSonarEvent, handleSonarEvent;
+		repeatPlan	
+		
+	Plan handleUserCommand resumeLastPlan
+		// controllo se il rover è davanti al sonar a ed ho ricevuto il comando start
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> switchToPlan pianificaMossa
+	
+	Plan handleSonarEvent resumeLastPlan
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
 		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
 						   else onEvent robotDetected:robotDetected(sonara,D) -> demo salvaDistanzaIniziale(D);
 		onEvent robotDetected:robotDetected(sonarb,D) -> demo sonarbRaggiunto;
-		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan pianificaECambiaMossa;
-		repeatPlan	
+		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan pianificaECambiaMossa
+		
 	
 	Plan pianificaECambiaMossa resumeLastPlan
 		emit stop : stop;
