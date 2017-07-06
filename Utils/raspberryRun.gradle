@@ -1,0 +1,28 @@
+def projectName = "it.unibo.ctxRover.MainCtxRover-1.0/"
+def workspace = "/tmp/"
+def tarname = "raspberry.tar"
+
+task gitPull(type: Exec) {
+    description 'Pull from git'
+    commandLine "git", "pull"
+}
+
+task test(type: Exec){
+	commandLine 'echo', '"ciao"'
+}
+
+task extractProject(type: Exec) {
+    description 'Extract project'
+    executable = 'tar' 
+    args = ['-xvf', tarname, '-C', "${workspace}"]
+}
+
+task runJar() {
+    doLast {
+	javaexec {
+		main="-jar"; args "${workspace}${projectName}Model0-1.0.jar"
+	}
+    }
+}
+
+runJar.dependsOn(extractProject)
