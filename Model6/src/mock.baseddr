@@ -1,0 +1,8 @@
+RobotBase mock
+distanceMock = Distance [ simulated 0 ] position: FRONT
+
+motorleft = Motor [ simulated 0 ]   position: LEFT
+motorright = Motor [ simulated 0 ]   position: RIGHT
+motors = Actuators [ motorleft , motorright ] private position: BOTTOM
+Mainrobot mock [ motors ]
+;
