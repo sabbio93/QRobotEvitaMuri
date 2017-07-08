@@ -1,95 +1,136 @@
-RobotSystem m2
+RobotSystem m3
 
-Event robotDetected : robotDetected(Sonar, Posizione)
-Event robotLeave: robotLeave(Sonar)
+Event robotDetected : robotDetected(Sonar,Distanza)
+Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
-Event sonar : sonar(Nome,Oggetto,Distanza)
+Event alarm : alarm(X)
+Dispatch comando : comando(X)
+Event stop : stop
 
-Context  ctxRover  			ip [ host="192.168.251.1"  port=8070 ] -httpserver//NOTE elimino un qa dai giochi
-Context  ctxSonarArrivo     ip [ host="192.168.251.3"  port=8035 ]   
-Context  ctxSonarPartenza   ip [ host="192.168.251.4"  port=8035 ]  
+//Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
+//Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
+//Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
+Context  ctxController      ip [host="127.0.0.1" port=8040] -httpserver
+Context  ctxRover  			ip [host="localhost" port=8070] 
 
-QActor sonarb context ctxSonarArrivo  {//MOCK
-	Plan init normal     
-		println("ctxSonarArrivo start -- wait for start")	;
-		sense time(600000) cmd -> continue;
-		delay time (6000);
-		println("invio event stop");
-		emit robotDetected : robotDetected(B, d(30))
+QActor mockstart context ctxController {
+	Plan avvia normal
+		delay time(5000);
+		emit cmd:cmd(start);
+		delay time(6000);
+		emit alarm:alarm(fire)
 }
-
-//QActor sonarb context ctxSonarArrivo {	//UNITY
-//	Plan rileva normal
-//		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(B, d(D));
-//	 	repeatPlan
-//}
-
-QActor sonara context ctxSonarPartenza  {//MOCK
-	Plan init normal     
-		println("ctxSonarPartenza start -- wait for start")	;
-		delay time (1000);
-		println("invio event presente in A");
-		emit robotDetected : robotDetected(A, ok);
-		delay time (2000);     
- 		sense time(600000) cmd -> continue;
-		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(A)		
+QActor robotmind context ctxController {
+    Rules {
+		/* da WorldTheory del prof:
+		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
+		 * assign(I,V):-assert(value(I,V)).
+		 * eval(plus,V1,V2,R):-R is V1+V2.
+		 * eval(minus,V1,V2,R):-R is V1-V2.
+		 * eval(times,V1,V2,R):-R is V1*V2.
+		 * eval(div,V1,V2,R):-R is V1/V2.
+		 * eval(lt,X,Y):-X<Y.
+		 * eval(gt,X,Y):-X>Y.
+		 */
+		value(incertezza,2).
+		
+		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
+		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
+		
+		gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
+		gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
+		gap(no,0).
+//    	prossimaMossa(avanti):-davanti(rover,sonarb),!.		
+//		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
+//		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
+//		prossimaMossa(stop):-davanti(sonarb,rover).
+		
+	}
+	Plan init normal
+		println("controller starts");
+		switchToPlan aspettaEventi
+	
+	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
+	Plan aspettaEventi
+		println("in ascolto");
+		sense time(600000) robotLeave, robotDetected, cmd -> continue, continue, continue;
+		printCurrentEvent;
+		
+		//il rover è davanti al sonar a ed ho ricevuto il comando start
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> forward rover -m comando:comando(start); 
+		[!? davanti(sonara,rover)] println(davanti(sonara,rover)); 
+		
+		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
+		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover) //Registro distanza in A
+						   else onEvent robotDetected:robotDetected(sonara,D) -> demo salvaDistanzaIniziale(D);
+		onEvent robotDetected:robotDetected(sonarb,D) -> demo assign(distanzaB,D); //arrivato a destinazione    //Registro distanza in B
+		onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop; //arrivato a destinazione    //Registro distanza in B
+		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap; //arrivato a destinazione
+		repeatPlan
+	
+	Plan risolviGap resumeLastPlan
+		println("piano risolviGap");
+		demo gap(Dir,Dist);
+		[!? goalResult(G)] println(G);
+		[?? goalResult(gap(destra,D))] forward rover -m comando:comando(destra);
+		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
+		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
+	
+	Plan controlloPosizione resumeLastPlan
+		println("piano controlloPosizione");
+		sense time(600000) robotDetected -> continue;
+		printCurrentEvent;
+		onEvent robotDetected:robotDetected(sonarb,D) -> demo assign(distanzaB,D);
+		onEvent robotDetected:robotDetected(sonarb,D) -> demo gap(Dir,Dist);
+		[!? goalResult(gap(Dir,D))] println(D);
+		[?? goalResult(gap(Dir,0))] onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop else repeatPlan
 }
-
-
-//QActor sonara context ctxSonarPartenza //UNITY
-//{
-//	Plan init normal     
-//		println("SonarPartenza Start")	;
-//		switchToPlan rilevaRobotOnA;
-//		repeatPlan
-//		
-//	Plan rilevaRobotOnA resumeLastPlan
-//		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(A, d(D));
-//        switchToPlan rilevaRobotLeaveA
-//		
-//	Plan rilevaRobotLeaveA resumeLastPlan
-//		sense time(600000) sonar -> continue;
-//		onEvent sonar : sonar(sonar1,rover,D) -> emit robotLeave : robotLeave(A, d(D))
-//}
 
 Robot mock QActor rover context ctxRover {	 
-	Rules{
-		
-		sinistra(rover,sonarb).  /* alla sinistra del rover c'è sonarb */
+	Rules {
+		unity.
 	}
+	Plan init normal
+		[!?unity] switchToPlan initUnity;
+		switchToPlan aspettaComando
+		
+	Plan initUnity resumeLastPlan
+		actorOp workWithUnity("localhost");
+		actorOp initPosition;
+		robotRight speed(100) time(2000);
+		println("Inizializzazione Unity completata")
 	/*
 	 * R2: Il robot comincia a muoversi alla pressione del tasto start
 	 * R3: solo se è davanti al sonarA
 	 */
-	Plan waitStartCommand normal        
-		sense time(600000) cmd, robotLeave, robotDetected -> continue, handleLocationInput, handleLocationInput;
-		[!? near(Rover, A)] onEvent cmd:cmd(start) -> switchToPlan traversata;
-		repeatPlan	 
+	Plan aspettaComando resumeLastPlan //normal        
+		receiveMsg time(600000);
+		onMsg comando:comando(start) -> switchToPlan traversata;
+		onMsg comando:comando(destra) -> switchToPlan recuperaDx;
+		onMsg comando:comando(sinistra) -> switchToPlan recuperaSx;
+		repeatPlan
 		
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan
+	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(60) time(600000) react event robotDetected -> handleLocationInput
- 	
-	// mi è arrivato un evento dai sonar, cerco di capire dove sono, o reagisco di conseguenza
-	Plan handleLocationInput resumeLastPlan
-		[!? near(rover,a)] onEvent robotLeave:robotLeave(a, D) -> removeRule near(rover,a)
-					else onEvent robotDetected:robotDetected(a, D) -> addRule near(rover,a);
-		onEvent robotDetected:robotDetected(B, d(D)) -> switchToPlan handleFinalMovements //arrivato davanti al sonarB
-	/*
-	 * R4: 	il robot se troppo vicino/lontano deve spostarsi verso la posizione ottimale 
-	 * 		dal sonar B di arrivo. 
-	 */
-	Plan handleFinalMovements resumeLastPlan	
-		onEvent robotDetected:robotDetected(B, D)->println("")//TODO fai qualcosa
-		
-					
+		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme
 	
-	Plan fermaRobot resumeLastPlan
- 		println("Stop requested");
- 		robotStop speed(0) time(0)
+	Plan fermaRobot
+		println("Stop requested");
+		robotStop speed(0) time(0);
+		switchToPlan aspettaComando
+		
+	Plan recuperaDx resumeLastPlan
+		robotRight speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		switchToPlan traversata
+	
+	Plan recuperaSx resumeLastPlan
+		robotLeft speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		switchToPlan traversata
+    
+    Plan gestisciAllarme
+    	println("ALLARME! ALLARME!");
+		robotStop speed(0) time(0)
 }

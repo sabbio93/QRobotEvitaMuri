@@ -4,10 +4,10 @@ Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
 Event sonar : sonar(Nome,Oggetto,Distanza)
 
-Context ctxRover ip [host="localhost" port=8070] -standalone //192.168.251.1
-Context ctxSonarArrivoUnity ip [host="localhost" port=8035]	//192.168.251.3
+//Context ctxRover ip [host="localhost" port=8070] -standalone //192.168.251.1
+Context ctxUnity ip [host="localhost" port=8035]	//192.168.251.3
 
-QActor sonarbunity context ctxSonarArrivoUnity {	//UNITY
+QActor sonarbunity context ctxUnity {	//UNITY
 	Plan rileva normal
 		sense time(600000) sonar -> continue;
 		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(b);

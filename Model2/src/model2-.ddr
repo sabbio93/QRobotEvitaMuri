@@ -1,0 +1,122 @@
+RobotSystem m2
+
+Event robotDetected : robotDetected(Sonar,Distanza)
+Event robotLeave : robotLeave(Sonar)
+Event cmd : cmd(X)
+Dispatch muovi : muovi(D)
+Event stop : stop
+
+Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
+Context  ctxController      ip [host="localhost" port=8040] -httpserver
+
+QActor robotmind context ctxController {
+	Rules{
+		/* da WorldTheory del prof:
+		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
+		 * assign(I,V):-assert(value(I,V)).
+		 * eval(plus,V1,V2,R):-R is V1+V2.
+		 * eval(minus,V1,V2,R):-R is V1-V2.
+		 * eval(times,V1,V2,R):-R is V1*V2.
+		 * eval(div,V1,V2,R):-R is V1/V2.
+		 * eval(lt,X,Y):-X<Y.
+		 * eval(gt,X,Y):-X>Y.
+		 */
+		value(incertezza,2).
+		sinistra(rover,sonarb).  /* alla sinistra del rover c'è sonarb */
+		davanti(rover,sonarb).
+		
+		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
+		
+		sonarbRaggiunto:-retract(davanti(rover,sonarb)),assert(davanti(sonarb,rover)).
+
+
+	/* R2: 	Il robot si muove in avanti fino a quando non è arrivato davanti al sonar 
+	 * R4: 	il robot se troppo vicino/lontano deve spostarsi verso la posizione ottimale 
+	 * 		dal sonar B di arrivo. 
+	 */
+		prossimaMossa(avanti):-davanti(rover,sonarb),!.		
+		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
+		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
+		prossimaMossa(stop):-davanti(sonarb,rover).
+						
+	}
+	
+	Plan init normal
+		println("controller starts");
+		switchToPlan waitForInput
+	
+	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
+	Plan waitForInput 
+		sense time(600000) cmd, robotLeave, robotDetected -> handleUserCommand, handleSonarEvent, handleSonarEvent;
+		repeatPlan	
+		
+	Plan handleUserCommand resumeLastPlan
+		// controllo se il rover è davanti al sonar a ed ho ricevuto il comando start
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> switchToPlan pianificaMossa
+	
+	Plan handleSonarEvent resumeLastPlan
+		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
+		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
+						   else onEvent robotDetected:robotDetected(sonara,D) -> demo salvaDistanzaIniziale(D);
+		onEvent robotDetected:robotDetected(sonarb,D) -> demo sonarbRaggiunto;
+		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan pianificaECambiaMossa
+		
+	
+	Plan pianificaECambiaMossa resumeLastPlan
+		emit stop : stop;
+		switchToPlan pianificaMossa
+	/*
+	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
+	 */		
+	Plan pianificaMossa resumeLastPlan
+		demo prossimaMossa(Mossa);
+		[!? goalResult(R)] println(goalResult(R));
+		[?? goalResult(prossimaMossa(stop))] emit stop : stop;	
+		[?? goalResult(prossimaMossa(G))] forward rover -m muovi : muovi(G)
+}
+
+Robot mock QActor rover context ctxRover {
+	Rules {
+		unity.
+		//trasformazioni per rotazione
+		
+		value(direzione, avanti).
+		
+		//per ottenere a destra basta invertire i termini :)
+		asinistra(davanti, sinistra). asinistra(sinistra, indietro). asinistra(indietro, destra). asinistra(destra, avanti).  
+		adestra(Dir1, Dir2) :- asinistra(Dir2, Dir1). 
+		
+		allinea(Dir) :- value(orientazione, Dir), !. //nessuna rotazione		
+		//rotazione a sinistra
+		allinea(Dir) :- value(orientazione, CurrentDir), asinistra(CurrentDir, Dir), assert(ruota(sinistra)), assign(orientazione, Dir), !. 
+		//rotazione a destra
+		allinea(Dir) :- value(orientazione, CurrentDir), adestra(CurrentDir, Dir), assert(ruota(destra)), assign(orientazione, Dir), !. 
+		
+	}
+	Plan init normal
+		[!?unity] switchToPlan initUnity;
+		switchToPlan attesaComandi
+		
+	Plan initUnity resumeLastPlan
+		actorOp workWithUnity("localhost");
+		actorOp initPosition;
+		robotRight speed(100) time(2000);
+		println("Inizializzazione Unity completata")
+	/*
+	 * R2: Il robot comincia a muoversi alla pressione del tasto start
+	 * R3: solo se è davanti al sonarA
+	 */
+	Plan attesaComandi //normal        
+		receiveMsg time(600000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
+		onMsg muovi : muovi(stop) -> switchToPlan fermaRobot;
+		onMsg muovi : muovi(Dir) -> demo allinea(Dir);
+		[?? ruota(destra)] robotRight speed(100) time(2000) react event stop -> fermaRobot;
+		[?? ruota(sinistra)] robotLeft speed(100) time(2000) react event stop -> fermaRobot;
+		robotForward speed(60) time(600000) react event stop -> fermaRobot;
+		repeatPlan
+		 	
+ 	Plan fermaRobot
+ 		println("Stop requested");
+ 		robotStop speed(0) time(0);
+ 		switchToPlan attesaComandi
+}
