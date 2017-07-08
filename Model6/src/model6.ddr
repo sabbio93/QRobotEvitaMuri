@@ -69,6 +69,15 @@ QActor robotmind context ctxController {
 		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap;
 		repeatPlan
 	
+	//procedura per colmare il gap fra distanza di arrivo e punto target	
+	Plan risolviGap resumeLastPlan
+		println("piano risolviGap");
+		demo gap(Dir,Dist);
+		[!? goalResult(G)] println(G);
+		[?? goalResult(gap(destra,D))] forward rover -m comando:comando(destra);
+		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
+		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
+
 	//valutazione della distanza dal punto di arrivo target
 	Plan controlloPosizione resumeLastPlan
 		println("piano controlloPosizione");
@@ -79,15 +88,6 @@ QActor robotmind context ctxController {
 		onEvent robotDetected:robotDetected(sonarb,D) -> demo gap(Dir,Dist);
 		[!? goalResult(gap(Dir,D))] println(D);
 		[?? goalResult(gap(Dir,0))] onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop else repeatPlan
-
-	//procedura per colmare il gap fra distanza di arrivo e punto target	
-	Plan risolviGap resumeLastPlan
-		println("piano risolviGap");
-		demo gap(Dir,Dist);
-		[!? goalResult(G)] println(G);
-		[?? goalResult(gap(destra,D))] forward rover -m comando:comando(destra);
-		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
-		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
 
 	//valutazione dell'ostacolo per capire se Ã¨ fisso o mobile
 	Plan valutaOstacolo resumeLastPlan
@@ -183,6 +183,7 @@ Robot mock QActor rover context ctxRover {
 		forward robotmind -m terminataProcedura:terminataprocedura
 	
 	//Procedura per continuare la traversata voltando prima a sinistra
+	//TODO che differenza c'è con recuperaSx?
 	Plan continuaTraversataASinistra
 	robotLeft speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
 		switchToPlan traversata

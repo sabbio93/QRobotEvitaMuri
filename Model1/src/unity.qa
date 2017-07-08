@@ -5,18 +5,17 @@ Event robotLeave : robotLeave(Sonar)
 Event sonar : sonar(Nome,Oggetto,Distanza) 
 
 //Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
-Context  ctxSonarArrivoUnity     ip [host="localhost" port=8035]   
-Context  ctxSonarPartenzaUnity   ip [host="localhost" port=8036]  
+Context  ctxUnity     ip [host="localhost" port=8035]   
 Context  ctxController      ip [host="localhost" port=8040] -standalone 
 
-QActor sonarbunity context ctxSonarArrivoUnity {	//UNITY
+QActor sonarbunity context ctxUnity {	//UNITY
 	Plan rileva normal
 		sense time(600000) sonar -> continue;
-		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(b);
+		onEvent sonar : sonar(sonar2,rover,D) -> emit robotDetected : robotDetected(sonarb);
 	 	repeatPlan
 }
 
-QActor sonaraunity context ctxSonarPartenzaUnity {//UNITY
+QActor sonaraunity context ctxUnity {//UNITY
 	Plan init normal     
 		delay time(3000);
 		println("SonarPartenza Start");
@@ -26,9 +25,9 @@ QActor sonaraunity context ctxSonarPartenzaUnity {//UNITY
 		
 	Plan rilevaRobotOnA resumeLastPlan
 		sense time(60000) sonar -> continue;
-		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(a)
+		onEvent sonar : sonar(sonar1,rover,D) -> emit robotDetected : robotDetected(sonara)
 	Plan rilevaRobotLeaveA resumeLastPlan
 		sense time(1000) sonar -> continue;
-		[?? tout(senseevent,QA)] emit robotLeave : robotLeave(a)
+		[?? tout(senseevent,QA)] emit robotLeave : robotLeave(sonara)
 							else repeatPlan
 }

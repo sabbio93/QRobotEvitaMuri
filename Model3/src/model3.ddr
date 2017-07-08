@@ -22,16 +22,6 @@ QActor mockstart context ctxController {
 }
 QActor robotmind context ctxController {
     Rules {
-		/* da WorldTheory del prof:
-		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
-		 * assign(I,V):-assert(value(I,V)).
-		 * eval(plus,V1,V2,R):-R is V1+V2.
-		 * eval(minus,V1,V2,R):-R is V1-V2.
-		 * eval(times,V1,V2,R):-R is V1*V2.
-		 * eval(div,V1,V2,R):-R is V1/V2.
-		 * eval(lt,X,Y):-X<Y.
-		 * eval(gt,X,Y):-X>Y.
-		 */
 		value(incertezza,2).
 		
 		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
@@ -40,11 +30,6 @@ QActor robotmind context ctxController {
 		gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
 		gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
 		gap(no,0).
-//    	prossimaMossa(avanti):-davanti(rover,sonarb),!.		
-//		prossimaMossa(destra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!.
-//		prossimaMossa(sinistra):-davanti(sonarb,rover), value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!.
-//		prossimaMossa(stop):-davanti(sonarb,rover).
-		
 	}
 	Plan init normal
 		println("controller starts");
@@ -61,11 +46,11 @@ QActor robotmind context ctxController {
 		[!? davanti(sonara,rover)] println(davanti(sonara,rover)); 
 		
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
-		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover) //Registro distanza in A
+		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
 						   else onEvent robotDetected:robotDetected(sonara,D) -> demo salvaDistanzaIniziale(D);
-		onEvent robotDetected:robotDetected(sonarb,D) -> demo assign(distanzaB,D); //arrivato a destinazione    //Registro distanza in B
-		onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop; //arrivato a destinazione    //Registro distanza in B
-		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap; //arrivato a destinazione
+		onEvent robotDetected:robotDetected(sonarb,D) -> demo assign(distanzaB,D);
+		onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop; //arrivato quasi a destinazione
+		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap;
 		repeatPlan
 	
 	Plan risolviGap resumeLastPlan

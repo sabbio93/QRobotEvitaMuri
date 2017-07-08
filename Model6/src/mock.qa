@@ -1,4 +1,4 @@
-System m4
+System m6
 
 Event sonar : sonar(Nome,Oggetto,Distanza)
 Event robotDetected : robotDetected(Sonar,Distanza)
@@ -30,7 +30,7 @@ QActor sonaramock context ctxSonarPartenzaMock  { //MOCK
 		println("ctxSonarPartenza start -- wait for start");
 		delay time(1000);
 		println("invio event presente in A");
-		emit robotDetected : robotDetected(sonara,d(20));
+		emit robotDetected : robotDetected(sonara,20);
 		delay time(2000);
  		sense time(600000) cmd -> continue;
 		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(sonara)
