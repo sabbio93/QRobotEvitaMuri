@@ -1,10 +1,9 @@
 System model0
 
-Event robotDetected : robotDetected(Sonar)
-Event cmd : cmd(X)
 Event sonar : sonar(Nome,Oggetto,Distanza)
+Event robotDetected : robotDetected(Sonar)
 
-//Context ctxRover ip [host="localhost" port=8070] -standalone //192.168.251.1
+Context ctxRover ip [host="localhost" port=8070] -standalone //192.168.251.1
 Context ctxUnity ip [host="localhost" port=8035]	//192.168.251.3
 
 QActor sonarbunity context ctxUnity {	//UNITY

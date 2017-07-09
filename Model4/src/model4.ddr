@@ -23,16 +23,6 @@ QActor mockstart context ctxController {
 }
 QActor robotmind context ctxController {
     Rules {
-		/* da WorldTheory del prof:
-		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
-		 * assign(I,V):-assert(value(I,V)).
-		 * eval(plus,V1,V2,R):-R is V1+V2.
-		 * eval(minus,V1,V2,R):-R is V1-V2.
-		 * eval(times,V1,V2,R):-R is V1*V2.
-		 * eval(div,V1,V2,R):-R is V1/V2.
-		 * eval(lt,X,Y):-X<Y.
-		 * eval(gt,X,Y):-X>Y.
-		 */
 		value(incertezza,2).
 		
 		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).

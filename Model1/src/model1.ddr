@@ -3,7 +3,6 @@ RobotSystem m1
 Event robotDetected : robotDetected(Sonar)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
-
 Dispatch muovi : muovi(D)
 Event stop : stop
   

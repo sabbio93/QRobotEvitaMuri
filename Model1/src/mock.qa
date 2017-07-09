@@ -17,11 +17,11 @@ Context  ctxController			ip [host="localhost" port=8040] -standalone
 
 QActor sonarbmock context ctxSonarArrivoMock  {//MOCK
 	Plan init normal     
-		println("ctxSonarArrivo start -- wait for start")	;
+		println("ctxSonarArrivo start -- wait for start");
 		sense time(600000) cmd -> continue;
 		delay time (6000);
 		println("invio event stop");
-		emit robotDetected : robotDetected(b)
+		emit robotDetected : robotDetected(sonarb)
 }
 
 QActor sonaramock context ctxSonarPartenzaMock  {//MOCK
@@ -29,8 +29,8 @@ QActor sonaramock context ctxSonarPartenzaMock  {//MOCK
 		println("ctxSonarPartenza start -- wait for start");
 		delay time(1000);
 		println("invio event presente in A");
-		emit robotDetected : robotDetected(a);
+		emit robotDetected : robotDetected(sonara);
 		delay time (2000);     
  		sense time(600000) cmd -> continue;
-		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(a)		
+		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(sonara)		
 }

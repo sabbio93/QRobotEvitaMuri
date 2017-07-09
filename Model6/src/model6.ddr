@@ -1,4 +1,4 @@
-RobotSystem m4
+RobotSystem m6
 
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
@@ -6,7 +6,7 @@ Event ostacolo : ostacolo
 Event cmd : cmd(X)
 Event alarm : alarm(X)
 Dispatch comando : comando(X)
-Dispatch terminataProcedura: terminataProcedura()
+Dispatch terminataProcedura : terminataProcedura(X)
 Event stop : stop
 
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
@@ -24,8 +24,7 @@ QActor mockstart context ctxController {
 }
 
 QActor robotmind context ctxController {
-    Rules 
-    {
+    Rules {
 		/* da WorldTheory del prof:
 		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
 		 * assign(I,V):-assert(value(I,V)).
@@ -36,7 +35,19 @@ QActor robotmind context ctxController {
 		 * eval(lt,X,Y):-X<Y.
 		 * eval(gt,X,Y):-X>Y.
 		 */
+		
+		/*Dictionary
+		D=distanza iniziale
+		DM = dm (dimensione stanza)
+		L = ampiezzaSonar
+		DR = DM - D (distanza dal muro)
+		L2 = L / 2
+		 */
+		 
+		/*costanti note del problema*/
+		value(dm,70).	/*lato della stanza (quadrata)*/
 		value(incertezza,2).
+		value(ampiezzaSonar,7).
 		
 		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
 		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
@@ -44,6 +55,8 @@ QActor robotmind context ctxController {
 		gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
 		gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
 		gap(no,0).
+		
+		possibilePassaggioADestra:-value(distanzaIniziale,D),value(dm,DM),value(ampiezzaSonar,L), eval(minus,DM,D,DR),eval(div,L,2,L2), eval(gt,DR,L2).
 	}
 	
 	Plan init normal
@@ -57,7 +70,7 @@ QActor robotmind context ctxController {
 		printCurrentEvent;
 		
 		//il rover è davanti al sonar a ed ho ricevuto il comando start
-		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> forward rover -m comando:comando(start); 
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> forward rover -m comando:comando(avanti); 
 		[!? davanti(sonara,rover)] println(davanti(sonara,rover)); 
 		
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
@@ -69,6 +82,15 @@ QActor robotmind context ctxController {
 		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap;
 		repeatPlan
 	
+	//procedura per colmare il gap fra distanza di arrivo e punto target	
+	Plan risolviGap resumeLastPlan
+		println("piano risolviGap");
+		demo gap(Dir,Dist);
+		[!? goalResult(G)] println(G);
+		[?? goalResult(gap(destra,D))] forward rover -m comando:comando(destra);
+		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
+		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
+
 	//valutazione della distanza dal punto di arrivo target
 	Plan controlloPosizione resumeLastPlan
 		println("piano controlloPosizione");
@@ -80,20 +102,11 @@ QActor robotmind context ctxController {
 		[!? goalResult(gap(Dir,D))] println(D);
 		[?? goalResult(gap(Dir,0))] onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop else repeatPlan
 
-	//procedura per colmare il gap fra distanza di arrivo e punto target	
-	Plan risolviGap resumeLastPlan
-		println("piano risolviGap");
-		demo gap(Dir,Dist);
-		[!? goalResult(G)] println(G);
-		[?? goalResult(gap(destra,D))] forward rover -m comando:comando(destra);
-		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
-		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
-
 	//valutazione dell'ostacolo per capire se è fisso o mobile
 	Plan valutaOstacolo resumeLastPlan
 		delay time(2000);
 		sense time(500) ostacolo -> continue;
-		[!? tout(senseevent,QA)] forward rover -m comando:comando(start);
+		[!? tout(senseevent,QA)] forward rover -m comando:comando(avanti);
 		[?? tout(senseevent,QA)] endPlan "";
 		onEvent ostacolo : ostacolo -> println("Ostacolo fisso");
 		//onEvent ostacolo : ostacolo -> endQActor "Incontrato un ostacolo fisso"	//In realt� nell'attuale implementazione di qactor non termina
@@ -106,21 +119,20 @@ QActor robotmind context ctxController {
 	 	Fase2: Continuo verso Nord rimettendomi in attesa di eventi di altri 
 	 			oggetti(o lo stesso che continua)*/ 
 	Plan ricercaVarcoDestra resumeLastPlan
+		println("piano ricercaVarcoDestra");
 		//TODO valutazione prolog della distanza dalla fine del tracciato #39
 		//troppo piccola e println,lo scrivo nella mia WT
+		demo possibilePassaggioADestra onFailSwitchTo errore;
+		forward rover -m comando:comando(varcoDestra);
+		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000);
+		onMsg terminataProcedura:terminataProcedura(X) -> println(X);
+		onMsg terminataProcedura:terminataProcedura(X) -> addRule X;	//con onMsg esegue sempre anche muroDavanti senza controllare il contenuto
+		[?? libero] forward rover -m comando:comando(avanti);
+		[?? muroDiFianco] switchToPlan errore;
+		[?? muroDavanti] repeatPlan
 		
-		forward rover -m comando:comando(rilevaMuroDestraEAvanza);
-		//rimango in ascolto e attendo che arrivi o l'evento di presenza ostacolo(ho un muro a destra)
-		//oppure che il robot mi dica che ha finito la procedura di terminazione
-		//se ricevo il messaggio di terminazione invio il comando di continuare la traversata
-		sense time(600000) robotDetected, ostacolo -> continue, continue;
-		printCurrentEvent;
-		onEvent ostacolo:ostacolo -> println("Trovato Muro a destra");
-		//TODO lo scrivo nella mia WT #40
-		onEvent ostacolo:ostacolo -> endPlan "Muro a destra inaspettato";
-		onMsg terminataProcedura:terminataProcedura() -> forward rover -m comando:comando(continuaTraversataASinistra)
-		//Termino il piano e mi rimetto in ascolto di eventuali altr eventi	
-		
+	Plan errore
+		endQActor "Nessun sentiero possibile"
 }
 
 Robot mock QActor rover context ctxRover {	 
@@ -135,17 +147,16 @@ Robot mock QActor rover context ctxRover {
 	Plan initUnity resumeLastPlan
 		actorOp workWithUnity("localhost");
 		actorOp initPosition;
-		robotRight speed(100) time(2000);
+		robotRight speed(100) time(1000);
 		println("Inizializzazione Unity completata")
 		
 	//Piano di attesa comandi 
 	Plan aspettaComando resumeLastPlan //normal        
 		receiveMsg time(600000);
-		onMsg comando:comando(start) -> switchToPlan traversata;
+		onMsg comando:comando(avanti) -> switchToPlan traversata;
 		onMsg comando:comando(destra) -> switchToPlan recuperaDx;
 		onMsg comando:comando(sinistra) -> switchToPlan recuperaSx;
-		onMsg comando:comando(rilevaMuroDestraEAvanza) -> switchToPlan rilevaMuroDestraEAvanza;
-		onMsg comando:comando(continuaTraversataASinistra) -> switchToPlan continuaTraversataASinistra;
+		onMsg comando:comando(varcoDestra) -> switchToPlan cercaVarcoDestra;
 		repeatPlan
 		
 	//Piano base di attraversata del percorso dritto con termine all'evento stop	
@@ -155,18 +166,17 @@ Robot mock QActor rover context ctxRover {
 	
 	//Piano per fermare il robot
 	Plan fermaRobot
-		println("Stop requested");
 		robotStop speed(0) time(0);
 		switchToPlan aspettaComando
 	
 	//Piano per recuperare a destra il gap finale	
 	Plan recuperaDx resumeLastPlan
-		robotRight speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
+		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
 		switchToPlan traversata
 	
 	//Piano per recuperare a sinistra il gap finale
 	Plan recuperaSx resumeLastPlan
-		robotLeft speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
+		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
 		switchToPlan traversata
     
     //Piano di gestione evento allarme
@@ -175,17 +185,22 @@ Robot mock QActor rover context ctxRover {
 		robotStop speed(0) time(0)
 
 	//Procedura di esplorazione presenza del muro a destra
-	Plan rilevaMuroDestraEAvanza resumeLastPlan
+	Plan cercaVarcoDestra
 		//vado un pelo indietro per scrupolo necessario soprattuto nel fisico
-		robotBackward speed(15) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		//TODO trovo tempi di quanto fare andare avanti il robot empiricamente per Unity e per Robot #41
-		robotForward speed(15) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		forward robotmind -m terminataProcedura:terminataprocedura
+		robotBackward speed(15) time(200) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		robotForward speed(15) time(600) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> muroDiFianco;	//TODO trovo tempi di quanto fare andare avanti il robot empiricamente per Unity e per Robot #41
+		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		robotForward speed(15) time(400) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> muroDavanti;
+		forward robotmind -m terminataProcedura:terminataProcedura(libero);
+		switchToPlan aspettaComando
 	
-	//Procedura per continuare la traversata voltando prima a sinistra
-	Plan continuaTraversataASinistra
-	robotLeft speed(100) time(2000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		switchToPlan traversata
-
+	Plan muroDiFianco
+		forward robotmind -m terminataProcedura:terminataProcedura(muroDiFianco);
+		switchToPlan fermaRobot
+	
+	Plan muroDavanti
+		forward robotmind -m terminataProcedura:terminataProcedura(muroDavanti);
+		switchToPlan fermaRobot
 	
 }
