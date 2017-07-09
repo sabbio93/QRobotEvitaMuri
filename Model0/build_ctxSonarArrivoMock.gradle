@@ -98,6 +98,12 @@ TO BE ADDED by the application designer for ButtonLed
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsRasp.jar')
 
 /*
+ROBOTS
+*/ 	 
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar') 
+
+/*
 TO BE ADDED by the application designer for: RXJAVA
 */
 	//https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava

@@ -3,11 +3,11 @@ RobotSystem model0
 Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
 
-Context ctxRover ip [host="localhost" port=8070] -httpserver //192.168.251.1
+Context ctxRover ip [host="192.168.1.213" port=8070] -httpserver //192.168.251.1
 
-Robot mock QActor rover context ctxRover {
+Robot swag QActor rover context ctxRover {
 	Rules {
-		unity.
+	//	unity.
 	}
 	Plan init normal
 		println("INIZIO");
@@ -32,7 +32,7 @@ Robot mock QActor rover context ctxRover {
 	 */
   	Plan traversata resumeLastPlan
 		println("Inizio traversata");
-		robotForward speed(40) time(600000) react event robotDetected -> fermaRobot
+		robotForward speed(100) time(600000) react event robotDetected -> fermaRobot
  	
  	Plan fermaRobot
  		println("Stop requested");

@@ -24,7 +24,7 @@ private it.unibo.qactor.robot.RobotActor robot;
  
 	public static void main(String[] args) throws Exception{
 			IOutputEnvView outEnvView = SituatedSysKb.standardOutEnvView;
-			it.unibo.qactors.QActorUtils.setRobotBase("mock" );  
+			it.unibo.qactors.QActorUtils.setRobotBase("swag" );  
 		    String webDir = "./srcMore/it/unibo/ctxRover";
 			QActorContext.initQActorSystem(
 				"ctxrover", "./srcMore/it/unibo/ctxRover/model0.pl", 

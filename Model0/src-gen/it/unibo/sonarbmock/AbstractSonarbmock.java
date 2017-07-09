@@ -64,12 +64,22 @@ public abstract class AbstractSonarbmock extends QActor {
 	    	curPlanInExec =  "init";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
 	    		if( ! planUtils.switchToPlan("attesa").getGoon() ) break;
+	    		temporaryStr = "\"Wait for it\"";
+	    		println( temporaryStr );  
 	    		//delay
-	    		aar = delayReactive(9000,"" , "");
+	    		aar = delayReactive(4000,"" , "");
+	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
+	    		if( ! aar.getGoon() ) break;
+	    		temporaryStr = "\"Here it comes\"";
+	    		println( temporaryStr );  
+	    		//delay
+	    		aar = delayReactive(8000,"" , "");
 	    		if( aar.getInterrupted() ) curPlanInExec   = "init";
 	    		if( ! aar.getGoon() ) break;
 	    		temporaryStr = QActorUtils.unifyMsgContent(pengine, "robotDetected(Sonar)","robotDetected(b)", guardVars ).toString();
 	    		emit( "robotDetected", temporaryStr );
+	    		temporaryStr = "\"Emitted -> bye\"";
+	    		println( temporaryStr );  
 	    break;
 	    }//while
 	    return returnValue;
@@ -87,6 +97,8 @@ public abstract class AbstractSonarbmock extends QActor {
 	    while(true){
 	    	curPlanInExec =  "attesa";	//within while since it can be lost by switchlan
 	    	nPlanIter++;
+	    		temporaryStr = "\"Waiting\"";
+	    		println( temporaryStr );  
 	    		//senseEvent
 	    		aar = planUtils.senseEvents( 600000,"cmd","continue",
 	    		"" , "",ActionExecMode.synch );
@@ -94,6 +106,9 @@ public abstract class AbstractSonarbmock extends QActor {
 	    			//println("			WARNING: sense timeout");
 	    			addRule("tout(senseevent,"+getName()+")");
 	    		}
+	    		printCurrentEvent(false);
+	    		temporaryStr = "\"Do something with it\"";
+	    		println( temporaryStr );  
 	    		//onEvent
 	    		if( currentEvent.getEventId().equals("cmd") ){
 	    		 		String parg = "\"avvio sonar B\"";
