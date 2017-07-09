@@ -125,8 +125,11 @@ QActor robotmind context ctxController {
 		demo possibilePassaggioADestra onFailSwitchTo errore;
 		forward rover -m comando:comando(varcoDestra);
 		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000);
-		onMsg terminataProcedura:terminataProcedura(true) -> forward rover -m comando:comando(avanti);
-		onMsg terminataProcedura:terminataProcedura(false) -> switchToPlan errore
+		onMsg terminataProcedura:terminataProcedura(X) -> println(X);
+		onMsg terminataProcedura:terminataProcedura(X) -> addRule X;	//con onMsg esegue sempre anche muroDavanti senza controllare il contenuto
+		[?? libero] forward rover -m comando:comando(avanti);
+		[?? muroDiFianco] switchToPlan errore;
+		[?? muroDavanti] repeatPlan
 		
 	Plan errore
 		endQActor "Nessun sentiero possibile"
@@ -164,7 +167,6 @@ Robot mock QActor rover context ctxRover {
 	
 	//Piano per fermare il robot
 	Plan fermaRobot
-		println("Richiesta di arresto");
 		robotStop speed(0) time(0);
 		switchToPlan aspettaComando
 	
@@ -188,15 +190,18 @@ Robot mock QActor rover context ctxRover {
 		//vado un pelo indietro per scrupolo necessario soprattuto nel fisico
 		robotBackward speed(15) time(200) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
-		robotForward speed(15) time(600) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fallimento;	//TODO trovo tempi di quanto fare andare avanti il robot empiricamente per Unity e per Robot #41
+		robotForward speed(15) time(600) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> muroDiFianco;	//TODO trovo tempi di quanto fare andare avanti il robot empiricamente per Unity e per Robot #41
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
-		robotForward speed(15) time(400) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> raggiungiVarcoDestra;
-		forward robotmind -m terminataProcedura:terminataProcedura(true);
+		robotForward speed(15) time(400) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> muroDavanti;
+		forward robotmind -m terminataProcedura:terminataProcedura(libero);
 		switchToPlan aspettaComando
 	
-	Plan fallimento
-		forward robotmind -m terminataProcedura:terminataProcedura(false);
-		robotStop speed(0) time(0);
-		switchToPlan aspettaComando
+	Plan muroDiFianco
+		forward robotmind -m terminataProcedura:terminataProcedura(muroDiFianco);
+		switchToPlan fermaRobot
+	
+	Plan muroDavanti
+		forward robotmind -m terminataProcedura:terminataProcedura(muroDavanti);
+		switchToPlan fermaRobot
 	
 }
