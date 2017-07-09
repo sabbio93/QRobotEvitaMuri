@@ -3,15 +3,23 @@ System model0
 Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
 
-Context ctxRover ip [host="localhost" port=8070] -standalone //192.168.251.1
-Context ctxSonarArrivoMock ip [host="localhost" port=8035]	//192.168.251.3
+
+Context ctxRover ip [host="192.168.1.213" port=8070] -standalone //192.168.251.1
+Context ctxSonarArrivoMock ip [host="192.168.1.2" port=8035]	//192.168.251.3
 
 QActor sonarbmock context ctxSonarArrivoMock {	//MOCK
 	Plan init normal
 		switchToPlan attesa;
-		delay time(9000);
-		emit robotDetected : robotDetected(b)	
+		println("Wait for it");
+		delay time(4000);
+		println("Here it comes");
+		delay time(8000);
+		emit robotDetected : robotDetected(b);	
+		println("Emitted -> bye")
 	Plan attesa resumeLastPlan
+		println("Waiting");
 		sense time(600000) cmd -> continue;
+		printCurrentEvent;
+		println("Do something with it");
 		onEvent cmd : cmd(start) -> println("avvio sonar B") else repeatPlan
 }

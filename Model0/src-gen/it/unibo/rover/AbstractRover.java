@@ -203,8 +203,8 @@ protected IActorAction  action;
     		temporaryStr = "\"Inizio traversata\"";
     		println( temporaryStr );  
     		//forward
-    		//if( ! execRobotMove("traversata","forward",40,0,600000, "robotDetected" , "fermaRobot") ) break;
-    		    aar = execRobotMove("traversata","forward",40,0,600000, "robotDetected" , "fermaRobot");
+    		//if( ! execRobotMove("traversata","forward",100,0,600000, "robotDetected" , "fermaRobot") ) break;
+    		    aar = execRobotMove("traversata","forward",100,0,600000, "robotDetected" , "fermaRobot");
     		    if( aar.getInterrupted() ){
     		    	curPlanInExec   = "traversata";
     		    	if( ! aar.getGoon() ) break;
@@ -267,7 +267,7 @@ protected IActorAction  action;
     }
     /*
     //COMPONENTS
-    sensor distanceMock simulated debug=0   
+    sensor distancefront  todo  
      RobotComponent motorleft 
      RobotComponent motorright 
     Composed component motors
