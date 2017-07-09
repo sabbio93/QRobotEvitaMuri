@@ -120,17 +120,6 @@ QActor robotmind context ctxController {
 		onMsg terminataProcedura:terminataProcedura(true) -> forward rover -m comando:comando(avanti);
 		onMsg terminataProcedura:terminataProcedura(false) -> switchToPlan errore
 		
-		//rimango in ascolto e attendo che arrivi o l'evento di presenza ostacolo(ho un muro a destra)
-		//oppure che il robot mi dica che ha finito la procedura di terminazione
-		//se ricevo il messaggio di terminazione invio il comando di continuare la traversata
-		/*sense time(600000) robotDetected, ostacolo -> continue, continue;
-		printCurrentEvent;
-		onEvent ostacolo:ostacolo -> println("Trovato Muro a destra");
-		//TODO lo scrivo nella mia WT #40
-		onEvent ostacolo:ostacolo -> endPlan "Muro a destra inaspettato";
-		onMsg terminataProcedura:terminataProcedura() -> forward rover -m comando:comando(continuaTraversataASinistra)
-		//Termino il piano e mi rimetto in ascolto di eventuali altr eventi	*/
-		
 	Plan errore
 		endQActor "Nessun sentiero possibile"
 }
@@ -200,12 +189,5 @@ Robot mock QActor rover context ctxRover {
 		forward robotmind -m terminataProcedura:terminataProcedura(false);
 		robotStop speed(0) time(0);
 		switchToPlan aspettaComando
-	
-	//Procedura per continuare la traversata voltando prima a sinistra
-	//TODO che differenza c'è con recuperaSx?
-	Plan continuaTraversataASinistra
-		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		switchToPlan traversata
-
 	
 }
