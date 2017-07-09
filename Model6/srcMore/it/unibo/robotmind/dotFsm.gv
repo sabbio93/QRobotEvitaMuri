@@ -25,4 +25,6 @@ digraph finite_state_machine {
   	controlloPosizione -> valutaOstacolo [ label = "ostacolo/"];
   	
   	valutaOstacolo -> ricercaVarcoDestra [ label = "ostacolo/"];
+  	
+  	ricercaVarcoDestra -> errore [ label = "terminataProcedura(X)/"];
 }
