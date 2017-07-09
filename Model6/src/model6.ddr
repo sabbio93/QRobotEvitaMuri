@@ -36,6 +36,15 @@ QActor robotmind context ctxController {
 		 * eval(gt,X,Y):-X>Y.
 		 */
 		
+		/*Dictionary
+		D=distanzainiziale
+		DM = dm
+		L = ampiezzaSonar
+		DR = DM - D
+		L2 = L / 2
+		DR > L2
+		 */
+		 
 		/*costanti note del problema*/
 		value(dm,60).	/*lato della stanza (quadrata)*/
 		value(incertezza,2).
