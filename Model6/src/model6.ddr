@@ -6,7 +6,7 @@ Event ostacolo : ostacolo
 Event cmd : cmd(X)
 Event alarm : alarm(X)
 Dispatch comando : comando(X)
-Dispatch terminataProcedura: terminataProcedura(X)
+Dispatch terminataProcedura : terminataProcedura(X)
 Event stop : stop
 
 //Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
@@ -45,7 +45,7 @@ QActor robotmind context ctxController {
 		 */
 		 
 		/*costanti note del problema*/
-		value(dm,60).	/*lato della stanza (quadrata)*/
+		value(dm,70).	/*lato della stanza (quadrata)*/
 		value(incertezza,2).
 		value(ampiezzaSonar,7).
 		
@@ -156,8 +156,7 @@ Robot mock QActor rover context ctxRover {
 		onMsg comando:comando(avanti) -> switchToPlan traversata;
 		onMsg comando:comando(destra) -> switchToPlan recuperaDx;
 		onMsg comando:comando(sinistra) -> switchToPlan recuperaSx;
-		onMsg comando:comando(varcoDestra) -> switchToPlan raggiungiVarcoDestra;
-		//onMsg comando:comando(continuaTraversataASinistra) -> switchToPlan continuaTraversataASinistra;
+		onMsg comando:comando(varcoDestra) -> switchToPlan cercaVarcoDestra;
 		repeatPlan
 		
 	//Piano base di attraversata del percorso dritto con termine all'evento stop	
@@ -186,7 +185,7 @@ Robot mock QActor rover context ctxRover {
 		robotStop speed(0) time(0)
 
 	//Procedura di esplorazione presenza del muro a destra
-	Plan raggiungiVarcoDestra
+	Plan cercaVarcoDestra
 		//vado un pelo indietro per scrupolo necessario soprattuto nel fisico
 		robotBackward speed(15) time(200) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
