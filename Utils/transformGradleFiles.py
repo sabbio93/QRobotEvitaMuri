@@ -97,7 +97,7 @@ task executeRemote {
     ssh.run {
       session(remotes.raspberry) {
       	println "Executing -- ${jar.archiveName}"
-        executeSudo "bash -c \"cd $deploymentDir/$completeName; java -jar ${jar.archiveName}\""
+        executeSudo "bash -c \\"cd $deploymentDir/$completeName; java -jar ${jar.archiveName}\\""
       }
     }
   }
