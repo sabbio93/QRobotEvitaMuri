@@ -1,4 +1,4 @@
-RobotSystem m4
+RobotSystem m6
 
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
@@ -37,12 +37,11 @@ QActor robotmind context ctxController {
 		 */
 		
 		/*Dictionary
-		D=distanzainiziale
-		DM = dm
+		D=distanza iniziale
+		DM = dm (dimensione stanza)
 		L = ampiezzaSonar
-		DR = DM - D
+		DR = DM - D (distanza dal muro)
 		L2 = L / 2
-		DR > L2
 		 */
 		 
 		/*costanti note del problema*/
@@ -125,7 +124,7 @@ QActor robotmind context ctxController {
 		//troppo piccola e println,lo scrivo nella mia WT
 		demo possibilePassaggioADestra onFailSwitchTo errore;
 		forward rover -m comando:comando(varcoDestra);
-		receiveTheMsg m(terminataProcedura,dispatch,rover,R,terminataProcedura(X),N) time(600000);
+		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000);
 		onMsg terminataProcedura:terminataProcedura(true) -> forward rover -m comando:comando(avanti);
 		onMsg terminataProcedura:terminataProcedura(false) -> switchToPlan errore
 		
@@ -192,7 +191,8 @@ Robot mock QActor rover context ctxRover {
 		robotForward speed(15) time(600) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fallimento;	//TODO trovo tempi di quanto fare andare avanti il robot empiricamente per Unity e per Robot #41
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotForward speed(15) time(400) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> raggiungiVarcoDestra;
-		forward robotmind -m terminataProcedura:terminataProcedura(true)
+		forward robotmind -m terminataProcedura:terminataProcedura(true);
+		switchToPlan aspettaComando
 	
 	Plan fallimento
 		forward robotmind -m terminataProcedura:terminataProcedura(false);
