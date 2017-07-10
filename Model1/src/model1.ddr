@@ -6,8 +6,12 @@ Event cmd : cmd(X)
 Dispatch comando : comando(D)
 Event stop : stop
   
-Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
-Context  ctxController      ip [host="localhost" port=8040] -httpserver
+//Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
+//Context  ctxController      ip [host="localhost" port=8040] -httpserver
+
+Context  ctxRover  			ip [host="192.168.137.2" port=8070] //NOTE elimino un qa dai giochi
+Context  ctxController      ip [host="192.168.137.1" port=8040] -httpserver
+
 
 QActor robotmind context ctxController {
 	Plan init normal
@@ -31,16 +35,16 @@ QActor robotmind context ctxController {
 		repeatPlan	
 }
 
-Robot mock QActor rover context ctxRover {	 
+Robot swag QActor rover context ctxRover {	 
 	Rules {
-		//unity.
+		unity("192.168.137.1").
 	}
 	Plan init normal
-		[!?unity] switchToPlan initUnity else println("Rover pronto");
+		[!?unity(IP)] switchToPlan initUnity else println("Rover pronto");
 		switchToPlan aspettaComando
 		
 	Plan initUnity resumeLastPlan
-		actorOp workWithUnity("localhost");
+		[!?unity(IP)] actorOp workWithUnity(IP);
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")
