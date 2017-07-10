@@ -1,0 +1,3 @@
+/hardwareConfiguration.properties
+!*.java
+src-gen/*
