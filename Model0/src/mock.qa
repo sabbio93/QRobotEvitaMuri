@@ -4,7 +4,7 @@ Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
 
 
-Context ctxRover ip [host="192.168.1.213" port=8070] -standalone //192.168.251.1
+Context ctxRover ip [host="192.168.1.213" port=8070] -standalone -httpserver//192.168.251.1
 Context ctxSonarArrivoMock ip [host="192.168.1.2" port=8035]	//192.168.251.3
 
 QActor sonarbmock context ctxSonarArrivoMock {	//MOCK

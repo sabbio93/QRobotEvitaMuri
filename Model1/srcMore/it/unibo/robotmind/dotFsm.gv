@@ -11,12 +11,12 @@ digraph finite_state_machine {
   	rankdir=LR;
   	size="8,5"
   	node [shape = point]; iniziale;
-  	node [shape = doublecircle]; handleUserCommand; 
+  	node [shape = doublecircle]; 
   	node [shape = circle];
   	iniziale -> init [label = ""];
   	
   	
-  	init -> waitForInput [ label = ""];
+  	init -> aspettaEventi [ label = ""];
   	
-  	waitForInput -> waitForInput [ label = ""];
+  	aspettaEventi -> aspettaEventi [ label = "cmd(X)/robotLeave(Sonar)/robotDetected(Sonar)/"];
 }

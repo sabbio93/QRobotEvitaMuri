@@ -6,9 +6,8 @@ Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
 Event ostacolo : ostacolo
 
-//Context ctxRover ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
 Context ctxUnity ip [host="localhost" port=8035]
-Context ctxController ip [host="localhost" port=8040] -standalone 
+Context ctxController ip [host="localhost" port=8040] -standalone -httpserver
 
 QActor sonarbunity context ctxUnity {	//UNITY
 	Plan init normal

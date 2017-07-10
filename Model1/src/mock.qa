@@ -7,19 +7,18 @@ Event start : start
 Event stop : stop
 Event sonar : sonar(Nome,Oggetto,Distanza) 
 
-//Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
 //Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
 //Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
-//Context  ctxRover  			ip [host="localhost" port=8070] -standalone //NOTE elimino un qa dai giochi
+//Context  ctxController		ip [host="192.168.137.1" port=8040] -standalone -httpserver
 Context  ctxSonarArrivoMock		ip [host="localhost" port=8035]   
 Context  ctxSonarPartenzaMock	ip [host="localhost" port=8036]  
-Context  ctxController			ip [host="localhost" port=8040] -standalone 
+Context  ctxController			ip [host="localhost" port=8040] -standalone -httpserver
 
 QActor sonarbmock context ctxSonarArrivoMock  {//MOCK
 	Plan init normal     
 		println("ctxSonarArrivo start -- wait for start");
 		sense time(600000) cmd -> continue;
-		delay time (6000);
+		delay time(6000);
 		println("invio event stop");
 		emit robotDetected : robotDetected(sonarb)
 }

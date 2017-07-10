@@ -3,7 +3,7 @@ RobotSystem m1
 Event robotDetected : robotDetected(Sonar)
 Event robotLeave : robotLeave(Sonar)
 Event cmd : cmd(X)
-Dispatch muovi : muovi(D)
+Dispatch comando : comando(D)
 Event stop : stop
   
 Context  ctxRover  			ip [host="localhost" port=8070] //NOTE elimino un qa dai giochi
@@ -12,32 +12,32 @@ Context  ctxController      ip [host="localhost" port=8040] -httpserver
 QActor robotmind context ctxController {
 	Plan init normal
 		println("controller starts");
-		switchToPlan waitForInput
+		switchToPlan aspettaEventi
 	
 	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
-	Plan waitForInput 
-		sense time(600000) cmd, robotLeave, robotDetected -> handleUserCommand, handleSonarEvent, handleSonarEvent;
-		repeatPlan	
+	Plan aspettaEventi
+		println("in ascolto");
+		sense time(600000) cmd, robotLeave, robotDetected -> continue, continue, continue;
+		printCurrentEvent;
 		
-	Plan handleUserCommand resumeLastPlan
 		// controllo se il rover è davanti al sonar a ed ho ricevuto il comando start
-		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> forward rover -m muovi:muovi(start)
-	
-	Plan handleSonarEvent resumeLastPlan
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> forward rover -m comando:comando(avanti);
+		
 		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
 		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
-						   else onEvent robotDetected:robotDetected(sonara,D) -> demo salvaDistanzaIniziale(D);
-		onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop
-		
+						   else onEvent robotDetected:robotDetected(sonara) -> addRule davanti(sonara,rover);
+		onEvent robotDetected:robotDetected(sonara) -> println(robotDetected(sonara));
+		onEvent robotDetected:robotDetected(sonarb) -> emit stop:stop;
+		repeatPlan	
 }
 
 Robot mock QActor rover context ctxRover {	 
 	Rules {
-		unity.
+		//unity.
 	}
 	Plan init normal
-		[!?unity] switchToPlan initUnity;
-		switchToPlan waitStartCommand
+		[!?unity] switchToPlan initUnity else println("Rover pronto");
+		switchToPlan aspettaComando
 		
 	Plan initUnity resumeLastPlan
 		actorOp workWithUnity("localhost");
@@ -48,9 +48,10 @@ Robot mock QActor rover context ctxRover {
 	 * R2: Il robot comincia a muoversi alla pressione del tasto start
 	 * R3: solo se è davanti al sonarA
 	 */
-	Plan waitStartCommand resumeLastPlan //normal   
-		receiveMsg time(600000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
-		onMsg muovi : muovi(avanti) -> switchToPlan traversata;
+	Plan aspettaComando resumeLastPlan //normal
+		receiveMsg time(6000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
+		printCurrentMessage;
+		onMsg comando:comando(avanti) -> switchToPlan traversata;
 		repeatPlan
 		
 	/*
@@ -61,7 +62,7 @@ Robot mock QActor rover context ctxRover {
 		robotForward speed(60) time(600000) react event stop -> fermaRobot
  	
  	Plan fermaRobot
- 		println("Stop requested");
+ 		println("Arresto");
  		robotStop speed(0) time(0);
- 		switchToPlan waitStartCommand
+ 		switchToPlan aspettaComando
 }

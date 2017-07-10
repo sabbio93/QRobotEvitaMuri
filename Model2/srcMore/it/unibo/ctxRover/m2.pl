@@ -1,7 +1,7 @@
 %====================================================================================
 % Context ctxRover  SYSTEM-configuration: file it.unibo.ctxRover.m2.pl 
 %====================================================================================
-context(ctxcontroller, "127.0.0.1",  "TCP", "8040" ).  		 
+context(ctxcontroller, "localhost",  "TCP", "8040" ).  		 
 context(ctxrover, "localhost",  "TCP", "8070" ).  		 
 %%% -------------------------------------------
 qactor( mockstart , ctxcontroller, "it.unibo.mockstart.MsgHandle_Mockstart"   ). %%store msgs 
