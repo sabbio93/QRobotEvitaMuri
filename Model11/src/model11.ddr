@@ -1,4 +1,4 @@
-RobotSystem m10
+RobotSystem m11
 
 Event robotDetected : robotDetected(Sonar,Distanza)
 Event robotLeave : robotLeave(Sonar)
@@ -194,7 +194,7 @@ QActor robotmind context ctxController {
 }
 
 Robot mock QActor rover context ctxRover {	 
-
+	
 	Rules {
 		unity.
 		
@@ -307,4 +307,8 @@ Robot mock QActor rover context ctxRover {
 		[?? s(V)] robotBackward speed(15) time(0)react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
 		[?? h(V)] robotStop speed(0) time(0)react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
 		repeatPlan
+
+	Plan ritornaCasa
+	println("ritorno a casa");
+	
 }
