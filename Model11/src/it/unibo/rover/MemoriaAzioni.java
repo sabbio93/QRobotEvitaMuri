@@ -1,23 +1,40 @@
 package it.unibo.rover;
 
-import java.util.Stack;
+import java.util.*;
 
-public class MemoriaAzioni extends Stack<Azione>{
-	
-	private static final long serialVersionUID = -6050545224895826390L;
-	
+public class MemoriaAzioni extends Stack<Azione> {
+	private static final long serialVersionUID=-6050545224895826390L;
 	private long istanteInizioUltimaAzione;
-	
-	@Override
-	public Azione push(Azione azione){
-		if(!isEmpty()){
-			Azione ultimaAzioneEffettuata = peek();
-			long durataEffettivaUltimaAzione = System.currentTimeMillis() - istanteInizioUltimaAzione;
-			if(durataEffettivaUltimaAzione < ultimaAzioneEffettuata.getDurata())
-				ultimaAzioneEffettuata.setDurata((int)durataEffettivaUltimaAzione);
+	/*public Azione push(Azione azione){
+		if (!isEmpty()){
+			Azione ultima=peek();
+			long durataEffettivaUltima=System.currentTimeMillis()-istanteInizioUltimaAzione;
+			if (durataEffettivaUltima<ultima.getDurata() || ultima.getNome().endsWith("ward"))
+				ultima.setDurata((int)durataEffettivaUltima);
 		}
-		istanteInizioUltimaAzione = System.currentTimeMillis();
-		return super.push(azione);		
+		istanteInizioUltimaAzione=System.currentTimeMillis();
+		return super.push(azione);
+	}*/
+	public Azione push(Azione a){	//con accorpamenti
+		if (!isEmpty()){
+			Azione ultima=pop();
+			long durataEffettivaUltima=System.currentTimeMillis()-istanteInizioUltimaAzione;
+			if (durataEffettivaUltima<ultima.getDurata() || ultima.getNome().endsWith("ward"))
+				ultima.setDurata((int)durataEffettivaUltima);
+			if (isEmpty())
+				super.push(ultima);
+			else {
+				Azione penultima=peek();
+				Azione unione=penultima.concatena(ultima);
+				if (unione==null)
+					super.push(ultima);
+				else {
+					pop();
+					super.push(unione);
+				}
+			}
+		}
+		istanteInizioUltimaAzione=System.currentTimeMillis();
+		return super.push(a);
 	}
-	
 }
