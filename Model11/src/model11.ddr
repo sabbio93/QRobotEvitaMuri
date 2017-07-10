@@ -229,30 +229,38 @@ Robot mock QActor rover context ctxRover {
 	//Piano base di attraversata del percorso dritto con termine all'evento stop	
 	Plan traversata resumeLastPlan
 		println("Inizio traversata");
+		actorOp salvaOp("robotForward",15,600000);
 		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot
 	
 	//Piano per fermare il robot
 	Plan fermaRobot
+		actorOp salvaOp("robotStop",0,0);
 		robotStop speed(0) time(0);
 		switchToPlan aspettaComando
 	
 	//Piano per recuperare a destra il gap finale
 	Plan recuperaDx resumeLastPlan
+		actorOp salvaOp("robotRight",100,1000);
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;// or event ostacolo -> fermaRobot;
 		switchToPlan traversata
 	
 	//Piano per recuperare a sinistra il gap finale
 	Plan recuperaSx resumeLastPlan
+		actorOp salvaOp("robotLeft",100,1000);
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;// or event ostacolo -> fermaRobot;
 		switchToPlan traversata
     
     //Piano di gestione evento allarme
     Plan gestisciAllarme
+		actorOp salvaOp("robotStop",0,0);
     	println("ALLARME! ALLARME!");
 		robotStop speed(0) time(0)
 
 	//Procedura di esplorazione presenza del muro a destra
 	Plan cercaVarcoDestra
+		actorOp salvaOp("robotRight",100,1000);
+		actorOp salvaOp("robotForward",15,800);
+		actorOp salvaOp("robotLeft",100,1000);
 		//vado un pelo indietro per scrupolo necessario soprattuto nel fisico
 		robotBackward speed(15) time(200) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
@@ -264,6 +272,9 @@ Robot mock QActor rover context ctxRover {
 	
 	//Procedura di esplorazione presenza del muro a destra
 	Plan cercaVarcoSinistra
+		actorOp salvaOp("robotLeft",100,1000);
+		actorOp salvaOp("robotForward",15,800);
+		actorOp salvaOp("robotRight",100,1000);
 		//vado un pelo indietro per scrupolo necessario soprattuto nel fisico
 		robotBackward speed(15) time(200) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
@@ -290,10 +301,15 @@ Robot mock QActor rover context ctxRover {
 		switchToPlan aspettaComando
 	
 	Plan passiASinistra
+		actorOp salvaOp("robotLeft",100,1000);
+		actorOp salvaOp("robotLeft",100,1000);
+		
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;	//parte voltato nel verso opposto
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		[!? tempo(sinistra,T)] robotForward speed(15) time(T) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
+		actorOp salvaOp("robotRight",100,1000);
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		actorOp salvaOp("robotLeft",15,600000);
 		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot; //per eliminare eventuali allontanamenti dal muro durante il riposizionamento
 		switchToPlan aspettaComando
 	
@@ -309,6 +325,12 @@ Robot mock QActor rover context ctxRover {
 		repeatPlan
 
 	Plan ritornaCasa
-	println("ritorno a casa");
+		println("ritorno a casa");
+		
+		// inversione ad u
+		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
+		
+		actorOp ripetiOperazioni
 	
 }
