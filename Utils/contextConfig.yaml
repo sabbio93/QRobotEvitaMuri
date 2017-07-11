@@ -1,0 +1,49 @@
+# Employee records
+localhost:
+   ctxController:
+     host: 127.0.0.1
+     port: 8040
+   ctxRover:
+     host: 127.0.0.1
+     port: 8070
+   ctxSonarArrivoMock:
+     host: 127.0.0.1
+     port: 8037
+   ctxSonarPartenzaMock:
+     host: 127.0.0.1
+     port: 8036
+   ctxUnity:
+     host: 127.0.0.1
+     port: 8035
+ethernet:
+   ctxController:
+     host: 192.168.137.1
+     port: 8040
+   ctxRover:
+     host: 192.168.137.2
+     port: 8070
+   ctxSonarArrivoMock:
+     host: 192.168.137.1
+     port: 8037
+   ctxSonarPartenzaMock:
+     host: 192.168.137.1
+     port: 8036
+   ctxUnity:
+     host: 192.168.137.1
+     port: 8035
+wifiziro:
+   ctxController:
+     host: 192.168.1.2
+     port: 8040
+   ctxRover:
+     host: 192.168.1.237
+     port: 8070
+   ctxSonarArrivoMock:
+     host: 192.168.1.2
+     port: 8037
+   ctxSonarPartenzaMock:
+     host: 192.168.1.2
+     port: 8036
+   ctxUnity:
+     host: 192.168.1.2
+     port: 8035

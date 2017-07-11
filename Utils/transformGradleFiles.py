@@ -104,7 +104,26 @@ task executeRemote {
 }
         '''
         )
+    if "SYS CONFIG" not in filedata:
+        filedata += '''
 
+/*
+---------------------------------------------------------------------
+SYS CONFIG: modifica tutti quanti i file prolog con le configurazioni di rete prima della compilazione
+---------------------------------------------------------------------
+*/
+def sistema="ethernet"
+//def sistema="wifiziro"
+//def sistema="localhost"
+
+task configureSystem(type: Exec) {
+
+	commandLine 'python', '../Utils/applySystemConfig.py', sistema
+
+}
+
+assemble.dependsOn(configureSystem)
+'''
     # Write the file out again
     with open(file, 'w') as fout:
         fout.write(filedata)
