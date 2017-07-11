@@ -5,9 +5,10 @@ class Azione {
 	private int durata;
 	private int velocita;
 // private int nAz;
-	Azione(String nome, int tempo, int velocita){
+	Azione(String nome, int durata, int velocita){
 		this.nome=nome;
-		this.durata=tempo;
+		this.durata=durata;
+		this.velocita=velocita;
 //		this.nAz=n++;
 	}
 	public int getDurata(){
@@ -23,27 +24,35 @@ class Azione {
 		if (nome==null)
 			return this;
 		switch (nome){
-		case "robotForward":	return new Azione("robotBackward",durata,velocita);
-		case "robotBackward":	return new Azione("robotForward",durata,velocita);
-		case "robotLeft":		return new Azione("robotRight",durata,velocita);
-		case "robotRight":		return new Azione("robotLeft",durata,velocita);
-		default:				return this;
+		//case "forward":	return new Azione("backward",durata,velocita);
+		//case "backward":return new Azione("forward",durata,velocita);
+		case "left":	return new Azione("right",durata,velocita);
+		case "right":	return new Azione("left",durata,velocita);
+		default:		return this;
 		}
 	}
 	public boolean stessoTipo(Azione a){
 		return nome.equals(a.getNome());
 	}
 	public boolean tipoOpposto(Azione a){
-		return inverti().getNome().equals(a.getNome());
+		String opposto;
+		switch (nome){
+		case "forward":	opposto="backward"; break;
+		case "backward":opposto="forward"; break;
+		case "left":	opposto="right"; break;
+		case "right":	opposto="left"; break;
+		default:		opposto=nome;
+		}
+		return opposto.equals(a.getNome());
 	}
 	public Azione concatena(Azione a){
-		if (nome.equals("RobotStop"))
+		if (nome.equals("stop"))
 			return a;
 		if (stessoTipo(a) && velocita==a.getVelocita())
 			return new Azione(nome,durata+a.getDurata(),velocita);
 		if (tipoOpposto(a) && velocita==a.getVelocita())
 			if (durata==a.getDurata())
-				return new Azione("robotStop",0,0);
+				return new Azione("stop",0,0);
 			else if (durata>a.getDurata())
 				return new Azione(nome,durata-a.getDurata(),velocita);
 			else
@@ -52,6 +61,9 @@ class Azione {
 	}
 	public int getVelocita(){
 		return velocita;
+	}
+	public String toString(){
+		return String.format("%s speed(%d) time(%d) ",nome,velocita,durata);
 	}
 //	public int getNAz(){
 //		return nAz;

@@ -30,19 +30,23 @@ public class Rover extends AbstractRover {
 	 * -------------------------------------------------------------------------
 	 */
 	public void salvaOp(String op, int v, int t){
-		memoriaAzioni.push(new Azione(op,t,v));	
+		memoriaAzioni.push(new Azione(op,t,v));
+		System.err.println(new Azione(op,t,v));
 	}
 	public void ripetiOperazioni(){
-		for(Azione azione : memoriaAzioni){
-			final String planName = "ripetiOperazioni";
-			final String strAzione = azione.inverti().getNome(); //e.g. forward
-			try {
-//				super.execRobotMove(planName,"forward",15,0,600000, "stop,alarm,ostacolo" , "fermaRobot,gestisciAllarme,fermaRobot");
-				super.execRobotMove(planName,strAzione,azione.getVelocita(),0,azione.getDurata(), "stop,alarm,ostacolo" , "fermaRobot,gestisciAllarme,fermaRobot");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-	    }
+		final String planName = "ripetiOperazioni";
+		try {
+			while (!memoriaAzioni.isEmpty()){
+				Azione a=memoriaAzioni.pop().inverti();
+//				execRobotMove(planName,"forward",15,0,600000,"stop,alarm,ostacolo","fermaRobot,gestisciAllarme,fermaRobot");
+				System.err.println(a.toString());
+				execRobotMove(planName,a.getNome(),a.getVelocita(),0,a.getDurata(),"stop,alarm,ostacolo","fermaRobot,gestisciAllarme,fermaRobot");
+		    }
+			execRobotMove(planName,"stop",0,0,0,"","");
+			delayReactive(5000,"","");
+			System.exit(0);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
-	
 }
