@@ -8,11 +8,11 @@ Event alarm : alarm(X)
 Dispatch comando : comando(X)
 Event stop : stop
 
-//Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
-//Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
-//Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
-Context  ctxController      ip [host="127.0.0.1" port=8040] -httpserver
-Context  ctxRover  			ip [host="localhost" port=8070] 
+//Context  ctxController      ip [host="127.0.0.1" port=8040] -httpserver
+//Context  ctxRover  			ip [host="localhost" port=8070] 
+
+Context  ctxController      ip [host="192.168.137.1" port=8040] -httpserver
+Context  ctxRover  			ip [host="192.168.137.2" port=8070] 
 
 QActor mockstart context ctxController {
 	Plan avvia normal
@@ -82,16 +82,16 @@ QActor robotmind context ctxController {
 		[?? goalResult(gap(Dir,0))] onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop else repeatPlan
 }
 
-Robot mock QActor rover context ctxRover {	 
+Robot swag QActor rover context ctxRover {	 
 	Rules {
-		unity.
+		unity("192.168.137.1").
 	}
 	Plan init normal
-		[!?unity] switchToPlan initUnity;
+		[!?unity(IP)] switchToPlan initUnity else println("Rover pronto");
 		switchToPlan aspettaComando
 		
 	Plan initUnity resumeLastPlan
-		actorOp workWithUnity("localhost");
+		[!?unity(IP)] actorOp workWithUnity(IP);
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")

@@ -138,6 +138,7 @@ QActor robotmind context ctxController {
 Robot mock QActor rover context ctxRover {	 
 	Rules {
 		unity.
+		
 	}
 	
 	Plan init normal
@@ -187,6 +188,7 @@ Robot mock QActor rover context ctxRover {
 	//Procedura di esplorazione presenza del muro a destra
 	Plan cercaVarcoDestra
 		//vado un pelo indietro per scrupolo necessario soprattuto nel fisico
+		//val UNITY
 		robotBackward speed(15) time(200) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
 		robotForward speed(15) time(600) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> muroDiFianco;	//TODO trovo tempi di quanto fare andare avanti il robot empiricamente per Unity e per Robot #41
