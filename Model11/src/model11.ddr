@@ -17,20 +17,21 @@ Event stop : stop
 Context  ctxController      ip [host="127.0.0.1" port=8040] -httpserver
 Context  ctxRover  			ip [host="localhost" port=8070] 
 
-QActor mockstart context ctxController {
+/*QActor mockstart context ctxController {
 	Plan avvia normal
 		delay time(5000);
 		emit cmd:cmd(start);
 //		delay time(12000);
 //		emit alarm:alarm(fire)
-		delay time(10000);
+		delay time(20000);
 		println("torna a casa!");
 		emit stop:stop;
 		emit stop:stop;
 		forward rover -m comando:comando(riceviComandiUtente);
-		delay time(500);
-		emit usercmd : usercmd(robotgui(torna))
-}
+		delay time(1000);
+		emit usercmd : usercmd(robotgui(torna));
+		actorOp exit(0)
+}*/
 
 QActor robotmind context ctxController {
 
@@ -84,7 +85,7 @@ QActor robotmind context ctxController {
 	//procedura di attesa eventi=> cerco di capire cosa Ã¨ stato rilevato e reagisco di conseguenza
 	Plan aspettaEventi
 		println("in ascolto");
-		sense time(600000) robotLeave, robotDetected, cmd, ostacolo -> continue, continue, continue, continue;
+		sense time(600000) robotLeave, robotDetected, cmd, ostacolo, usercmd -> continue, continue, continue, continue, continue;
 		printCurrentEvent;
 		
 		//il rover Ã¨ davanti al sonar a ed ho ricevuto il comando start
@@ -99,7 +100,7 @@ QActor robotmind context ctxController {
 		onEvent robotDetected:robotDetected(sonarb,D) -> emit stop:stop;
 		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap;
 		
-		//onEvent cmd:cmd(console) -> switchToPlan controlloUtente;	//TODO
+		onEvent usercmd:usercmd(robotgui(console)) -> switchToPlan controlloUtente;	//TODO
 		repeatPlan
 	
 	//procedura per colmare il gap fra distanza di arrivo e punto target	
@@ -114,7 +115,7 @@ QActor robotmind context ctxController {
 	//valutazione della distanza dal punto di arrivo target
 	Plan controlloPosizione resumeLastPlan
 		println("piano controlloPosizione");
-		sense time(600000) robotDetected, ostacolo -> continue, continue;
+		sense time(600000) robotDetected, ostacolo, usercmd -> continue, continue, verificaCmd;
 		printCurrentEvent;
 		onEvent ostacolo:ostacolo -> switchToPlan valutaOstacolo;
 		onEvent robotDetected:robotDetected(sonarb,D) -> demo assign(distanzaB,D);
@@ -124,8 +125,8 @@ QActor robotmind context ctxController {
 
 	//valutazione dell'ostacolo per capire se Ã¨ fisso o mobile
 	Plan valutaOstacolo resumeLastPlan
-		delay time(2000);
-		sense time(500) ostacolo -> continue;
+		delay time(2000) react event usercmd -> verificaCmd;
+		sense time(500) ostacolo, usercmd -> continue, verificaCmd;
 		[!? tout(senseevent,QA)] forward rover -m comando:comando(avanti);
 		[?? tout(senseevent,QA)] endPlan "";
 		onEvent ostacolo : ostacolo -> println("Ostacolo fisso");
@@ -152,7 +153,7 @@ QActor robotmind context ctxController {
 		//troppo piccola e println,lo scrivo nella mia WT
 		[!? value(destra,N)] demo inc(destra,1,N1) else demo assign(destra,0);
 		forward rover -m comando:comando(varcoDestra);
-		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000);
+		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000) react event usercmd -> verificaCmd;
 		onMsg terminataProcedura:terminataProcedura(X) -> println(X);
 		onMsg terminataProcedura:terminataProcedura(X) -> addRule X;	//con onMsg esegue sempre anche muroDavanti senza controllare il contenuto
 		[!? libero] forward rover -m comando:comando(avanti);
@@ -166,7 +167,7 @@ QActor robotmind context ctxController {
 		//troppo piccola e println,lo scrivo nella mia WT
 		[!? value(sinistra,N)] demo inc(sinistra,1,N1) else demo assign(sinistra,0);
 		forward rover -m comando:comando(varcoSinistra);
-		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000);
+		receiveTheMsg m(terminataProcedura,dispatch,rover,robotmind,terminataProcedura(X),N) time(600000) react event usercmd -> verificaCmd;
 		onMsg terminataProcedura:terminataProcedura(X) -> println(X);
 		onMsg terminataProcedura:terminataProcedura(X) -> addRule X;	//con onMsg esegue sempre anche muroDavanti senza controllare il contenuto
 		[!? libero] forward rover -m comando:comando(avanti);
@@ -195,11 +196,19 @@ QActor robotmind context ctxController {
 	
 	Plan errore
 		endQActor "Nessun sentiero possibile"
+	
+	Plan verificaCmd resumeLastPlan
+		onEvent usercmd:usercmd(robotgui(console)) -> switchToPlan controlloUtente
 
 	Plan controlloUtente
-	println("do il controllo all'utente");
-	forward rover -m comando:comando(riceviComandiUtente);
-	switchToPlan aspettaEventi
+		println("do il controllo all'utente");
+		emit stop:stop;
+		forward rover -m comando:comando(riceviComandiUtente);
+		switchToPlan aspetta
+	
+	Plan aspetta	//non deve terminare perché se no si spegne l'httpserver
+		delay time(600000);
+		repeatPlan
 }
 
 Robot mock QActor rover context ctxRover {	 
@@ -333,27 +342,30 @@ Robot mock QActor rover context ctxRover {
 	
 	Plan riceviComandiUtente resumeLastPlan //normal   
 		println("attendo comandi da parte dell'utente");     
-		sense time(600000)usercmd,stop,alarm,ostacolo->continue,fermaRobot,gestisciAllarme,fermaRobot;
+		sense time(600000)usercmd,stop,alarm,ostacolo->continue,fermaRobotUtente,gestisciAllarme,fermaRobotUtente;
 		onEvent usercmd:usercmd(robotgui(C)) -> addRule C;
-		[?? w(V)] actorOp salvaOp("forward",15,0);
-		[?? w(V)] robotForward speed(15) time(0) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		[?? a(V)] actorOp salvaOp("left",100,1000);
-		[?? a(V)] robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		[?? d(V)] actorOp salvaOp("right",100,1000);
-		[?? d(V)] robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		[?? s(V)] actorOp salvaOp("backward",15,0);
-		[?? s(V)] robotBackward speed(15) time(0) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
-		[?? h(V)] actorOp salvaOp("stop",0,0);
-		[?? h(V)] robotStop speed(0) time(0) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot;
+		[!? w(V)] actorOp salvaOp("forward",15,0);
+		[?? w(V)] robotForward speed(15) time(0) react event stop -> fermaRobotUtente or event alarm -> gestisciAllarme or event ostacolo -> fermaRobotUtente;
+		[!? a(V)] actorOp salvaOp("left",100,1000);
+		[?? a(V)] robotLeft speed(100) time(1000) react event stop -> fermaRobotUtente or event alarm -> gestisciAllarme or event ostacolo -> fermaRobotUtente;
+		[!? d(V)] actorOp salvaOp("right",100,1000);
+		[?? d(V)] robotRight speed(100) time(1000) react event stop -> fermaRobotUtente or event alarm -> gestisciAllarme or event ostacolo -> fermaRobotUtente;
+		[!? s(V)] actorOp salvaOp("backward",15,0);
+		[?? s(V)] robotBackward speed(15) time(0) react event stop -> fermaRobotUtente or event alarm -> gestisciAllarme or event ostacolo -> fermaRobotUtente;
+		[!? h(V)] actorOp salvaOp("stop",0,0);
+		[?? h(V)] robotStop speed(0) time(0);
 		[?? torna] switchToPlan ritornaACasa;
 		repeatPlan
-
+	
+	Plan fermaRobotUtente
+		actorOp salvaOp("stop",0,0);
+		robotStop speed(0) time(0);
+		switchToPlan riceviComandiUtente
+	
 	Plan ritornaACasa
 		println("ritorno a casa");
-		
-		// inversione ad u
-		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
-		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;
-		
-		actorOp ripetiOperazioni
+		robotLeft speed(100) time(1000) react event stop -> fermaRobotUtente or event alarm -> gestisciAllarme;
+		robotLeft speed(100) time(1000) react event stop -> fermaRobotUtente or event alarm -> gestisciAllarme;
+		actorOp ripetiOperazioni;
+		switchToPlan riceviComandiUtente	//se è ancora possibile pilotarlo
 }

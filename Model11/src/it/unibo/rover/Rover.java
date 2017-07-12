@@ -35,10 +35,11 @@ public class Rover extends AbstractRover {
 	}
 	public void ripetiOperazioni(){
 		final String planName = "ripetiOperazioni";
+		salvaOp("stop",0,0);
 		try {
 			while (!memoriaAzioni.isEmpty()){
 				Azione a=memoriaAzioni.pop().inverti();
-//				execRobotMove(planName,"forward",15,0,600000,"stop,alarm,ostacolo","fermaRobot,gestisciAllarme,fermaRobot");
+				System.err.println(memoriaAzioni.toString());
 				System.err.println(a.toString());
 				execRobotMove(planName,a.getNome(),a.getVelocita(),0,a.getDurata(),"stop,alarm,ostacolo","fermaRobot,gestisciAllarme,fermaRobot");
 		    }

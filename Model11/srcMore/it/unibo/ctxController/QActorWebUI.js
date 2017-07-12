@@ -24,10 +24,21 @@ var curSpeed = "low";
 		curSpeed = val;
 		document.getElementById("speed").value = curSpeed;
 	}
-	function send(message) {
-		document.getElementById("sending").value = ""+message;
+	function send(message){
+		//document.getElementById("sending").value = ""+message;
 		sock.send(message);
 	};
+	function start(){
+		document.getElementById("start").disabled="true";
+		document.getElementById("console-button").disabled="";
+		document.getElementById("alarm").disabled="";
+		send("e(cmd(start))");
+	};
+	function apriConsole(){
+		document.getElementById("console-button").style.display='none';
+		document.getElementById("console").style.display='inline-flex';
+		send("console");
+	}
 /*	
 	document.onkeydown = function(event) {
 //	alert("event="+event);
