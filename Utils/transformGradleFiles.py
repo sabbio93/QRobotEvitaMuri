@@ -27,6 +27,10 @@ for file in glob.glob("*.gradle"):
     */
     compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
     compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
+    /*
+    SONAR
+    */
+    compile fileTree(dir: '../Sonar/Fisico/build/libs', include: '*.jar')
     '''
     )
 

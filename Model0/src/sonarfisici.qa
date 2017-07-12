@@ -1,0 +1,35 @@
+System model0
+
+Event robotDetected : robotDetected(Sonar)
+Event cmd : cmd(X)
+
+
+Context ctxRover ip [host="192.168.1.213" port=8070] -standalone -httpserver//192.168.251.1
+Context ctxSonarFisicoArrivo ip [host="192.168.1.2" port=8035]	//192.168.251.3
+
+QActor sonarbfisico context ctxSonarFisicoArrivo {
+	Rules {
+		value(fondoscala, 4000) :- !.
+		value(incertezza, 50) :- !.
+		
+		tipoEvento(D, robotDetected) :- value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
+							eval(minus,DimFondoScala,Incertezza,DimFondoCorretta), 
+							eval(gt,DimFondoCorretta,D), assign(status, detected), !.
+		tipoEvento(D, robotLeft) :- value(status, detected), 
+							value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
+							eval(minus,DimFondoScala,Incertezza,DimFondoCorretta), 
+							eval(gt,D,DimFondoCorretta), retract(status, _), !.
+	}
+	Plan init normal
+		println("Starting sonar fisico");
+		actorOp activateSonar();
+		delay time(1000);
+		switchToPlan work
+	Plan work 
+		println("Chiedo al sonar");
+		actorOp getDistanza();
+		[?? actorResult(G)] demo tipoEvento(G, T);
+		[?? goalResult(tipoEvento(D, robotDetected))] emit robotDetected : robotDetected(sonarb);
+		repeatPlan
+		
+}
