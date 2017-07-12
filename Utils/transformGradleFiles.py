@@ -27,7 +27,42 @@ for file in glob.glob("*.gradle"):
     */
     compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
     compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
+    /*
+    SONAR
+    */
+    compile fileTree(dir: '../Sonar/Fisico/build/libs', include: '*.jar')
     '''
+    )
+
+    filedata = filedata.replace("""
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src' , 'src-gen'  ]
+		}
+	}
+	test {
+		 java {
+		   srcDirs = ['test']
+		 }
+	}
+}
+""",
+"""
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src' , 'src-gen'  ]
+			exclude 'dist/'
+		}
+	}
+	test {
+		 java {
+		   srcDirs = ['test']
+		 }
+	}
+}
+"""
     )
 
     if "org.hidetake.ssh" not in filedata:

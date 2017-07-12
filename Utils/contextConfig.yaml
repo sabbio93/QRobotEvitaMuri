@@ -16,6 +16,12 @@ localhost:
      host: 127.0.0.1
      port: 8035
 ethernet:
+   ctxSonarFisicoArrivo:
+     host: 192.168.137.6
+     port: 8022
+   ctxSonarFisicoPartenza:
+     host: 192.168.137.5
+     port: 8021
    ctxController:
      host: 192.168.137.1
      port: 8040
@@ -32,6 +38,12 @@ ethernet:
      host: 192.168.137.1
      port: 8035
 wifiziro:
+   ctxSonarFisicoArrivo:
+     host: 192.168.1.6
+     port: 8022
+   ctxSonarFisicoPartenza:
+     host: 192.168.1.5
+     port: 8021
    ctxController:
      host: 192.168.1.2
      port: 8040

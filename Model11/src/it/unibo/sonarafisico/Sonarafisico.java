@@ -3,6 +3,9 @@
 This code is generated only ONCE
 */
 package it.unibo.sonarafisico;
+import com.pi4j.io.gpio.RaspiPin;
+
+import it.unibo.iot.device.hcsr04.imp.Hcsr04;
 import it.unibo.is.interfaces.IOutputEnvView;
 import it.unibo.qactors.QActorContext;
 
@@ -10,4 +13,19 @@ public class Sonarafisico extends AbstractSonarafisico {
 	public Sonarafisico(String actorId, QActorContext myCtx, IOutputEnvView outEnvView )  throws Exception{
 		super(actorId, myCtx, outEnvView);
 	}
+	private Hcsr04 sonar;
+	
+	public void activateSonar(){
+		sonar = new Hcsr04(RaspiPin.GPIO_02, RaspiPin.GPIO_00);
+	}
+	
+	public float getDistanza(){
+		try {
+			return sonar.measureDistance();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
 }
+

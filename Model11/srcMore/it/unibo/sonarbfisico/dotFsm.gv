@@ -16,7 +16,7 @@ digraph finite_state_machine {
   	iniziale -> init [label = ""];
   	
   	
-  	init -> rilevaArrivo [ label = ""];
-  	init -> rileva [ label = ""];
-  	init -> init [ label = ""];
+  	init -> work [ label = ""];
+  	
+  	work -> work [ label = ""];
 }
