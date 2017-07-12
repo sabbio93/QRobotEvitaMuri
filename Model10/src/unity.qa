@@ -1,4 +1,4 @@
-System m6
+System m10
 
 Event sonar : sonar(Nome,Oggetto,Distanza)
 Event sonarDetect : sonarDetect(Oggetto)

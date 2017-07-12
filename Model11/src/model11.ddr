@@ -34,19 +34,7 @@ Context  ctxRover  			ip [host="localhost" port=8070]
 }*/
 
 QActor robotmind context ctxController {
-
     Rules {
-		/* da WorldTheory del prof:
-		 * assign(I,V):-retract(value(I,_)),!,assert(value(I,V)).
-		 * assign(I,V):-assert(value(I,V)).
-		 * eval(plus,V1,V2,R):-R is V1+V2.
-		 * eval(minus,V1,V2,R):-R is V1-V2.
-		 * eval(times,V1,V2,R):-R is V1*V2.
-		 * eval(div,V1,V2,R):-R is V1/V2.
-		 * eval(lt,X,Y):-X<Y.
-		 * eval(gt,X,Y):-X>Y.
-		 */
-		
 		/*Dictionary
 		D=distanza iniziale
 		DM = dm (dimensione stanza)
@@ -340,7 +328,7 @@ Robot mock QActor rover context ctxRover {
 		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot; //per eliminare eventuali allontanamenti dal muro durante il riposizionamento
 		switchToPlan aspettaComando
 	
-	Plan riceviComandiUtente resumeLastPlan //normal   
+	Plan riceviComandiUtente
 		println("attendo comandi da parte dell'utente");     
 		sense time(600000)usercmd,stop,alarm,ostacolo->continue,fermaRobotUtente,gestisciAllarme,fermaRobotUtente;
 		onEvent usercmd:usercmd(robotgui(C)) -> addRule C;
