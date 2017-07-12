@@ -3,11 +3,10 @@
 This code is generated only ONCE
 */
 package it.unibo.sonarbfisico;
-import com.pi4j.io.gpio.RaspiPin;
-
-import it.unibo.iot.device.hcsr04.imp.Hcsr04;
-import it.unibo.is.interfaces.IOutputEnvView;
-import it.unibo.qactors.QActorContext;
+import com.pi4j.io.gpio.*;
+import it.unibo.iot.device.hcsr04.imp.*;
+import it.unibo.is.interfaces.*;
+import it.unibo.qactors.*;
 
 public class Sonarbfisico extends AbstractSonarbfisico { 
 	public Sonarbfisico(String actorId, QActorContext myCtx, IOutputEnvView outEnvView )  throws Exception{
