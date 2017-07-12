@@ -34,6 +34,37 @@ for file in glob.glob("*.gradle"):
     '''
     )
 
+    filedata = filedata.replace("""
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src' , 'src-gen'  ]
+		}
+	}
+	test {
+		 java {
+		   srcDirs = ['test']
+		 }
+	}
+}
+""",
+"""
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src' , 'src-gen'  ]
+			exclude 'dist/'
+		}
+	}
+	test {
+		 java {
+		   srcDirs = ['test']
+		 }
+	}
+}
+"""
+    )
+
     if "org.hidetake.ssh" not in filedata:
         # Add remote deployment support
         filedata = filedata.replace("apply plugin: 'jacoco'", '''
