@@ -1,5 +1,19 @@
 # Read in the file
 import glob
+
+# Creo il file gradle.properties e aggiungo le proprieta che nn esistono
+
+with open('gradle.properties', 'w+') as fin:
+    propsdata = fin.read()
+
+if "ambiente" not in propsdata:
+    # Add remote deployment support
+    propsdata += "ambiente=ethernet\n"
+
+# Write the file out again
+with open('gradle.properties', 'w') as fout:
+    fout.write(propsdata)
+
 for file in glob.glob("*.gradle"):
     # Write the file out again
     with open(file, 'r') as fin:
@@ -27,10 +41,12 @@ buildscript {
   }
   dependencies {
     classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+    classpath 'org.yaml:snakeyaml:1.14'
   }
 }
 
 apply plugin: 'org.hidetake.ssh'
+import org.yaml.snakeyaml.Yaml
         '''
         )
 
@@ -47,9 +63,15 @@ def deploymentDir = "/home/pi/deploy-${mainClassName}-${version}"
 def completeName = "$mainClassName-$version"
 def tarFile = "${completeName}.tar"
 
+def yaml = new Yaml()
+def fistream = new FileInputStream("../Utils/contextConfig.yaml")
+def systemConfig = (Map) yaml.load(fistream)
+def contextName = mainClassName.tokenize('.')[2]
+
 remotes {
   raspberry {
-    host = '192.168.1.213'
+    //host = '192.168.1.213'
+    host = systemConfig[ambiente][contextName]
     user = 'pi'
     password = 'raspberry'
     //identity = file('id_rsa')
@@ -112,13 +134,10 @@ task executeRemote {
 SYS CONFIG: modifica tutti quanti i file prolog con le configurazioni di rete prima della compilazione
 ---------------------------------------------------------------------
 */
-def sistema="ethernet"
-//def sistema="wifiziro"
-//def sistema="localhost"
 
 task configureSystem(type: Exec) {
 
-	commandLine 'python', '../Utils/applySystemConfig.py', sistema
+	commandLine 'python', '../Utils/applySystemConfig.py', ambiente
 
 }
 
