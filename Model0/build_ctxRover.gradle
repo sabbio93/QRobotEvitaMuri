@@ -18,10 +18,13 @@ buildscript {
   }
   dependencies {
     classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+    classpath 'org.yaml:snakeyaml:1.14'
   }
 }
 
 apply plugin: 'org.hidetake.ssh'
+
+import org.yaml.snakeyaml.Yaml
 
 /*
 --------------------------------------------------------------
@@ -208,9 +211,15 @@ def deploymentDir = "/home/pi/deploy-${mainClassName}-${version}"
 def completeName = "$mainClassName-$version"
 def tarFile = "${completeName}.tar"
 
+def yaml = new Yaml()
+def fistream = new FileInputStream("../Utils/contextConfig.yaml")
+def systemConfig = (Map) yaml.load(fistream)
+def contextName = mainClassName.tokenize('.')[2]
+
 remotes {
   raspberry {
-    host = '192.168.1.213'
+    //host = '192.168.1.213'
+    host = systemConfig[ambiente][contextName]
     user = 'pi'
     password = 'raspberry'
     //identity = file('id_rsa')

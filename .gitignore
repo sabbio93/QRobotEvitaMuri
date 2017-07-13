@@ -1,5 +1,6 @@
 # QActors/Custom software factory files
 */**/dist/
+*/**/src-gen/
 
 # Other files
 # Compiled class file
@@ -19,11 +20,6 @@
 *.tar
 *.tar.gz
 *.rar
-
-#Auto gen files
-*.java
-*.txt
-*.pl
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

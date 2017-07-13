@@ -291,3 +291,18 @@ jacocoTestReport {
         html.destination "${buildDir}/jacocoHtml"
     }
 }
+
+
+/*
+---------------------------------------------------------------------
+SYS CONFIG: modifica tutti quanti i file prolog con le configurazioni di rete prima della compilazione
+---------------------------------------------------------------------
+*/
+
+task configureSystem(type: Exec) {
+
+	commandLine 'python', '../Utils/applySystemConfig.py', ambiente
+
+}
+
+assemble.dependsOn(configureSystem)
