@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Model8/src/model7.ddr&apos; to &apos;model8.ddr&apos;" description="Rename resource &apos;model7.ddr&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/model7.ddr" name="model8.ddr" stamp="1499608614208" updateReferences="true"/>
+</session>
