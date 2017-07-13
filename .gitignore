@@ -25,24 +25,25 @@
 hs_err_pid*
 
 # eclipse
-.metadata/
-RemoteSystemsTempFiles/
-bin/
-tmp/
+*/**/.metadata/
+*/**/RemoteSystemsTempFiles/
+*/**/bin/
+*/**/tmp/
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
-.settings/
-.loadpath
-.classpath
-.recommenders
+*/**/.settings/
+*/**/.loadpath
+*/**/.classpath
+*/**/.recommenders
+*/**/.project
 
 # Gradle
 
-.gradle
-/build/
+*/**/.gradle
+*/**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
