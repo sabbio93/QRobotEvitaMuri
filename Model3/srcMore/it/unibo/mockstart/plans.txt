@@ -1,0 +1,4 @@
+plan(1,avvia, sentence(true,delay( 5000) ,'','' ))
+plan(2,avvia, sentence(true,raise( cmd , cmd( start) )'),'','' ))
+plan(3,avvia, sentence(true,delay( 6000) ,'','' ))
+plan(4,avvia, sentence(true,raise( alarm , alarm( fire) )'),'','' ))
