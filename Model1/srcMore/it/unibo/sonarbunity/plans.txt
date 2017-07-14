@@ -1,3 +1,3 @@
 plan(1,rileva, sentence(true,senseEvent(600000,"sonar","continue"),'','' ))
-plan(2,rileva, sentence(true,eventswitch(sonar, Â»sonar( sonar2,rover,D), raise( robotDetected , robotDetected( sonarb) )') ),'','' ))
+plan(2,rileva, sentence(true,eventswitch(sonar, »sonar( sonar2,rover,D), raise( robotDetected , robotDetected( sonarb) )') ),'','' ))
 plan(3,rileva, sentence(true,repeatplan(0) ,'','' ))

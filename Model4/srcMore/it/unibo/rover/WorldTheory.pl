@@ -136,7 +136,7 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about rover
 %------------------------------------------------- 
-unity.
+unity( "192.168.137.1").
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),
