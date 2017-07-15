@@ -1,4 +1,4 @@
-System model0
+System m11
 
 Event robotDetected : robotDetected(Sonar)
 Event robotLeave : robotLeave(Sonar)

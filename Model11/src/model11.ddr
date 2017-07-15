@@ -15,7 +15,7 @@ Event stop : stop
 //Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
 //Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
 Context  ctxController      ip [host="localhost" port=8040] -httpserver
-Context  ctxRover  			ip [host="localhost" port=8070] 
+Context  ctxRover  			ip [host="localhost" port=8070]
 
 /*QActor mockstart context ctxController {
 	Plan avvia normal
@@ -208,16 +208,19 @@ Robot mock QActor rover context ctxRover {
 	}
 	
 	Plan init normal
+		demo loadTheory("srcMore/it/unibo/rover/ricordaStrada.pl");
+		[?? goalResult(failure)] demo loadTheory("../../../../srcMore/it/unibo/rover/ricordaStrada.pl");
+		demo getSentence(ciao,S);
+		[?? goalResult(G)] println(prova(G));
 		[!?unity] switchToPlan initUnity;
-		demo loadTheory("ricordaStrada.pl");
-		/*demo getSentence(ciao,S);
-		[?? goalResult(G)] println(G);*/
 		switchToPlan aspettaComando
 		
 	Plan initUnity resumeLastPlan
 		actorOp workWithUnity("localhost");
 		//[!? getCtxHost(ctxController,IP)] actorOp workWithUnity(IP);
-		demo getCtxHost(ctxController,IP);
+		demo loadTheory("../ctxRover/sysRules.pl");
+		demo loadTheory("m11.pl");
+		demo getCtxHost(ctxcontroller,IP);
 		[?? goalResult(G)] println(demoIPContesto(G));
 		demo getCtxNames(L);
 		[?? goalResult(G)] println(demoContesti(G));
