@@ -1,10 +1,15 @@
 # Read in the file
 import glob
+import os.path
 
 # Creo il file gradle.properties e aggiungo le proprieta che nn esistono
 
-with open('gradle.properties', 'w+') as fin:
-    propsdata = fin.read()
+if os.path.isfile('gradle.properties'):
+    with open('gradle.properties', 'r+') as fin:
+        propsdata = fin.read()
+else:
+    with open('gradle.properties', 'w+') as fin:
+        propsdata = fin.read()
 
 if "ambiente" not in propsdata:
     # Add remote deployment support
@@ -20,19 +25,101 @@ for file in glob.glob("*.gradle"):
         filedata = fin.read()
 
     # Add pi4j support and robots libraries
-    filedata = filedata.replace("//compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'", '''
-    compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
-    /*
-    ROBOTS
-    */
-    compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
-    compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
-    /*
-    SONAR
-    */
-    compile fileTree(dir: '../Sonar/Fisico/build/libs', include: '*.jar')
+    filedata = filedata.replace(
+    "//compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'",
+    '''
+ compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
+ /*
+ ROBOTS
+ */
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
+ /*
+ SONAR
+ */
+ compile fileTree(dir: '../Sonar/sonarRasp/', include: '*.jar')
     '''
     )
+
+    copyDir = """
+    copy {
+    	from '../Sonar/SonarC/'
+    	into 'src/dist/'
+    	include '*.cpp'
+    	include '*.c'
+    }
+    copy {
+    	from '../Sonar/sonarRasp/srcMore/it/unibo/'
+    	into 'src/dist/srcMore/it/unibo/'
+    	include 'sonarrasp/*'
+    }
+    """
+
+    if copyDir not in filedata:
+        filedata = filedata.replace("""
+/*
+---------------------------------------------------------
+PREPARE DISTRIBUTION
+---------------------------------------------------------
+*/
+task copyInfoForDist << {
+	copy {
+		from 'audio'
+		into 'src/dist/audio/'
+		include '**/*.*'
+ 	}
+	copy {
+		from 'srcMore'
+		into 'src/dist/srcMore/'
+		include '**/*.*'
+ 	}
+	copy {
+		from '.'
+		into 'src/dist/'
+		include '*.pl'
+		include '*.html'
+ 	}
+	copy {
+		from 'src'
+		into 'src/dist/'
+		include '*.qa'
+		include '*.ddr'
+		include '*.baseddr'
+   	}
+}
+""",
+"""
+/*
+---------------------------------------------------------
+PREPARE DISTRIBUTION
+---------------------------------------------------------
+*/
+task copyInfoForDist {
+	doLast{
+		copy {
+			from 'audio'
+			into 'src/dist/audio/'
+			include '**/*.*'
+	 	}
+		copy {
+			from 'srcMore'
+			into 'src/dist/srcMore/'
+			include '**/*.*'
+	 	}
+		copy {
+			from '.'
+			into 'src/dist/'
+			include '*.pl'
+			include '*.html'
+	 	}
+		copy {
+			from 'src'
+			into 'src/dist/'
+			include '*.qa'
+			include '*.ddr'
+			include '*.baseddr'
+	  }
+      """+copyDir+"}}")
 
     filedata = filedata.replace("""
 sourceSets {
@@ -106,7 +193,7 @@ def contextName = mainClassName.tokenize('.')[2]
 remotes {
   raspberry {
     //host = '192.168.1.213'
-    host = systemConfig[ambiente][contextName]
+    host = systemConfig[ambiente][contextName]['host']
     user = 'pi'
     password = 'raspberry'
     //identity = file('id_rsa')
