@@ -12,7 +12,13 @@ QActor sonarbfisico context ctxSonarFisicoArrivo {
 
 	Rules {
 		
-		value(incertezza, 100) :- !.
+		
+		// % value(detected_consecutivi, 0) :- !.
+		value(soglia_anti_rumore, 3) :- !.
+		
+		sogliaAntiRumoreSuperata :- value(detected_consecutivi, N), value(soglia_anti_rumore, Soglia), eval(gt, N, Soglia), !.
+		
+		value(incertezza, 10) :- !.
 		
 		fondoscalaConIncertezza(Valore) :-
 							value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
@@ -27,9 +33,8 @@ QActor sonarbfisico context ctxSonarFisicoArrivo {
 					eval(lt,DistRil, DimFondoCorretta).
 
 	
-		tipoEvento(DistRil, robotLeft) :- value(status, detected), isFondoScala(DistRil, si), !, retract(value(status, detected)).	
-		tipoEvento(DistRil, robotDetected) :- isFondoScala(DistRil, no), !, assign(status, detected).
-	
+		tipoEvento(DistRil, robotLeft) :- isFondoScala(DistRil, si), assign(detected_consecutivi, 0), value(status, detected), !, retract(value(status, detected)).	
+		tipoEvento(DistRil, robotDetected) :- isFondoScala(DistRil, no), inc(detected_consecutivi,1,_), sogliaAntiRumoreSuperata, !, assign(status, detected).
 		
 		ultimoEventoDalSonar(Payload) :- nomeSonarFisico(NomeSonar), msg(sonar,E, NomeSonar, none, Payload, _).
 		
@@ -56,6 +61,7 @@ QActor sonarbfisico context ctxSonarFisicoArrivo {
 		[!? ultimoEventoDalSonar(p(D, _))] println(fondoscala(D)); 
 		[!? ultimoEventoDalSonar(p(D, _))] demo assign(fondoscala, D) 
 													  else repeatPlan;  
+		demo assign(detected_consecutivi, 0);
 		switchToPlan work
 	
 	Plan work 

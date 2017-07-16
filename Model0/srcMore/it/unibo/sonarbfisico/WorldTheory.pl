@@ -136,13 +136,15 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about sonarbfisico
 %------------------------------------------------- 
-value( incertezza,100):- ! .
+value( soglia_anti_rumore,3):- ! .
+sogliaAntiRumoreSuperata:-value( detected_consecutivi,N),value( soglia_anti_rumore,Soglia),eval( gt,N,Soglia), ! .
+value( incertezza,10):- ! .
 fondoscalaConIncertezza( Valore):-value( fondoscala,DimFondoScala),value( incertezza,Incertezza),eval( minus,DimFondoScala,Incertezza,Valore).
 isFondoScala( DistRil,si):-fondoscalaConIncertezza( DimFondoCorretta),eval( lt,DimFondoCorretta,DistRil), ! .
 isFondoScala( DistRil,si):-fondoscalaConIncertezza( DimFondoCorretta),eval( minus,DimFondoCorretta,DistRil,0), ! .
 isFondoScala( DistRil,no):-fondoscalaConIncertezza( DimFondoCorretta),eval( lt,DistRil,DimFondoCorretta).
-tipoEvento( DistRil,robotLeft):-value( status,detected),isFondoScala( DistRil,si), ! ,retract( value( status,detected)).
-tipoEvento( DistRil,robotDetected):-isFondoScala( DistRil,no), ! ,assign( status,detected).
+tipoEvento( DistRil,robotLeft):-isFondoScala( DistRil,si),assign( detected_consecutivi,0),value( status,detected), ! ,retract( value( status,detected)).
+tipoEvento( DistRil,robotDetected):-isFondoScala( DistRil,no),inc( detected_consecutivi,1,_),sogliaAntiRumoreSuperata, ! ,assign( status,detected).
 ultimoEventoDalSonar( Payload):-nomeSonarFisico( NomeSonar),msg( sonar,E,NomeSonar,none,Payload,_).
 /*
 ------------------------------------------------------------------------
