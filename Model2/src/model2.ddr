@@ -30,7 +30,7 @@ QActor robotmind context ctxController {
 		switchToPlan aspettaEventi
 	
 	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
-	Plan aspettaEventi
+	Plan aspettaEventi//R1.1
 		println("in ascolto");
 		sense time(600000) robotLeave, robotDetected, cmd -> continue, continue, continue;
 		printCurrentEvent;
@@ -47,7 +47,7 @@ QActor robotmind context ctxController {
 		onEvent robotDetected:robotDetected(sonarb,D) -> switchToPlan risolviGap;
 		repeatPlan
 	
-	Plan risolviGap resumeLastPlan
+	Plan risolviGap resumeLastPlan//R1.2
 		println("piano risolviGap");
 		demo gap(Dir,Dist);
 		[!? goalResult(G)] println(G);
@@ -55,7 +55,7 @@ QActor robotmind context ctxController {
 		[?? goalResult(gap(sinistra,D))] forward rover -m comando:comando(sinistra);
 		[?? goalResult(gap(no,D))] endPlan "" else switchToPlan controlloPosizione
 	
-	Plan controlloPosizione resumeLastPlan
+	Plan controlloPosizione resumeLastPlan//R1.2
 		println("piano controlloPosizione");
 		sense time(600000) robotDetected -> continue;
 		printCurrentEvent;
@@ -79,10 +79,10 @@ Robot mock QActor rover context ctxRover {
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")
 	/*
-	 * R2: Il robot comincia a muoversi alla pressione del tasto start
-	 * R3: solo se è davanti al sonarA
+	 *  Il robot comincia a muoversi alla pressione del tasto start
+	 *  solo se è davanti al sonarA
 	 */
-	Plan aspettaComando resumeLastPlan //normal        
+	Plan aspettaComando resumeLastPlan //R1       
 		receiveMsg time(600000);
 		onMsg comando:comando(start) -> switchToPlan traversata;
 		onMsg comando:comando(destra) -> switchToPlan recuperaDx;
@@ -92,20 +92,20 @@ Robot mock QActor rover context ctxRover {
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan
+  	Plan traversata resumeLastPlan//R2
 		println("Inizio traversata");
 		robotForward speed(15) time(600000) react event stop -> fermaRobot
  	
- 	Plan fermaRobot
+ 	Plan fermaRobot//R2
  		println("Stop requested");
  		robotStop speed(0) time(0);
  		switchToPlan aspettaComando
  		
-    Plan recuperaDx resumeLastPlan
+    Plan recuperaDx resumeLastPlan//R1.2
     robotRight speed(100) time(2000) react event stop -> fermaRobot;
     switchToPlan traversata
     
-    Plan recuperaSx resumeLastPlan
+    Plan recuperaSx resumeLastPlan//R1.2
    robotLeft speed(100) time(2000) react event stop -> fermaRobot;
     switchToPlan traversata
     

@@ -63,7 +63,7 @@ plan(5,passiASinistra, sentence(true,move(robotForward(15,0,600000)),'stop,alarm
 plan(6,passiASinistra, sentence(true,move( switchplan(aspettaComando) ),'','' ))
 plan(1,riceviComandiUtente, sentence(true,move(print("attendo comandi da parte dell'utente")),'','' ))
 plan(2,riceviComandiUtente, sentence(true,senseEvent(600000,"usercmd,stop,alarm,ostacolo","continue,fermaRobotUtente,gestisciAllarme,fermaRobotUtente"),'','' ))
-plan(3,riceviComandiUtente, sentence(true,eventswitch(usercmd, »usercmd( robotgui( C)), addRule( C ) ),'','' ))
+plan(3,riceviComandiUtente, sentence(true,eventswitch(usercmd, Â»usercmd( robotgui( C)), addRule( C ) ),'','' ))
 plan(4,riceviComandiUtente, sentence(-  w( V) ,move(robotForward(15,0,0)),'stop,alarm,ostacolo','fermaRobotUtente,gestisciAllarme,fermaRobotUtente' ))
 plan(5,riceviComandiUtente, sentence(-  a( V) ,move(robotLeft(100,0,1000)),'stop,alarm,ostacolo','fermaRobotUtente,gestisciAllarme,fermaRobotUtente' ))
 plan(6,riceviComandiUtente, sentence(-  d( V) ,move(robotRight(100,0,1000)),'stop,alarm,ostacolo','fermaRobotUtente,gestisciAllarme,fermaRobotUtente' ))
