@@ -1,0 +1,7 @@
+plan(1,init, sentence(true,move(print("ctxSonarRasp STARTS")),'','' ))
+plan(2,init, sentence(true,move(actorOp(startSonarC)),'','' ))
+plan(3,init, sentence(true,move( switchplan(workReal) ),'','' ))
+plan(1,workReal, sentence(true,move(actorOp(getDistanceFromSonar)),'','' ))
+plan(2,workReal, sentence( actorOpDone( X,d( D)),move(print(uuuuu( X,D))),'','' ))
+plan(3,workReal, sentence(-  actorOpDone( X,d( D)) ,raise( sonar , p( D,sonar1) )'),'','' ))
+plan(4,workReal, sentence(true,repeatplan(0) ,'','' ))

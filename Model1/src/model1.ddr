@@ -19,7 +19,7 @@ QActor robotmind context ctxController {
 		switchToPlan aspettaEventi
 	
 	// mi è arrivato un evento dai sonar, cerco di capire cosa è stato rilevato, o reagisco di conseguenza
-	Plan aspettaEventi
+	Plan aspettaEventi //R1.1
 		println("in ascolto");
 		sense time(600000) cmd, robotLeave, robotDetected -> continue, continue, continue;
 		printCurrentEvent;
@@ -48,11 +48,9 @@ Robot swag QActor rover context ctxRover {
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")
-	/*
-	 * R2: Il robot comincia a muoversi alla pressione del tasto start
-	 * R3: solo se è davanti al sonarA
-	 */
-	Plan aspettaComando resumeLastPlan //normal
+		
+	// Il robot comincia a muoversi alla pressione del tasto start solo se è davanti al sonarA
+	Plan aspettaComando resumeLastPlan //normal //R1
 		receiveMsg time(6000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
 		printCurrentMessage;
 		onMsg comando:comando(avanti) -> switchToPlan traversata;
@@ -61,11 +59,14 @@ Robot swag QActor rover context ctxRover {
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan
+  	Plan traversata resumeLastPlan//R2
 		println("Inizio traversata");
-		robotForward speed(60) time(600000) react event stop -> fermaRobot
+		robotForward speed(60) time(600000) react event stop -> fermaRobot;
+		println("Non sono ancora arrivato?");
+		repeatPlan
+		
  	
- 	Plan fermaRobot
+ 	Plan fermaRobot//R2
  		println("Arresto");
  		robotStop speed(0) time(0);
  		switchToPlan aspettaComando

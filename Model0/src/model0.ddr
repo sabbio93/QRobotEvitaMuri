@@ -19,22 +19,22 @@ Robot swag QActor rover context ctxRover {
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")
-	/*
-	 * R2: Il robot comincia a muoversi alla pressione del tasto start
-	 */
-	Plan attesa
+		
+	// Il robot comincia a muoversi alla pressione del tasto start
+	Plan attesa//R1
 		sense time(600000) cmd -> continue;
 		onEvent cmd:cmd(start) -> switchToPlan traversata;
 		repeatPlan
 
-	/*
-	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
-	 */
-  	Plan traversata resumeLastPlan
+	// R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
+  	Plan traversata resumeLastPlan //R2
 		println("Inizio traversata");
-		robotForward speed(100) time(600000) react event robotDetected -> fermaRobot
+		robotForward speed(100) time(600000) react event robotDetected -> fermaRobot;
+		println("Non sono ancora arrivato?");
+		repeatPlan
+		
  	
- 	Plan fermaRobot
+ 	Plan fermaRobot//R2
  		println("Stop requested");
  		robotStop speed(0) time(0)
 }
