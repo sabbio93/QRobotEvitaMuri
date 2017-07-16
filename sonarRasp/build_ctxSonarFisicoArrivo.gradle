@@ -1,10 +1,10 @@
 /*
 ================================================================================
-build_ctxRover.gradle
+build_ctxSonarFisicoArrivo.gradle
 GENERATED ONLY ONCE
-USAGE:
-	gradle -b build_ctxRover.gradle eclipse	//to set the dependency on the library
-	gradle -b build_ctxRover.gradle build
+USAGE:	 
+	gradle -b build_ctxSonarFisicoArrivo.gradle eclipse	//to set the dependency on the library
+	gradle -b build_ctxSonarFisicoArrivo.gradle build
 ================================================================================
 */
 apply plugin: 'java'
@@ -25,7 +25,7 @@ buildscript {
 
 apply plugin: 'org.hidetake.ssh'
 import org.yaml.snakeyaml.Yaml
-
+        
 
 /*
 --------------------------------------------------------------
@@ -35,7 +35,7 @@ PROPERTIES
 version = "1.0"
 sourceCompatibility = "1.8"
 ext{
-	mainClassName = "it.unibo.ctxRover.MainCtxRover"
+	mainClassName = "it.unibo.ctxSonarFisicoArrivo.MainCtxSonarFisicoArrivo"
 }
 /*
 --------------------------------------------------------------
@@ -66,16 +66,16 @@ repositories {
 dependencies {
 /*
 BASIC SUPPORT (test, akka)
-*/
+*/	
       testCompile 'junit:junit:4.12'
      // https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.11
 	  compile group: 'com.typesafe.akka', name: 'akka-actor_2.11', version: '2.5.1'
 	 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-remote_2.11
-	 compile group: 'com.typesafe.akka', name: 'akka-remote_2.11', version: '2.5.1'
-
+	 compile group: 'com.typesafe.akka', name: 'akka-remote_2.11', version: '2.5.1'	 
+     
 /*
 UNIBO SUPPORTS
-*/
+*/		
 	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboInterfaces.jar')
 	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'unibonoawtsupports.jar')
 	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboEnvBaseAwt.jar')
@@ -85,10 +85,10 @@ UNIBO SUPPORTS
 /*
 JSON
 */
-
+	  
 	  // https://mvnrepository.com/artifact/org.json/json
 	  compile group: 'org.json', name: 'json', version: '20160810'
-
+	  
 /*
 MQTT
 */
@@ -103,7 +103,7 @@ TO BE ADDED by the application designer: BLUETOOTH
 
 /*
 TO BE ADDED by the application designer: Raspberry GPIO support
-*/
+*/	
 // https://mvnrepository.com/artifact/com.pi4j/pi4j-core
 
  compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
@@ -116,11 +116,10 @@ TO BE ADDED by the application designer: Raspberry GPIO support
  SONAR
  */
  compile fileTree(dir: '../Sonar/sonarRasp/', include: '*.jar')
-
-
+    
 /*
-TO BE ADDED by the application designer for ButtonLed
-*/
+TO BE ADDED by the application designer for ButtonLed  
+*/	
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsHL.jar')
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsGUI.jar')
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsRasp.jar')
@@ -129,11 +128,11 @@ TO BE ADDED by the application designer for ButtonLed
 TO BE ADDED by the application designer for: RXJAVA
 */
 	//https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava
-	//compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.6'
+	//compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.6' 
 }
 
 /*
-TO BE ADDED by the application designer for :
+TO BE ADDED by the application designer for : 
 */
 	// https://mvnrepository.com/artifact/log4j/log4j
     //compile group: 'log4j', name: 'log4j', version: '1.2.16'
@@ -145,7 +144,7 @@ AFTER TEST
 --------------------------------------------------------------
 */
 test {
-    afterTest { desc, result ->
+    afterTest { desc, result -> 
         println "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
     }
 }
@@ -177,34 +176,42 @@ task copyInfoForDist << {
 		into 'src/dist/audio/'
 		include '**/*.*'
  	}
-copy {
-	from 'configuration'
-	into 'src/dist/configuration/'
-	include '**/*.*'
- 	}
-	copy {
+	copy { 
 		from 'srcMore'
 		into 'src/dist/srcMore/'
 		include '**/*.*'
  	}
-	copy {
+	copy { 
 		from '.'
 		into 'src/dist/'
 		include '*.pl'
 		include '*.html'
-		include 'hardwareConfiguration.properties'
  	}
-	copy {
+ 	
+ 	copy { 
+		from 'build/libs'
+		into '../Sonar/sonarRasp'
+		include '*.jar'
+ 	}
+ 	
+	copy {  
 		from 'src'
 		into 'src/dist/'
 		include '*.qa'
 		include '*.ddr'
 		include '*.baseddr'
    	}
+   	
+	copy {
+		from '../Sonar/SonarC/'
+		into 'src/dist/'
+		include '*.cpp'
+		include '*.c'
+	}
 }
 task cleanDistDir(type: Delete) {
 	  delete 'src/dist'
-
+      
   }
 jar.dependsOn cleanDistDir
 
@@ -229,7 +236,7 @@ remotes {
     //host = '192.168.1.213'
     host = systemConfig[ambiente][contextName]['host']
     user = 'pi'
-    password = 'raspberry'
+    password = 'jarljarl'
     //identity = file('id_rsa')
   }
 }
@@ -258,6 +265,9 @@ task deploy {
 	    println "Extracting remote distribution"
 	    execute "tar -xvf /tmp/$tarFile -C $deploymentDir"
 
+		println "Building SonarC"
+		execute "cd $deploymentDir/$completeName && g++ SonarAlone.cpp -l wiringPi -o SonarAlone"
+
 	    println "Cleaning..."
 	    remove "/tmp/$tarFile"
 	  }
@@ -280,7 +290,7 @@ task executeRemote {
     }
   }
 }
-
+        
 /*
 ---------------------------------------------------------
 TESTING
@@ -288,11 +298,11 @@ TESTING
 */
 test {
 	testLogging {
-		outputs.upToDateWhen { false }
-		showStandardStreams = true
-		events 'failed' , 'passed' //,  'started', 'skipped',
+		outputs.upToDateWhen { false }		
+		showStandardStreams = true		
+		events 'failed' , 'passed' //,  'started', 'skipped', 		
 	}
-
+	
  	include '**/Test*.class'
 	test.afterSuite { TestDescriptor suite, TestResult result -> //add closure to be notified
 	if( !suite.parent && result.getTestCount() > 0) { //there is at least one test

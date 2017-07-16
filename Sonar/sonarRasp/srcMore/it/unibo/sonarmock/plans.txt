@@ -1,7 +1,0 @@
-plan(1,init, sentence(true,move(print("sonarmock STARTS")),'','' ))
-plan(2,init, sentence(true,move( switchplan(workSimulate) ),'','' ))
-plan(1,workSimulate, sentence( p( DIST,SID),move(print(p( DIST,SID))),'','' ))
-plan(2,workSimulate, sentence(-  p( DIST,SID) ,raise( sonar , p( DIST,SID) )'),'','' ))
-plan(3,workSimulate, sentence(true,delay( 1000) ,'','' ))
-plan(4,workSimulate, sentence(true,repeatplan(9) ,'','' ))
-plan(5,workSimulate, sentence(true,move(resumeplan),'','' ))

@@ -2,7 +2,7 @@
 ================================================================================
 build_ctxSonarArrivoMock.gradle
 GENERATED ONLY ONCE
-USAGE:	 
+USAGE:
 	gradle -b build_ctxSonarArrivoMock.gradle eclipse	//to set the dependency on the library
 	gradle -b build_ctxSonarArrivoMock.gradle build
 ================================================================================
@@ -10,7 +10,22 @@ USAGE:
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'java-library-distribution'
+
 apply plugin: 'jacoco'
+
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+    classpath 'org.yaml:snakeyaml:1.14'
+  }
+}
+
+apply plugin: 'org.hidetake.ssh'
+import org.yaml.snakeyaml.Yaml
+
 
 /*
 --------------------------------------------------------------
@@ -31,6 +46,7 @@ sourceSets {
 	main {
 		java {
 			srcDirs = ['src' , 'src-gen'  ]
+			exclude 'dist/'
 		}
 	}
 	test {
@@ -50,16 +66,16 @@ repositories {
 dependencies {
 /*
 BASIC SUPPORT (test, akka)
-*/	
+*/
       testCompile 'junit:junit:4.12'
      // https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor_2.11
 	  compile group: 'com.typesafe.akka', name: 'akka-actor_2.11', version: '2.5.1'
 	 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-remote_2.11
-	 compile group: 'com.typesafe.akka', name: 'akka-remote_2.11', version: '2.5.1'	 
-     
+	 compile group: 'com.typesafe.akka', name: 'akka-remote_2.11', version: '2.5.1'
+
 /*
 UNIBO SUPPORTS
-*/		
+*/
 	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboInterfaces.jar')
 	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'unibonoawtsupports.jar')
 	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboEnvBaseAwt.jar')
@@ -69,10 +85,10 @@ UNIBO SUPPORTS
 /*
 JSON
 */
-	  
+
 	  // https://mvnrepository.com/artifact/org.json/json
 	  compile group: 'org.json', name: 'json', version: '20160810'
-	  
+
 /*
 MQTT
 */
@@ -87,31 +103,42 @@ TO BE ADDED by the application designer: BLUETOOTH
 
 /*
 TO BE ADDED by the application designer: Raspberry GPIO support
-*/	
+*/
 // https://mvnrepository.com/artifact/com.pi4j/pi4j-core
-//compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
+
+    compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
+    /*
+    ROBOTS
+    */
+    compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
+    compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
+		/*
+		SONAR
+		*/
+		compile fileTree(dir: '../Sonar/sonarRasp/', include: '*.jar')
+		    
 /*
-TO BE ADDED by the application designer for ButtonLed  
-*/	
+TO BE ADDED by the application designer for ButtonLed
+*/
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsHL.jar')
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsGUI.jar')
 //compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'blsRasp.jar')
 
 /*
 ROBOTS
-*/ 	 
+*/
  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
- compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar') 
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
 
 /*
 TO BE ADDED by the application designer for: RXJAVA
 */
 	//https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava
-	//compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.6' 
+	//compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.6'
 }
 
 /*
-TO BE ADDED by the application designer for : 
+TO BE ADDED by the application designer for :
 */
 	// https://mvnrepository.com/artifact/log4j/log4j
     //compile group: 'log4j', name: 'log4j', version: '1.2.16'
@@ -123,7 +150,7 @@ AFTER TEST
 --------------------------------------------------------------
 */
 test {
-    afterTest { desc, result -> 
+    afterTest { desc, result ->
         println "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
     }
 }
@@ -149,37 +176,122 @@ distributions {
 PREPARE DISTRIBUTION
 ---------------------------------------------------------
 */
-task copyInfoForDist << {
-	copy {
-		from 'audio'
-		into 'src/dist/audio/'
-		include '**/*.*'
- 	}
-	copy { 
-		from 'srcMore'
-		into 'src/dist/srcMore/'
-		include '**/*.*'
- 	}
-	copy { 
-		from '.'
-		into 'src/dist/'
-		include '*.pl'
-		include '*.html'
- 	}
-	copy {  
-		from 'src'
-		into 'src/dist/'
-		include '*.qa'
-		include '*.ddr'
-		include '*.baseddr'
-   	}
-}
-task cleanDistDir(type: Delete) {
-	  delete 'src/dist'
+task copyInfoForDist {
+	doLast{
+		copy {
+			from 'audio'
+			into 'src/dist/audio/'
+			include '**/*.*'
+	 	}
+		copy {
+			from 'srcMore'
+			into 'src/dist/srcMore/'
+			include '**/*.*'
+	 	}
+		copy {
+			from '.'
+			into 'src/dist/'
+			include '*.pl'
+			include '*.html'
+	 	}
+		copy {
+			from 'src'
+			into 'src/dist/'
+			include '*.qa'
+			include '*.ddr'
+			include '*.baseddr'
+	  }
       
+    copy {
+    	from '../Sonar/SonarC/'
+    	into 'src/dist/'
+    	include '*.cpp'
+    	include '*.c'
+    }
+    copy {
+    	from '../Sonar/sonarRasp/srcMore/it/unibo/'
+    	into 'src/dist/srcMore/it/unibo/'
+    	include 'sonarrasp/*'
+    }
+    }}task cleanDistDir(type: Delete) {
+	  delete 'src/dist'
+
   }
 jar.dependsOn cleanDistDir
+
 jar.dependsOn copyInfoForDist
+/*
+---------------------------------------------------------
+DEPLOYMENT
+---------------------------------------------------------
+*/
+
+def deploymentDir = "/home/pi/deploy-${mainClassName}-${version}"
+def completeName = "$mainClassName-$version"
+def tarFile = "${completeName}.tar"
+
+def yaml = new Yaml()
+def fistream = new FileInputStream("../Utils/contextConfig.yaml")
+def systemConfig = (Map) yaml.load(fistream)
+def contextName = mainClassName.tokenize('.')[2]
+
+remotes {
+  raspberry {
+    //host = '192.168.1.213'
+    host = systemConfig[ambiente][contextName]
+    user = 'pi'
+    password = 'raspberry'
+    //identity = file('id_rsa')
+  }
+}
+
+task prepareRemote {
+	doLast {
+		ssh.run{
+			session(remotes.raspberry){
+				execute "mkdir -p $deploymentDir"
+			}
+		}
+	}
+}
+
+task deploy {
+  inputs.files(file("build/distributions/${tarFile}"))
+
+  dependsOn 'build', 'prepareRemote'
+
+  doLast {
+    ssh.run {
+	  session(remotes.raspberry) {
+	    println "Copying distribution to remote"
+	    put from: inputs.files, into: '/tmp/'
+
+	    println "Extracting remote distribution"
+	    execute "tar -xvf /tmp/$tarFile -C $deploymentDir"
+
+	    println "Cleaning..."
+	    remove "/tmp/$tarFile"
+	  }
+	}
+  }
+}
+
+/*
+---------------------------------------------------------
+RUN REMOTE
+---------------------------------------------------------
+*/
+task executeRemote {
+  doLast {
+    ssh.run {
+      session(remotes.raspberry) {
+      	println "Executing -- ${jar.archiveName}"
+        executeSudo "bash -c \"cd $deploymentDir/$completeName; java -jar ${jar.archiveName}\""
+      }
+    }
+  }
+}
+
 /*
 ---------------------------------------------------------
 TESTING
@@ -187,11 +299,11 @@ TESTING
 */
 test {
 	testLogging {
-		outputs.upToDateWhen { false }		
-		showStandardStreams = true		
-		events 'failed' , 'passed' //,  'started', 'skipped', 		
+		outputs.upToDateWhen { false }
+		showStandardStreams = true
+		events 'failed' , 'passed' //,  'started', 'skipped',
 	}
-	
+
  	include '**/Test*.class'
 	test.afterSuite { TestDescriptor suite, TestResult result -> //add closure to be notified
 	if( !suite.parent && result.getTestCount() > 0) { //there is at least one test
@@ -210,3 +322,18 @@ jacocoTestReport {
         html.destination "${buildDir}/jacocoHtml"
     }
 }
+
+
+/*
+---------------------------------------------------------------------
+SYS CONFIG: modifica tutti quanti i file prolog con le configurazioni di rete prima della compilazione
+---------------------------------------------------------------------
+*/
+
+task configureSystem(type: Exec) {
+
+	commandLine 'python', '../Utils/applySystemConfig.py', ambiente
+
+}
+
+assemble.dependsOn(configureSystem)

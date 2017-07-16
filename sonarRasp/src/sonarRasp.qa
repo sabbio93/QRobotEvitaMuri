@@ -1,0 +1,19 @@
+System sonarRasp   
+Event    sonar : p(Distance, SONARID) 
+
+Context  ctxSonarFisicoArrivo ip [ host="localhost"    port=8133 ] 
+
+QActor sonarrasp context ctxSonarFisicoArrivo  {
+   Plan init normal     
+  	println("ctxSonarRasp STARTS") ;
+    demo consult("srcMore/it/unibo/utils/worldTheoryExtended.pl");
+	[?? goalResult(R)] println(R);
+ 	
+ 	actorOp startSonarC ;
+  	switchToPlan workReal 
+  	 
+ Plan workReal 
+    actorOp getDistanceFromSonar ;   
+	[ !? risultatoActorOp( X, d(D))] emit sonar : p(D, sonar1);
+    repeatPlan   
+}

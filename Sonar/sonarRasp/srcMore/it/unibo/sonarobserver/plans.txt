@@ -1,5 +1,0 @@
-plan(1,init, sentence(true,move(print("sonarmock STARTS")),'','' ))
-plan(2,init, sentence(true,move( switchplan(doWork) ),'','' ))
-plan(1,doWork, sentence(true,senseEvent(60000,"sonar","continue"),'','' ))
-plan(2,doWork, sentence(true,printCurrentEvent(false),'','' ))
-plan(3,doWork, sentence(true,repeatplan(9) ,'','' ))

@@ -136,10 +136,14 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about sonarbfisico
 %------------------------------------------------- 
-value( fondoscala,4000):- ! .
-value( incertezza,50):- ! .
-tipoEvento( D,robotDetected):-value( fondoscala,DimFondoScala),value( incertezza,Incertezza),eval( minus,DimFondoScala,Incertezza,DimFondoCorretta),eval( gt,DimFondoCorretta,D),assign( status,detected), ! .
-tipoEvento( D,robotLeft):-value( status,detected),value( fondoscala,DimFondoScala),value( incertezza,Incertezza),eval( minus,DimFondoScala,Incertezza,DimFondoCorretta),eval( gt,D,DimFondoCorretta),retract( status,_), ! .
+value( incertezza,100):- ! .
+fondoscalaConIncertezza( Valore):-value( fondoscala,DimFondoScala),value( incertezza,Incertezza),eval( minus,DimFondoScala,Incertezza,Valore).
+isFondoScala( DistRil,si):-fondoscalaConIncertezza( DimFondoCorretta),eval( lt,DimFondoCorretta,DistRil), ! .
+isFondoScala( DistRil,si):-fondoscalaConIncertezza( DimFondoCorretta),eval( minus,DimFondoCorretta,DistRil,0), ! .
+isFondoScala( DistRil,no):-fondoscalaConIncertezza( DimFondoCorretta),eval( lt,DistRil,DimFondoCorretta).
+tipoEvento( DistRil,robotLeft):-value( status,detected),isFondoScala( DistRil,si), ! ,retract( value( status,detected)).
+tipoEvento( DistRil,robotDetected):-isFondoScala( DistRil,no), ! ,assign( status,detected).
+ultimoEventoDalSonar( Payload):-nomeSonarFisico( NomeSonar),msg( sonar,E,NomeSonar,none,Payload,_).
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),
