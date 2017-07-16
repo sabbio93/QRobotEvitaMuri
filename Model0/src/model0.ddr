@@ -4,18 +4,19 @@ Event robotDetected : robotDetected(Sonar)
 Event cmd : cmd(X)
 
 Context ctxRover ip [host="192.168.1.213" port=8070] -httpserver //192.168.251.1
+//Context ctxUnity ip [host="localhost" port=8035]
 
 Robot swag QActor rover context ctxRover {
 	Rules {
-	//	unity.
+		unity(Host) :- getCtxHost(ctxUnity, Host).
 	}
 	Plan init normal
 		println("INIZIO");
-		[!?unity] switchToPlan initUnity;
+		[!? unity(Host)] switchToPlan initUnity;
 		switchToPlan attesa
 		
 	Plan initUnity resumeLastPlan
-		actorOp workWithUnity("localhost");
+		[!? unity(Host)] actorOp workWithUnity(Host);
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")
