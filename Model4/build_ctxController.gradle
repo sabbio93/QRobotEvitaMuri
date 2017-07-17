@@ -19,10 +19,12 @@ buildscript {
   }
   dependencies {
     classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
+    classpath 'org.yaml:snakeyaml:1.14'
   }
 }
 
 apply plugin: 'org.hidetake.ssh'
+import org.yaml.snakeyaml.Yaml
         
 
 /*
@@ -44,6 +46,7 @@ sourceSets {
 	main {
 		java {
 			srcDirs = ['src' , 'src-gen'  ]
+			exclude 'dist/'
 		}
 	}
 	test {
@@ -103,13 +106,22 @@ TO BE ADDED by the application designer: Raspberry GPIO support
 */	
 // https://mvnrepository.com/artifact/com.pi4j/pi4j-core
 
-    compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
-    /*
-    ROBOTS
-    */
-    compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
-    compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
+ compile group: 'com.pi4j', name: 'pi4j-core', version: '1.1'
+ /*
+ ROBOTS
+ */
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
+ compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar')
+ /*
+ SONAR
+ */
+ compile fileTree(dir: '../Sonar/sonarRasp/', include: '*.jar')
     
+/*
+ROBOTS
+*/ 	 
+	 compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'labbaseRobotSam.jar')
+	 compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboQactorRobot.jar') 
 /*
 TO BE ADDED by the application designer for ButtonLed  
 */	
@@ -169,6 +181,11 @@ task copyInfoForDist << {
 		into 'src/dist/audio/'
 		include '**/*.*'
  	}
+copy {
+	from 'configuration'
+	into 'src/dist/configuration/'
+	include '**/*.*'
+ 	}
 	copy { 
 		from 'srcMore'
 		into 'src/dist/srcMore/'
@@ -179,6 +196,7 @@ task copyInfoForDist << {
 		into 'src/dist/'
 		include '*.pl'
 		include '*.html'
+		include 'hardwareConfiguration.properties'
  	}
 	copy {  
 		from 'src'
@@ -205,9 +223,15 @@ def deploymentDir = "/home/pi/deploy-${mainClassName}-${version}"
 def completeName = "$mainClassName-$version"
 def tarFile = "${completeName}.tar"
 
+def yaml = new Yaml()
+def fistream = new FileInputStream("../Utils/contextConfig.yaml")
+def systemConfig = (Map) yaml.load(fistream)
+def contextName = mainClassName.tokenize('.')[2]
+
 remotes {
   raspberry {
-    host = '192.168.1.213'
+    //host = '192.168.1.213'
+    host = systemConfig[ambiente][contextName]['host']
     user = 'pi'
     password = 'raspberry'
     //identity = file('id_rsa')
@@ -291,3 +315,18 @@ jacocoTestReport {
         html.destination "${buildDir}/jacocoHtml"
     }
 }
+
+
+/*
+---------------------------------------------------------------------
+SYS CONFIG: modifica tutti quanti i file prolog con le configurazioni di rete prima della compilazione
+---------------------------------------------------------------------
+*/
+
+task configureSystem(type: Exec) {
+
+	commandLine 'python', '../Utils/applySystemConfig.py', ambiente
+
+}
+
+assemble.dependsOn(configureSystem)

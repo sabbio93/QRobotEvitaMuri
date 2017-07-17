@@ -39,15 +39,23 @@ protected QActor actor;
 	* DATA HANDLING APPLICATION LOGIC
 	* -----------------------------------------------
 	*/
+	private static final int sogliaRilevazioniDetected = 2, distanzaDetected = 20;
+	private int rilevazioniConsecutiveDetected = 0;
+
 	protected void handleData(T data) throws Exception{
 		//println("SensorObserver data=" + data.getDefStringRep() + " json:" + data.getJsonStringRep());
 		Struct t = (Struct) Term.createTerm(data.getDefStringRep());
  		//QActorUtils.raiseEvent(actor.getQActorContext(),"sensor", "sensordata", "sensordata("+data.getDefStringRep()+")" );
 		if( t.getName().equals("distance")){
 			int d = Integer.parseInt(t.getArg(0).toString());
-			//if( d > 5 && d < 120 ) println("SensorObserver: " + data.getDefStringRep() + " json:" + data.getJsonStringRep());
-			if( d < 20 ){
-				QActorUtils.raiseEvent(actor.getQActorContext(),"sensor", "obstacle", "obstacle("+d+")" );
+			if( d > 5 && d < 120 ) println("SensorObserver: " + data.getDefStringRep() + " json:" + data.getJsonStringRep());
+			if( d < distanzaDetected ){
+				rilevazioniConsecutiveDetected ++;
+				if(rilevazioniConsecutiveDetected >= sogliaRilevazioniDetected){
+					QActorUtils.raiseEvent(actor.getQActorContext(),"sensor", "ostacolo", "ostacolo" );
+				}
+ 			}else{
+ 				rilevazioniConsecutiveDetected = 0;
  			}
 		}
 	}	

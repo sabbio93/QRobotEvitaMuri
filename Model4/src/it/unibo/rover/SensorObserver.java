@@ -34,6 +34,10 @@ protected QActor actor;
  			e.printStackTrace();
 		}
 	}
+	
+	
+	private static final int sogliaRilevazioniDetected = 2, distanzaDetected = 20;
+	private int rilevazioniConsecutiveDetected = 0;
 	/*
 	* -----------------------------------------------
 	* DATA HANDLING APPLICATION LOGIC
@@ -46,8 +50,13 @@ protected QActor actor;
 		if( t.getName().equals("distance")){
 			int d = Integer.parseInt(t.getArg(0).toString());
 			if( d > 5 && d < 120 ) println("SensorObserver: " + data.getDefStringRep() + " json:" + data.getJsonStringRep());
-			if( d < 20 ){
-				QActorUtils.raiseEvent(actor.getQActorContext(),"sensor", "obstacle", "obstacle("+d+")" );
+			if( d < distanzaDetected ){
+				rilevazioniConsecutiveDetected ++;
+				if(rilevazioniConsecutiveDetected >= sogliaRilevazioniDetected){
+					QActorUtils.raiseEvent(actor.getQActorContext(),"sensor", "ostacolo", "ostacolo" );
+				}
+ 			}else{
+ 				rilevazioniConsecutiveDetected = 0;
  			}
 		}
 	}	
