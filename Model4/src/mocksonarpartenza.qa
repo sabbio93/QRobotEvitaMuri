@@ -1,0 +1,20 @@
+System m4
+
+Event sonar : sonar(Nome,Oggetto,Distanza)
+Event robotDetected : robotDetected(Sonar,Distanza)
+Event robotLeave : robotLeave(Sonar)
+Event cmd : cmd(X)
+   
+Context  ctxSonarPartenzaMock	ip [host="localhost" port=8036]  
+Context  ctxController			ip [host="192.168.1.2" port=8040] -standalone -httpserver
+
+QActor sonaramock context ctxSonarPartenzaMock  { //MOCK
+	Plan init normal
+		println("ctxSonarPartenza start -- wait for start");
+		delay time(5000);
+		println("invio event presente in A");
+		emit robotDetected : robotDetected(sonara,80);
+		delay time(2000);
+ 		sense time(600000) cmd -> continue;
+		onEvent cmd:cmd(start) -> emit robotLeave : robotLeave(sonara)
+}

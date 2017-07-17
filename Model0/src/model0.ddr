@@ -37,5 +37,6 @@ Robot swag QActor rover context ctxRover {
  	
  	Plan fermaRobot//R2
  		println("Stop requested");
- 		robotStop speed(0) time(0)
+ 		robotStop speed(0) time(0);
+ 		switchToPlan attesa
 }

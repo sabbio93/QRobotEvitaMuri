@@ -1,0 +1,10 @@
+RobotBase swag
+
+distancefront = Distance [ sonarhcsr04 pintrig 0 pinecho 2] position: FRONT_TOP
+
+motorleft = Motor [ gpiomotor pincw 9 pinccw 8] position: LEFT
+motorright = Motor [ gpiomotor pincw 12 pinccw 13] position: RIGHT
+
+motors = Actuators [ motorleft, motorright] private position: BOTTOM
+
+Mainrobot swag [motors];

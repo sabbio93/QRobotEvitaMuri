@@ -136,7 +136,7 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about rover
 %------------------------------------------------- 
-unity.
+unity( Host):-getCtxHost( ctxUnity,Host).
 tempo( D,T):-value( D,N),eval( times,600,N,T).
 /*
 ------------------------------------------------------------------------

@@ -36,8 +36,8 @@ protected QActor actor;
 	}
 	
 	
-	private static final int sogliaRilevazioniDetected = 2, distanzaDetected = 20;
-	private int rilevazioniConsecutiveDetected = 0;
+	private static final int sogliaRilevazioniDetected = 1, distanzaDetected = 20;
+	private int rilevazioniConsecutiveDetected = 2;
 	/*
 	* -----------------------------------------------
 	* DATA HANDLING APPLICATION LOGIC

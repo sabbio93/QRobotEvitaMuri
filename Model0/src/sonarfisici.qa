@@ -14,7 +14,7 @@ QActor sonarbfisico context ctxSonarFisicoArrivo {
 		
 		
 		// % value(detected_consecutivi, 0) :- !.
-		value(soglia_anti_rumore, 3) :- !.
+		value(soglia_anti_rumore, 2) :- !.
 		
 		sogliaAntiRumoreSuperata :- value(detected_consecutivi, N), value(soglia_anti_rumore, Soglia), eval(gt, N, Soglia), !.
 		

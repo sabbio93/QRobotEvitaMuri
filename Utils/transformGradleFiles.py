@@ -231,6 +231,21 @@ task deploy {
   }
 }
 
+task jarDeploy {
+  inputs.files(file("build/libs/*.jar"))
+
+  dependsOn 'build', 'prepareRemote'
+
+  doLast {
+    ssh.run {
+	  session(remotes.raspberry) {
+	    println "Copying jars to remote"
+	    put from: inputs.files, into: '$deploymentDir/${completeName}/'
+	  }
+	}
+  }
+}
+
 /*
 ---------------------------------------------------------
 RUN REMOTE

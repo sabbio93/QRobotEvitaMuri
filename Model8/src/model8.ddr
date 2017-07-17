@@ -38,11 +38,11 @@ QActor robotmind context ctxController {
 		 
 		/*costanti note del problema*/
 		value(dm,70).	/*lato della stanza (quadrata)*/
-		value(incertezza,2).
+		value(incertezza,10).
 		value(ampiezzaSonar,7).
 		
 		//salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),eval(plus,D,10,D1),assign(distanzaIniziale,D1).
-		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D).
+		salvaDistanzaIniziale(D):-assert(davanti(sonara,rover)),assign(distanzaIniziale,D),actorPrintln(value(distanzaIniziale,D)).
 		
 		gap(destra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(minus,Di,I,Dmin), eval(lt,D,Dmin),!,eval(minus,Dmin,D,Delta).
 		gap(sinistra,Delta):-value(distanzaB,D),value(incertezza,I),value(distanzaIniziale,Di),eval(plus,Di,I,DMAX), eval(gt,D,DMAX),!,eval(minus,D,DMAX,Delta).
@@ -60,7 +60,23 @@ QActor robotmind context ctxController {
 	
 	Plan init normal
 		println("controller starts");
-		switchToPlan aspettaEventi
+		switchToPlan aspettaStart
+	
+	//procedura di attesa eventi=> cerco di capire cosa è stato rilevato e reagisco di conseguenza
+	Plan aspettaStart
+		println("in ascolto");
+		sense time(600000) robotLeave, robotDetected, cmd, ostacolo -> continue, continue, continue, continue;
+		printCurrentEvent;
+		
+		//modifico la mia conoscenza interna sulla posizione del rover rispetto ai sonar
+		[!? davanti(sonara,rover)] onEvent robotLeave:robotLeave(sonara) -> removeRule davanti(sonara,rover)
+						   else onEvent robotDetected:robotDetected(sonara,D) -> demo salvaDistanzaIniziale(D);
+		
+		//il rover è davanti al sonar a ed ho ricevuto il comando start
+		[!? davanti(sonara,rover)] onEvent cmd:cmd(start) -> forward rover -m comando:comando(avanti); 
+		[!? davanti(sonara,rover)] println(davanti(sonara,rover));
+		[!? davanti(sonara,rover)] switchToPlan aspettaEventi;
+		repeatPlan
 	
 	//procedura di attesa eventi=> cerco di capire cosa è stato rilevato e reagisco di conseguenza
 	Plan aspettaEventi
@@ -125,7 +141,7 @@ QActor robotmind context ctxController {
 	 			 e mi sposto a destra
 	 	Fase2: Continuo verso Nord rimettendomi in attesa di eventi di altri 
 	 			oggetti(o lo stesso che continua)*/ 
-	Plan ricercaVarcoDestra resumeLastPlan
+	Plan ricercaVarcoDestra
 		println("piano ricercaVarcoDestra");
 		//TODO valutazione prolog della distanza dalla fine del tracciato #39
 		//troppo piccola e println,lo scrivo nella mia WT
@@ -139,7 +155,7 @@ QActor robotmind context ctxController {
 		[?? muroDiFianco] switchToPlan riposizionaDaDestra;
 		[?? muroDavanti] repeatPlan
 		
-	Plan ricercaVarcoSinistra resumeLastPlan
+	Plan ricercaVarcoSinistra
 		println("piano ricercaVarcoSinistra");
 		//TODO valutazione prolog della distanza dalla fine del tracciato #39
 		//troppo piccola e println,lo scrivo nella mia WT
@@ -194,7 +210,7 @@ Robot mock QActor rover context ctxRover {
 		println("Inizializzazione Unity completata")
 		
 	//Piano di attesa comandi 
-	Plan aspettaComando resumeLastPlan //normal        
+	Plan aspettaComando //normal        
 		receiveMsg time(600000);
 		onMsg comando:comando(avanti) -> switchToPlan traversata;
 		onMsg comando:comando(destra) -> switchToPlan recuperaDx;
@@ -208,7 +224,7 @@ Robot mock QActor rover context ctxRover {
 		repeatPlan
 		
 	//Piano base di attraversata del percorso dritto con termine all'evento stop	
-	Plan traversata resumeLastPlan
+	Plan traversata
 		println("Inizio traversata");
 		robotForward speed(15) time(600000) react event stop -> fermaRobot or event alarm -> gestisciAllarme or event ostacolo -> fermaRobot
 	
@@ -218,12 +234,12 @@ Robot mock QActor rover context ctxRover {
 		switchToPlan aspettaComando
 	
 	//Piano per recuperare a destra il gap finale
-	Plan recuperaDx resumeLastPlan
+	Plan recuperaDx
 		robotRight speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;// or event ostacolo -> fermaRobot;
 		switchToPlan traversata
 	
 	//Piano per recuperare a sinistra il gap finale
-	Plan recuperaSx resumeLastPlan
+	Plan recuperaSx
 		robotLeft speed(100) time(1000) react event stop -> fermaRobot or event alarm -> gestisciAllarme;// or event ostacolo -> fermaRobot;
 		switchToPlan traversata
     

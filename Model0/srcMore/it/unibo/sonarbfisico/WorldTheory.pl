@@ -136,7 +136,7 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %-------------------------------------------------
 %  User static rules about sonarbfisico
 %------------------------------------------------- 
-value( soglia_anti_rumore,3):- ! .
+value( soglia_anti_rumore,2):- ! .
 sogliaAntiRumoreSuperata:-value( detected_consecutivi,N),value( soglia_anti_rumore,Soglia),eval( gt,N,Soglia), ! .
 value( incertezza,10):- ! .
 fondoscalaConIncertezza( Valore):-value( fondoscala,DimFondoScala),value( incertezza,Incertezza),eval( minus,DimFondoScala,Incertezza,Valore).

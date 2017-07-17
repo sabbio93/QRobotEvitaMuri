@@ -6,7 +6,7 @@ Event robotDetected : robotDetected(Sonar,Distanza)
 Event cmd : cmd(X)
 
 
-Context ctxRover ip [host="192.168.1.213" port=8070] -standalone -httpserver//192.168.251.1
+Context ctxController ip [host="192.168.1.213" port=8070] -standalone -httpserver//192.168.251.1
 Context ctxSonarFisicoArrivo ip [host="192.168.1.2" port=8025]	//192.168.251.3
 Context ctxSonarFisicoPartenza ip [host="192.168.1.6" port=8022]
 

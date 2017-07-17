@@ -1,0 +1,19 @@
+RobotSystem testrotazione
+
+Context  ctxRover  			ip [host="locahost" port=11070] 
+
+Robot swag QActor rover context ctxRover {	 
+	Plan init normal
+		println ("Ora ruoto per mezzo secondo");		
+		delay time(5000);
+		robotLeft speed(100) time(500);
+		println ("Ora ruoto per un secondo");		
+		delay time(2000);
+		robotLeft speed(100) time(1000);
+		println ("Ora ruoto per un secondo e mezzo");		
+		delay time(2000);
+		robotLeft speed(100) time(1500);		
+		println ("Ora ruoto per due secondi");		
+		delay time(2000);
+		robotLeft speed(100) time(2000)
+}

@@ -137,9 +137,9 @@ actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 %  User static rules about robotmind
 %------------------------------------------------- 
 value( dm,70).
-value( incertezza,2).
+value( incertezza,10).
 value( ampiezzaSonar,7).
-salvaDistanzaIniziale( D):-assert( davanti( sonara,rover)),assign( distanzaIniziale,D).
+salvaDistanzaIniziale( D):-assert( davanti( sonara,rover)),assign( distanzaIniziale,D),actorPrintln( value( distanzaIniziale,D)).
 gap( destra,Delta):-value( distanzaB,D),value( incertezza,I),value( distanzaIniziale,Di),eval( minus,Di,I,Dmin),eval( lt,D,Dmin), ! ,eval( minus,Dmin,D,Delta).
 gap( sinistra,Delta):-value( distanzaB,D),value( incertezza,I),value( distanzaIniziale,Di),eval( plus,Di,I,DMAX),eval( gt,D,DMAX), ! ,eval( minus,D,DMAX,Delta).
 gap( no,0).

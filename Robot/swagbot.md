@@ -60,3 +60,9 @@ motors = Actuators [ motorleft, motorright] position: BOTTOM
 
 Mainrobot swag [motors];
 ```
+
+#### Movimenti
+
+Per girare il rover di 90° bisogna farlo andare con un solo motore a velocità 100 per 1 secondo circa (poco di meno)
+
+Per fare avanzare il rover mandarlo avanti con potenza > 50

@@ -2,4 +2,6 @@
 <section name="Workbench">
 	<item value="184" key="size.y"/>
 	<item value="294" key="size.x"/>
+	<section name="dont_ask_again_dialog">
+	</section>
 </section>

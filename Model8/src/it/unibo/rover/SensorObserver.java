@@ -39,7 +39,7 @@ protected QActor actor;
 	* DATA HANDLING APPLICATION LOGIC
 	* -----------------------------------------------
 	*/
-	private static final int sogliaRilevazioniDetected = 2, distanzaDetected = 20;
+	private static final int sogliaRilevazioniDetected = 1, distanzaDetected = 20;
 	private int rilevazioniConsecutiveDetected = 0;
 
 	protected void handleData(T data) throws Exception{
