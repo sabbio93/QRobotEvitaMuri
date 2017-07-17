@@ -11,11 +11,10 @@ Dispatch comando2 : comando(X,Y)
 Dispatch terminataProcedura : terminataProcedura(X)
 Event stop : stop
 
-//Context  ctxRover  			ip [host="192.168.251.1" port=8070] -httpserver//NOTE elimino un qa dai giochi
-//Context  ctxSonarArrivo     ip [host="192.168.251.3" port=8035]   
-//Context  ctxSonarPartenza   ip [host="192.168.251.4" port=8036]  
 Context  ctxController      ip [host="localhost" port=8040] -httpserver
 Context  ctxRover  			ip [host="localhost" port=8070]
+//Context ctxUnity ip [host="localhost" port=8035] -standalone
+	
 
 /*QActor mockstart context ctxController {
 	Plan avvia normal
@@ -194,7 +193,7 @@ QActor robotmind context ctxController {
 		forward rover -m comando:comando(riceviComandiUtente);
 		switchToPlan aspetta
 	
-	Plan aspetta	//non deve terminare perché se no si spegne l'httpserver
+	Plan aspetta	//non deve terminare perchï¿½ se no si spegne l'httpserver
 		delay time(600000);
 		repeatPlan
 }
@@ -202,7 +201,7 @@ QActor robotmind context ctxController {
 Robot mock QActor rover context ctxRover {	 
 	
 	Rules {
-		unity.
+		unity(Host) :- getCtxHost(ctxUnity, Host).
 		
 		tempo(D,T):-value(D,N),eval(times,600,N,T).
 	}
@@ -212,11 +211,11 @@ Robot mock QActor rover context ctxRover {
 		[?? goalResult(failure)] demo loadTheory("../../../../srcMore/it/unibo/rover/ricordaStrada.pl");
 		demo getSentence(ciao,S);
 		[?? goalResult(G)] println(prova(G));
-		[!?unity] switchToPlan initUnity;
+		[!?unity(Host)] switchToPlan initUnity;
 		switchToPlan aspettaComando
 		
 	Plan initUnity resumeLastPlan
-		actorOp workWithUnity("localhost");
+		[!?unity(Host)] actorOp workWithUnity(Host);
 		//[!? getCtxHost(ctxController,IP)] actorOp workWithUnity(IP);
 		demo loadTheory("../ctxRover/sysRules.pl");
 		demo loadTheory("m11.pl");
@@ -374,7 +373,7 @@ Robot mock QActor rover context ctxRover {
 		[!? findall(plan(I,tornaIndietro,S),plan(I,tornaIndietro,S),L)] println(L);
 		demo ritornaACasa;
 		[?? goalResult(G)] println(G)
-		//switchToPlan riceviComandiUtente	//se è ancora possibile pilotarlo
+		//switchToPlan riceviComandiUtente	//se ï¿½ ancora possibile pilotarlo
 		
 	Plan pausaRientro resumeLastPlan
 		delay time(2000)

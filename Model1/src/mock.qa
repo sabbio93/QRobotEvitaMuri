@@ -13,7 +13,7 @@ Event sonar : sonar(Nome,Oggetto,Distanza)
 Context  ctxSonarArrivoMock		ip [host="192.168.137.1" port=8035]   
 Context  ctxSonarPartenzaMock	ip [host="192.168.137.1" port=8036]  
 Context  ctxController			ip [host="192.168.137.1" port=8040] -standalone -httpserver
-
+ 
 QActor sonarbmock context ctxSonarArrivoMock  {//MOCK
 	Plan init normal     
 		println("ctxSonarArrivo start -- wait for start");

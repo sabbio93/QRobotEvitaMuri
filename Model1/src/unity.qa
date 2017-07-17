@@ -9,8 +9,7 @@ Event sonar : sonar(Nome,Oggetto,Distanza)
 
 Context  ctxUnity ip [host="192.168.137.1" port=8035]   
 Context  ctxController ip [host="192.168.137.1" port=8040] -standalone -httpserver
-
-
+ 
 QActor sonarbunity context ctxUnity {	//UNITY
 	Plan rileva normal
 		sense time(600000) sonar -> continue;

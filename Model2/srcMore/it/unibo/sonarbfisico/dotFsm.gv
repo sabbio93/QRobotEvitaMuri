@@ -16,7 +16,9 @@ digraph finite_state_machine {
   	iniziale -> init [label = ""];
   	
   	
-  	init -> work [ label = ""];
+  	init -> initFondoScala [ label = ""];
+  	
+  	initFondoScala -> work [ label = ""];
   	
   	work -> work [ label = ""];
 }

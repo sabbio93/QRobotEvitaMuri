@@ -13,7 +13,9 @@ Event stop : stop
 
 Context  ctxController      ip [host="192.168.137.1" port=8040] -httpserver
 Context  ctxRover  			ip [host="192.168.137.2" port=8070] 
-
+//Context ctxUnity ip [host="localhost" port=8035] -standalone
+	
+	
 QActor mockstart context ctxController {
 	Plan avvia normal
 		delay time(5000);
@@ -61,7 +63,7 @@ QActor robotmind context ctxController {
 		[!? tout(senseevent,QA)] forward rover -m comando:comando(start);
 		[?? tout(senseevent,QA)] endPlan "";
 		onEvent ostacolo : ostacolo -> println("Ostacolo fisso");
-		onEvent ostacolo : ostacolo -> endQActor "Incontrato un ostacolo fisso"	//In realtà nell'attuale implementazione di qactor non termina
+		onEvent ostacolo : ostacolo -> endQActor "Incontrato un ostacolo fisso"	//In realtï¿½ nell'attuale implementazione di qactor non termina
 		
 	Plan risolviGap resumeLastPlan
 		println("piano risolviGap");
@@ -84,7 +86,7 @@ QActor robotmind context ctxController {
 
 Robot swag QActor rover context ctxRover {	 
 	Rules {
-		unity("192.168.137.1").
+		unity(Host) :- getCtxHost(ctxUnity, Host).
 	}
 	Plan init normal
 		[!?unity(IP)] switchToPlan initUnity else println("Rover pronto");

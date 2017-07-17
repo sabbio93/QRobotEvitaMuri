@@ -8,7 +8,9 @@ Event stop : stop
 
 Context ctxController	ip [host="localhost" port=8040] -httpserver
 Context ctxRover		ip [host="localhost" port=8070] 
-
+//Context ctxUnity ip [host="localhost" port=8035] -standalone
+	
+	
 QActor mockstart context ctxController {
 	Plan avvia normal
 		delay time(5000);
@@ -67,14 +69,14 @@ QActor robotmind context ctxController {
 
 Robot mock QActor rover context ctxRover {	 
 	Rules {
-		unity.
+		unity(Host) :- getCtxHost(ctxUnity, Host).
 	}
 	Plan init normal
-		[!?unity] switchToPlan initUnity;
+		[!?unity(Host)] switchToPlan initUnity;
 		switchToPlan aspettaComando
 		
 	Plan initUnity resumeLastPlan
-		actorOp workWithUnity("localhost");
+		[!?unity(Host)] actorOp workWithUnity(Host);
 		actorOp initPosition;
 		robotRight speed(100) time(2000);
 		println("Inizializzazione Unity completata")

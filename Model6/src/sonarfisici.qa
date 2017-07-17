@@ -1,7 +1,7 @@
-System model0
-
-Event robotDetected : robotDetected(Sonar)
+System m6
+Event sonar : p(D, SonarID)
 Event robotLeave : robotLeave(Sonar)
+Event robotDetected : robotDetected(Sonar,Distanza)
 Event cmd : cmd(X)
 
 
@@ -9,58 +9,133 @@ Context ctxRover ip [host="192.168.1.213" port=8070] -standalone -httpserver//19
 Context ctxSonarFisicoArrivo ip [host="192.168.1.2" port=8025]	//192.168.251.3
 Context ctxSonarFisicoPartenza ip [host="192.168.1.6" port=8022]
 
-QActor sonarbfisico context ctxSonarFisicoArrivo {
-	Rules {
-		value(fondoscala, 4000) :- !.
-		value(incertezza, 50) :- !.
-		
-		tipoEvento(D, robotDetected) :- value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
-							eval(minus,DimFondoScala,Incertezza,DimFondoCorretta), 
-							eval(gt,DimFondoCorretta,D), assign(status, detected), !.
-		tipoEvento(D, robotLeft) :- value(status, detected), 
-							value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
-							eval(minus,DimFondoScala,Incertezza,DimFondoCorretta), 
-							eval(gt,D,DimFondoCorretta), retract(status, _), !.
-	}
-	Plan init normal
-		println("Starting sonar fisico");
-		actorOp activateSonar();
-		delay time(1000);
-		switchToPlan work
-	Plan work 
-		println("Chiedo al sonar");
-		actorOp getDistanza();
-		[?? actorResult(G)] demo tipoEvento(G, T);
-		[?? goalResult(tipoEvento(D, robotDetected))] emit robotDetected : robotDetected(sonarb);
-		[?? goalResult(tipoEvento(D, robotLeft))] emit robotLeave : robotLeave(sonarb);
-		repeatPlan
-		
-}
-
 QActor sonarafisico context ctxSonarFisicoPartenza {
 	Rules {
-		value(fondoscala, 4000) :- !.
-		value(incertezza, 50) :- !.
 		
-		tipoEvento(D, robotDetected) :- value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
-							eval(minus,DimFondoScala,Incertezza,DimFondoCorretta), 
-							eval(gt,DimFondoCorretta,D), assign(status, detected), !.
-		tipoEvento(D, robotLeft) :- value(status, detected), 
+		
+		// % value(detected_consecutivi, 0) :- !.
+		value(soglia_anti_rumore, 3) :- !.
+		
+		sogliaAntiRumoreSuperata :- value(detected_consecutivi, N), value(soglia_anti_rumore, Soglia), eval(gt, N, Soglia), !.
+		
+		value(incertezza, 10) :- !.
+		
+		fondoscalaConIncertezza(Valore) :-
 							value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
-							eval(minus,DimFondoScala,Incertezza,DimFondoCorretta), 
-							eval(gt,D,DimFondoCorretta), retract(status, _), !.
+							eval(minus,DimFondoScala,Incertezza, Valore). 
+	
+		isFondoScala(DistRil, si) :- fondoscalaConIncertezza(DimFondoCorretta),
+							eval(lt,DimFondoCorretta,DistRil), !.
+		isFondoScala(DistRil, si) :- fondoscalaConIncertezza(DimFondoCorretta),
+							eval( minus, DimFondoCorretta, DistRil, 0), !.
+		
+		isFondoScala(DistRil, no) :- fondoscalaConIncertezza(DimFondoCorretta), 
+					eval(lt,DistRil, DimFondoCorretta).
+
+	
+		tipoEvento(DistRil, robotLeft) :- isFondoScala(DistRil, si), assign(detected_consecutivi, 0), value(status, detected), !, retract(value(status, detected)).	
+		tipoEvento(DistRil, robotDetected) :- isFondoScala(DistRil, no), inc(detected_consecutivi,1,_), sogliaAntiRumoreSuperata, !, assign(status, detected).
+		
+		ultimoEventoDalSonar(Payload) :- nomeSonarFisico(NomeSonar), msg(sonar,E, NomeSonar, none, Payload, _).
+		
 	}
 	Plan init normal
 		println("Starting sonar fisico");
-		actorOp activateSonar();
-		delay time(1000);
-		switchToPlan work
-	Plan work 
-		println("Chiedo al sonar");
-		actorOp getDistanza();
-		[?? actorResult(G)] demo tipoEvento(G, T);
-		[?? goalResult(tipoEvento(D, robotDetected))] emit robotDetected : robotDetected(sonara);
-		[?? goalResult(tipoEvento(D, robotLeft))] emit robotLeave : robotLeave(sonara);
-		repeatPlan
 		
+		demo consult("srcMore/it/unibo/utils/worldTheoryExtended.pl");
+		[?? goalResult(R)] println(R);
+		
+		actorOp initSonar;
+		println("Finito init Sonar");
+		
+		println("Ora ti dico il nome del Sonar");
+				
+		[!? risultatoActorOp(initSonar, Risultato)] demo assert(nomeSonarFisico(Risultato));
+		[!? nomeSonarFisico(NomeSonar)] println(NomeSonar) else println("Nome sonar non trovato");
+		switchToPlan initFondoScala
+		
+	Plan initFondoScala
+		println("Inizializzo la distanza iniziale -> aspetto il primo evento del sonar");
+		sense time(600000) sonar -> continue; 
+		memoCurrentEvent;
+		[!? ultimoEventoDalSonar(p(D, _))] println(fondoscala(D)); 
+		[!? ultimoEventoDalSonar(p(D, _))] demo assign(fondoscala, D) 
+													  else repeatPlan;  
+		demo assign(detected_consecutivi, 0);
+		switchToPlan work
+	
+	Plan work 
+		sense time(600000) sonar -> continue; 
+		memoCurrentEvent;
+		[!? ultimoEventoDalSonar(p(DistRil, _))]  demo tipoEvento(DistRil, Tipo);		
+		[!? goalResult(tipoEvento(DistRil, Tipo))] println(debug(DistRil, Tipo));
+		[!? goalResult(tipoEvento(DistRil, robotDetected))] emit robotDetected : robotDetected(sonara, DistRil);
+		[!? goalResult(tipoEvento(DistRil, robotLeft))] emit robotLeave : robotLeave(sonara);		
+		repeatPlan		
+}
+
+QActor sonarbfisico context ctxSonarFisicoArrivo {
+
+	Rules {
+		
+		
+		// % value(detected_consecutivi, 0) :- !.
+		value(soglia_anti_rumore, 3) :- !.
+		
+		sogliaAntiRumoreSuperata :- value(detected_consecutivi, N), value(soglia_anti_rumore, Soglia), eval(gt, N, Soglia), !.
+		
+		value(incertezza, 10) :- !.
+		
+		fondoscalaConIncertezza(Valore) :-
+							value(fondoscala, DimFondoScala), value(incertezza, Incertezza),
+							eval(minus,DimFondoScala,Incertezza, Valore). 
+	
+		isFondoScala(DistRil, si) :- fondoscalaConIncertezza(DimFondoCorretta),
+							eval(lt,DimFondoCorretta,DistRil), !.
+		isFondoScala(DistRil, si) :- fondoscalaConIncertezza(DimFondoCorretta),
+							eval( minus, DimFondoCorretta, DistRil, 0), !.
+		
+		isFondoScala(DistRil, no) :- fondoscalaConIncertezza(DimFondoCorretta), 
+					eval(lt,DistRil, DimFondoCorretta).
+
+	
+		tipoEvento(DistRil, robotLeft) :- isFondoScala(DistRil, si), assign(detected_consecutivi, 0), value(status, detected), !, retract(value(status, detected)).	
+		tipoEvento(DistRil, robotDetected) :- isFondoScala(DistRil, no), inc(detected_consecutivi,1,_), sogliaAntiRumoreSuperata, !, assign(status, detected).
+		
+		ultimoEventoDalSonar(Payload) :- nomeSonarFisico(NomeSonar), msg(sonar,E, NomeSonar, none, Payload, _).
+		
+	}
+	Plan init normal
+		println("Starting sonar fisico");
+		
+		demo consult("srcMore/it/unibo/utils/worldTheoryExtended.pl");
+		[?? goalResult(R)] println(R);
+		
+		actorOp initSonar;
+		println("Finito init Sonar");
+		
+		println("Ora ti dico il nome del Sonar");
+				
+		[!? risultatoActorOp(initSonar, Risultato)] demo assert(nomeSonarFisico(Risultato));
+		[!? nomeSonarFisico(NomeSonar)] println(NomeSonar) else println("Nome sonar non trovato");
+		switchToPlan initFondoScala
+		
+	Plan initFondoScala
+		println("Inizializzo la distanza iniziale -> aspetto il primo evento del sonar");
+		sense time(600000) sonar -> continue; 
+		memoCurrentEvent;
+		[!? ultimoEventoDalSonar(p(D, _))] println(fondoscala(D)); 
+		[!? ultimoEventoDalSonar(p(D, _))] demo assign(fondoscala, D) 
+													  else repeatPlan;  
+		demo assign(detected_consecutivi, 0);
+		switchToPlan work
+	
+	Plan work 
+		sense time(600000) sonar -> continue; 
+		memoCurrentEvent;
+		[!? ultimoEventoDalSonar(p(DistRil, _))]  demo tipoEvento(DistRil, Tipo);		
+		[!? goalResult(tipoEvento(DistRil, Tipo))] println(debug(DistRil, Tipo));
+		[!? goalResult(tipoEvento(DistRil, robotDetected))] emit robotDetected : robotDetected(sonarb, DistRil);
+		[!? goalResult(tipoEvento(DistRil, robotLeft))] emit robotLeave : robotLeave(sonarb);		
+		repeatPlan			
 }
