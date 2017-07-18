@@ -1,8 +1,8 @@
 %====================================================================================
 % Context ctxUnity  SYSTEM-configuration: file it.unibo.ctxUnity.m2.pl 
 %====================================================================================
-context(ctxunity, "localhost",  "TCP", "8035" ).  		 
-context(ctxcontroller, "localhost",  "TCP", "8040" ).  		 
+context(ctxunity, "192.168.1.100",  "TCP", "8035" ).  		 
+context(ctxcontroller, "10.103.65.64",  "TCP", "8040" ).  		 
 %%% -------------------------------------------
 qactor( sonarbunity , ctxunity, "it.unibo.sonarbunity.MsgHandle_Sonarbunity"   ). %%store msgs 
 qactor( sonarbunity_ctrl , ctxunity, "it.unibo.sonarbunity.Sonarbunity"   ). %%control-driven 

@@ -61,23 +61,24 @@ wifiziro:
      port: 8035
 production:
    ctxSonarFisicoArrivo:
-     host: 192.168.1.101 #Rasp riccardo on wifi
+     host: 192.168.1.105 #Rasp riccardo on wifi
 #     host: 192.168.1.103 #Rasp riccardo on ethernet
      port: 8022
    ctxSonarFisicoPartenza:
      host: 192.168.1.5
      port: 8021
    ctxController:
-     host: 192.168.1.100 #Computer ziro home
+     #host: 192.168.1.100 #Computer ziro home
+     host: 10.103.65.64
      port: 8040
    ctxRover:
-     host: 192.168.1.102 #Rasp SWAG on wifi
+     host: 192.168.1.101 #Rasp SWAG on wifi
      port: 8070
    ctxSonarArrivoMock:
-     host: 192.168.1.100
+     host: 10.103.65.64
      port: 8037
    ctxSonarPartenzaMock:
-     host: 192.168.1.100
+     host: 10.103.65.64
      port: 8036
    ctxUnity:
      host: 192.168.1.100

@@ -37,7 +37,7 @@ QActor robotmind context ctxController {
 
 Robot swag QActor rover context ctxRover {	 
 	Rules {
-		unity(Host) :- getCtxHost(ctxUnity, Host).
+		//unity(Host) :- getCtxHost(ctxUnity, Host).
 	}
 	Plan init normal
 		[!?unity(IP)] switchToPlan initUnity else println("Rover pronto");
@@ -50,7 +50,7 @@ Robot swag QActor rover context ctxRover {
 		println("Inizializzazione Unity completata")
 		
 	// Il robot comincia a muoversi alla pressione del tasto start solo se è davanti al sonarA
-	Plan aspettaComando resumeLastPlan //normal //R1
+	Plan aspettaComando  //normal //R1
 		receiveMsg time(6000);	// m(muovi,dispatch,Mittente,Ricevente,muovi(Dir),N)
 		printCurrentMessage;
 		onMsg comando:comando(avanti) -> switchToPlan traversata;
@@ -59,7 +59,7 @@ Robot swag QActor rover context ctxRover {
 	/*
 	 * R1: Il robot si muove in avanti fino a quando non è arrivato a destinazione
 	 */		
-  	Plan traversata resumeLastPlan//R2
+  	Plan traversata //R2
 		println("Inizio traversata");
 		robotForward speed(60) time(600000) react event stop -> fermaRobot;
 		println("Non sono ancora arrivato?");
